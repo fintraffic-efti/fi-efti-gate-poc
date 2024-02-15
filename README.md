@@ -9,7 +9,12 @@ An objective is to an implement efti gateway main features using the best availa
 - frontend                     - frontend applications (TODO?)
 - [backend](backend/README.md) - efti gateway backend
 - [db](db/README.md)           - efti gateway database migration tool
-- docker                       - common services for local development environment e.g. database
+- [docker](docker/README.md)   - common services for local development environment e.g. database
 - docs                         - documentation
 - .github                      - github actions
 
+## Start
+
+``` 
+docker/start.sh
+```
