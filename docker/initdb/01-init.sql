@@ -1,4 +1,4 @@
-create user efti with createdb password 'efti';
+create user efti with createdb createrole password 'efti';
 create user efti_gateway with password 'efti';
 
 create database efti_template with is_template true;
