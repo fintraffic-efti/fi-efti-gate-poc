@@ -23,5 +23,15 @@ services:
       PGADMIN_DEFAULT_PASSWORD: efti
       PGADMIN_DEFAULT_EMAIL: efti@solita.fi
 
+  mock-platform:
+    build: ../mock-platform
+    restart: always
+    ports:
+      - '127.0.0.1:9091:9091'
+    volumes:
+      - ../mock-platform/data/:/var/data/
+    environment:
+      MOCK_PLATFORM_DATA_DIR: /var/data/
+
 volumes:
   data:
