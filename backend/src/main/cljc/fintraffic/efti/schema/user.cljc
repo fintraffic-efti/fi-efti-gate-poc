@@ -4,15 +4,15 @@
 
 (def User
   "Any user"
-  {:id         schema/Key
-   :role-id    schema/Key
+  {:id         schema/Id
+   :role-id    (schema/ForeignKey :role)
    :last-name  string?
    :first-name string?})
 
 (def Whoami
   (assoc User
-         :email (schema/maybe string?)
-         :ssn (schema/maybe string?)))
+    :email (schema/maybe string?)
+    :ssn (schema/maybe string?)))
 
 (def Role schema/Classification)
 

@@ -56,25 +56,19 @@
     value
     malli-transform/strip-extra-keys-transformer))
 
-;; Represents a primary/foreign key
-(def Key [:int {:fintraffic.efti.schema/type :key}])
-
-;; Represents an ext_id column (unique constraint)
-(def ExtID [:int {:fintraffic.efti.schema/type :ext-id}])
+;; A primary identifier
+(def Id [:int {::type :id}])
 
 (defn ForeignKey
-  "Represents a foreign key. Table name can be used by e2e tests in select/classification."
-  [table]
-  [:int {:fintraffic.efti.schema/type :foreign-key
-         :table table}])
-
-(def Id {:id Key})
+  "A reference to another object (foreign key)"
+  ([table] (ForeignKey :int table))
+  ([type table] [type {::type :foreign-key :table table}]))
 
 (defn Limited
   [type type-name type-key min max]
-  [type {:title                          (str type-name "[" min ", " max "]")
-         :fintraffic.efti.schema/type type-key
-         :min                            min, :max max}])
+  [type {:title (str type-name "[" min ", " max "]")
+         ::type type-key
+         :min   min, :max max}])
 
 (defn LimitedString
   ([max] (LimitedString 1 max))
@@ -128,10 +122,3 @@
 (def CommonError
   {:type    keyword?
    :message string?})
-
-(defn QueryWindow [max-limit]
-  {:limit  (LimitedInt 1 max-limit)
-   :offset int?})
-
-(def ResultCount
-  {:count int?})

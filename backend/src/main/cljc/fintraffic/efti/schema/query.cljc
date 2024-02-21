@@ -1,7 +1,14 @@
 (ns fintraffic.efti.schema.query
-  (:require [fintraffic.efti.schema :as schema]))
+  (:require
+    [fintraffic.efti.schema :as schema]))
 
-(def Key+None
+(defn Window [max-limit]
+  {:limit  (schema/LimitedInt 1 max-limit)
+   :offset int?})
+
+(def ResultCount {:count int?})
+
+(defn +None [type]
   [:or
    [:and keyword? [:enum :none]]
-   schema/Key])
+   type])
