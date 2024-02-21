@@ -1,4 +1,4 @@
-(ns fintraffic.efti.backend.schema.role)
+(ns fintraffic.efti.schema.role)
 
 (def admin-id 2)
 

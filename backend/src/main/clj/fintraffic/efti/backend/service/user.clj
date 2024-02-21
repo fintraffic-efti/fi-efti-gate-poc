@@ -3,7 +3,7 @@
             [fintraffic.efti.backend.db :as db]
             [fintraffic.efti.backend.db.query :as db-query]
             [fintraffic.efti.backend.exception :as exception]
-            [fintraffic.efti.backend.schema.user :as user-schema]
+            [fintraffic.efti.schema.user :as user-schema]
             [next.jdbc.sql :as sql]))
 
 ;; *** Require sql functions ***

@@ -5,7 +5,7 @@
     [user :as user]
     [fintraffic.efti.backend.db :as db]
     [fintraffic.efti.backend.dev :as dev]
-    [fintraffic.efti.backend.schema.role :as role]))
+    [fintraffic.efti.schema.role :as role]))
 
 (def ^:dynamic *db* nil)
 (def ^:dynamic *admin-db* nil)

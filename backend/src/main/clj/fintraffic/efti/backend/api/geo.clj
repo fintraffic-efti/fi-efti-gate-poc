@@ -1,7 +1,7 @@
 (ns fintraffic.efti.backend.api.geo
   (:require
     [fintraffic.efti.backend.api.route :as api-route]
-    [fintraffic.efti.backend.schema.geo :as geo-schema]
+    [fintraffic.efti.schema.geo :as geo-schema]
     [fintraffic.efti.backend.service.geo :as geo-service]))
 
 (def routes

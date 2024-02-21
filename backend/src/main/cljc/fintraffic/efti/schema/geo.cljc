@@ -1,6 +1,6 @@
-(ns fintraffic.efti.backend.schema.geo
+(ns fintraffic.efti.schema.geo
   (:require
-    [fintraffic.efti.backend.schema.common :as schema]))
+    [fintraffic.efti.schema.common :as schema]))
 
 (def CountryCode
   [:string {:title "ISO 3166-1 alpha-2" :min 2, :max 2}])

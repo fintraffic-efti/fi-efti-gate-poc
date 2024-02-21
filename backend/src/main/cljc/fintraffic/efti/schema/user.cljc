@@ -1,5 +1,5 @@
-(ns fintraffic.efti.backend.schema.user
-  (:require [fintraffic.efti.backend.schema.common :as schema]
+(ns fintraffic.efti.schema.user
+  (:require [fintraffic.efti.schema.common :as schema]
             [tick.core :as tick]))
 
 (def User
@@ -55,7 +55,7 @@
    string?
    [:fn
     {:title "FI social security number"
-     :fintraffic.efti.backend.schema/type :ssn-fi}
+     :fintraffic.efti.schema/type :ssn-fi}
     valid-ssn-fi?]])
 
 (def WhoamiSave

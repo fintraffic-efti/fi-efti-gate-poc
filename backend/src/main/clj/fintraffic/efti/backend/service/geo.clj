@@ -1,7 +1,7 @@
 (ns fintraffic.efti.backend.service.geo
   (:require [fintraffic.efti.backend.db :as db]
             [fintraffic.efti.backend.db.query :as db-query]
-            [fintraffic.efti.backend.schema.geo :as geo-schema]))
+            [fintraffic.efti.schema.geo :as geo-schema]))
 
 ; *** Require sql functions ***
 (db/require-queries 'geo)

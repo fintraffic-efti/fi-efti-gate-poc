@@ -1,6 +1,6 @@
-(ns fintraffic.efti.backend.schema.common-test
+(ns fintraffic.efti.schema.common-test
   (:require [clojure.test :as t]
-            [fintraffic.efti.backend.schema.common :as schema]))
+            [fintraffic.efti.schema.common :as schema]))
 
 (t/deftest valid-email?-test
   (t/is (schema/valid-email? "test@example.com"))

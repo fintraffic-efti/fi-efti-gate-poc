@@ -1,6 +1,6 @@
-(ns fintraffic.efti.backend.schema.user-test
+(ns fintraffic.efti.schema.user-test
   (:require [clojure.test :as t]
-            [fintraffic.efti.backend.schema.user :as user-schema]))
+            [fintraffic.efti.schema.user :as user-schema]))
 
 (t/deftest valid-ssn-fi?-test
   (t/is (not (user-schema/valid-ssn-fi? "")))

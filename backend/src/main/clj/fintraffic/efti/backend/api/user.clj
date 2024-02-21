@@ -1,6 +1,6 @@
 (ns fintraffic.efti.backend.api.user
   (:require [ring.util.response :as r]
-            [fintraffic.efti.backend.schema.user :as user-schema]
+            [fintraffic.efti.schema.user :as user-schema]
             [fintraffic.efti.backend.service.user :as user-service]
             [malli.experimental.lite :as lmalli]))
 

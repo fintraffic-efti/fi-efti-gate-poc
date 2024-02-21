@@ -36,7 +36,7 @@
   (stop!)
   (tools-repl/refresh-all {:after 'user/start!}))
 
-; (run-test #'fintraffic.efti.backend.schema.user-test/valid-ssn-fi?-test)
+; (run-test #'fintraffic.efti.schema.user-test/valid-ssn-fi?-test)
 (defn run-test [var-name]
   (t/run-test-var var-name))
 

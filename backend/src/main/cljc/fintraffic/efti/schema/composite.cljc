@@ -1,4 +1,4 @@
-(ns fintraffic.efti.backend.schema.composite
+(ns fintraffic.efti.schema.composite
   "Tools to transform map values e.g. nil <-> {:a nil :b nil}
    This is needed when we have a schema like:
    :onset-age (lmalli/maybe {:value number? :unit string?})
@@ -12,7 +12,7 @@
   (:require [fintraffic.common.map :as map]
             [fintraffic.malli.map :as malli-map]
             [malli.core :as malli]
-            [fintraffic.efti.backend.schema.common :as schema]
+            [fintraffic.efti.schema.common :as schema]
             [malli.transform :as malli-transform]))
 
 (defn discard-incomplete
@@ -98,7 +98,7 @@
   "Find composite schemas recursively.
    The result is meant to be used as input for composite->db and db->composite.
    For example:
-   (find-composite-schemas fintraffic.efti.backend.schema.report.hum/Report)
+   (find-composite-schemas fintraffic.efti.schema.report.hum/Report)
    =>
    [{:path [:patient :gestation-period], :schema {:value number?, :unit int?}}
     {:path [:patient :onset-age], :schema {:value number?, :unit int?}}]"

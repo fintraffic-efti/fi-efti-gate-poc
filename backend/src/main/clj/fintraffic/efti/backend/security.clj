@@ -5,7 +5,7 @@
     [clojure.tools.logging :as log]
     [fintraffic.common.map :as map]
     [fintraffic.efti.backend.api.response :as response]
-    [fintraffic.efti.backend.schema.role :as role]
+    [fintraffic.efti.schema.role :as role]
     [fintraffic.efti.backend.service.user :as whoami-service]
     [ring.util.response :as ring-response])
   (:import (java.net URI)))

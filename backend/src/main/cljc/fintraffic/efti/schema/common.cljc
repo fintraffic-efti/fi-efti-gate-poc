@@ -1,4 +1,4 @@
-(ns fintraffic.efti.backend.schema.common
+(ns fintraffic.efti.schema.common
   (:refer-clojure :exclude [vector])
   (:require
     [fintraffic.common.logic :as logic]
@@ -57,15 +57,15 @@
     malli-transform/strip-extra-keys-transformer))
 
 ;; Represents a primary/foreign key
-(def Key [:int {:fintraffic.efti.backend.schema/type :key}])
+(def Key [:int {:fintraffic.efti.schema/type :key}])
 
 ;; Represents an ext_id column (unique constraint)
-(def ExtID [:int {:fintraffic.efti.backend.schema/type :ext-id}])
+(def ExtID [:int {:fintraffic.efti.schema/type :ext-id}])
 
 (defn ForeignKey
   "Represents a foreign key. Table name can be used by e2e tests in select/classification."
   [table]
-  [:int {:fintraffic.efti.backend.schema/type :foreign-key
+  [:int {:fintraffic.efti.schema/type :foreign-key
          :table table}])
 
 (def Id {:id Key})
@@ -73,7 +73,7 @@
 (defn Limited
   [type type-name type-key min max]
   [type {:title                          (str type-name "[" min ", " max "]")
-         :fintraffic.efti.backend.schema/type type-key
+         :fintraffic.efti.schema/type type-key
          :min                            min, :max max}])
 
 (defn LimitedString
@@ -101,7 +101,7 @@
   ([title schema-type msg valid? schema]
    [:and schema [:fn
                  {:title                          title
-                  :fintraffic.efti.backend.schema/type schema-type
+                  :fintraffic.efti.schema/type schema-type
                   :error/message                  msg} valid?]])
   ([schema-type valid? schema]
    (add-validation (str "Valid " (-> schema-type name)) schema-type

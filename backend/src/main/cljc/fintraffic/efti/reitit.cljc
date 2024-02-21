@@ -1,5 +1,5 @@
 (ns fintraffic.efti.reitit
-  (:require [fintraffic.efti.backend.schema.common :as common-schema]
+  (:require [fintraffic.efti.schema.common :as common-schema]
             [fintraffic.malli.collection :as malli-collection]
             [malli.transform :as malli-transform]
             [reitit.coercion.malli :as reitit-malli]))
