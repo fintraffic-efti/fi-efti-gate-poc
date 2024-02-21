@@ -4,7 +4,7 @@
     [clojure.walk :as walk]
     [fintraffic.common.logic :as logic]
     [fintraffic.common.maybe :as maybe]
-    [fintraffic.efti.schema.common :as schema]
+    [fintraffic.efti.schema :as schema]
     [fintraffic.efti.schema.composite :as composite]
     [fintraffic.malli.collection :as malli-collection]
     [flathead.flatten :as flat]

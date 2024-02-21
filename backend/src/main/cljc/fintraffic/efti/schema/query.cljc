@@ -1,5 +1,5 @@
 (ns fintraffic.efti.schema.query
-  (:require [fintraffic.efti.schema.common :as schema]))
+  (:require [fintraffic.efti.schema :as schema]))
 
 (def Key+None
   [:or

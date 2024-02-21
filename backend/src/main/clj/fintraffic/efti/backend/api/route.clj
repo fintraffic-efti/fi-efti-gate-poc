@@ -2,7 +2,7 @@
   (:require
     [ring.util.response :as r]
     [malli.experimental.lite :as lmalli]
-    [fintraffic.efti.schema.common :as schema]
+    [fintraffic.efti.schema :as schema]
     [fintraffic.efti.backend.api.response :as api-response]))
 
 (defn find-all [name schema find-all-service]

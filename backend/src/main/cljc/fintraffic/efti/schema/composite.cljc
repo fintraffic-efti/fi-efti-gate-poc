@@ -12,7 +12,7 @@
   (:require [fintraffic.common.map :as map]
             [fintraffic.malli.map :as malli-map]
             [malli.core :as malli]
-            [fintraffic.efti.schema.common :as schema]
+            [fintraffic.efti.schema :as schema]
             [malli.transform :as malli-transform]))
 
 (defn discard-incomplete

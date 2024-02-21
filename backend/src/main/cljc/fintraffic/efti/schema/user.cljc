@@ -1,5 +1,5 @@
 (ns fintraffic.efti.schema.user
-  (:require [fintraffic.efti.schema.common :as schema]
+  (:require [fintraffic.efti.schema :as schema]
             [tick.core :as tick]))
 
 (def User

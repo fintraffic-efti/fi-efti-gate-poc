@@ -1,4 +1,4 @@
-(ns fintraffic.efti.schema.common
+(ns fintraffic.efti.schema
   (:refer-clojure :exclude [vector])
   (:require
     [fintraffic.common.logic :as logic]
