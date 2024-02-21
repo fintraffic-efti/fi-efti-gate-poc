@@ -1,0 +1,5 @@
+src/main/resources/git-revision
+src/main/resources/build-date
+
+/playwright-videos/
+/playwright-traces/
