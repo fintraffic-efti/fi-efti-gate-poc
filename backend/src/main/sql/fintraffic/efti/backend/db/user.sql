@@ -7,7 +7,7 @@ select id, role_id, ssn, first_name, last_name, email from end_user
 where id = :id;
 
 -- :name select-users
-select id, role_id, first_name, last_name from end_user where role_id <> role$e_service();
+select id, role_id, first_name, last_name from end_user;
 
 -- :name upsert-end-user! :<!
 insert into end_user (
