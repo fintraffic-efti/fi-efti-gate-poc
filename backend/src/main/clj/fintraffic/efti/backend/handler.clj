@@ -4,6 +4,7 @@
     [clojure.walk :as walk]
     [fintraffic.efti.backend.api.geo :as geo-api]
     [fintraffic.efti.backend.api.user :as user-api]
+    [fintraffic.efti.backend.api.consignment :as consignment-api]
     [fintraffic.efti.backend.exception :as exception]
     [fintraffic.efti.backend.header-middleware :as header-middleware]
     [fintraffic.efti.backend.muuntaja :as muuntaja]
@@ -57,10 +58,11 @@
                               security/wrap-access
                               security/wrap-db-client]}
      (tag "Geo API" geo-api/routes)
-     (tag "User API" user-api/routes)]]])
+     (tag "User API" user-api/routes)
+     (tag "Consignment API" consignment-api/routes)]]])
 
 (def route-opts
-  { ;; Uncomment line below to see diffs of requests in middleware chain
+  {;; Uncomment line below to see diffs of requests in middleware chain
    ;;:reitit.middleware/transform dev/print-request-diffs
    :exception pretty/exception
    :validate  rs/validate
@@ -95,4 +97,4 @@
         (reitit-ring/create-default-handler)))
     {:middleware
      [exception/exception-middleware
-      (when (-> config :web :csp) security/wrap-security-headers)]}))
+      #_(when (-> config :web :csp) security/wrap-security-headers)]}))
