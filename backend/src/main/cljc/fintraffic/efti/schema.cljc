@@ -43,9 +43,9 @@
 
 (defn required-values [lite-malli keys]
   (as-> lite-malli $
-       (select-keys $ keys)
-       (map/map-values strip-maybe $)
-       (merge lite-malli $)))
+        (select-keys $ keys)
+        (map/map-values strip-maybe $)
+        (merge lite-malli $)))
 
 (defn optional-keys [lite-malli]
   (map/map-values lmalli/optional lite-malli))
@@ -94,9 +94,9 @@
 (defn add-validation
   ([title schema-type msg valid? schema]
    [:and schema [:fn
-                 {:title                          title
+                 {:title                       title
                   :fintraffic.efti.schema/type schema-type
-                  :error/message                  msg} valid?]])
+                  :error/message               msg} valid?]])
   ([schema-type valid? schema]
    (add-validation (str "Valid " (-> schema-type name)) schema-type
                    (str "Invalid " (-> schema-type name))
@@ -107,10 +107,11 @@
   (Limited :int "Int" :limited.int min-inclusive max-inclusive))
 
 (def Classification
-  (merge Id {:label-fi [:maybe string?]
-             :label-sv [:maybe string?]
-             :label-en string?
-             :valid    boolean?}))
+  {:id       Id
+   :label-fi [:maybe string?]
+   :label-sv [:maybe string?]
+   :label-en string?
+   :valid    boolean?})
 
 (def ClassificationEN
   (dissoc Classification :label-fi :label-sv))
