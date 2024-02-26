@@ -3,14 +3,11 @@ from flask_app import api
 from flask import request, json, send_from_directory
 
 
-@api.route('/example/get-with-parameter/<some_parameter>', methods=['GET'])
-def get_with_parameter(some_parameter):
+@api.route('/consignments/<data_id>', methods=['GET'])
+def get_with_parameter(data_id):
     response = {
-        'field1': 42,
-        'field2': some_parameter,
-        'field3': {
-            'nested_field': True,
-        },
+        'country-start-id': 'FI',
+        'data-id': data_id,
     }
     return response, 200
 
