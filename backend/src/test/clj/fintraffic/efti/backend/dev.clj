@@ -9,6 +9,7 @@
     config/default-config
     {:host        "https://localhost:8280"
      :environment :dev
+     :gate-url "asdf"
      :db
      {:host          "localhost"
       :username "efti_gateway"

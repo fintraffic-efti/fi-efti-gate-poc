@@ -4,8 +4,8 @@
     [fintraffic.efti.schema.geo :as geo]))
 
 (def UIL
-  {:platform-url (schema/LimitedString 200)
-   :gate-url     (schema/LimitedString 200)
+  {:gate-url     (schema/LimitedString 200)
+   :platform-url (schema/LimitedString 200)
    :data-id      (schema/LimitedString 200)})
 
 (def ConsignmentSave

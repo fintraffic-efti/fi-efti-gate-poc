@@ -22,6 +22,7 @@
       :database-name string?}
 
      :environment keyword?
+     :gate-url string?
 
      :web {:csp boolean?}
 
