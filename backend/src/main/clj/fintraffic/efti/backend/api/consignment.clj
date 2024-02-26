@@ -22,8 +22,8 @@
                            (api-response/with-exceptions
                              #(do (consignment-service/save-consignment! db whoami (assoc-gate-url path config) body)
                                   (r/status 204))
-                             [{:constraint :consignment/country-start-id-fkey :response 400}
-                              {:constraint :consignment/country-end-id-fkey :response 400}]))}
+                             [{:constraint :consignment-country-start-id-fkey :response 400}
+                              {:constraint :consignment-country-end-id-fkey :response 400}]))}
 
        :get {:summary    "Find an existing consignment by uil - gate subset"
              :access     any?
