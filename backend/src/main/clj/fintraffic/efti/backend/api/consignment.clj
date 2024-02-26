@@ -10,9 +10,9 @@
 
 (defn assoc-gate-url [path config] (assoc path :gate-url (:gate-url config)))
 
-(def routes
+(def platform
   (with-bindings {#'lmalli/*options* schema/options}
-    ["/consignments/:platform-url/:data-id/gate"
+    ["/platform/consignments/:platform-url/:data-id"
       {:put {:summary    "Add new or update an existing consignment - gate subset"
              :access     any?
              :parameters {:path ConsignmentId
@@ -33,3 +33,15 @@
                            (api-response/get-response
                              (consignment-service/find-consignment db whoami (assoc-gate-url path config))
                              (api-response/msg-404 "consignment" path)))}}]))
+
+(def aap
+  (with-bindings {#'lmalli/*options* schema/options}
+    ["/aap/consignments/:gate-url/:platform-url/:data-id/identifiers"
+     {:get {:summary    "Find an existing consignment by uil - gate subset"
+            :access     any?
+            :parameters {:path consignment-schema/UIL}
+            :responses  {200 {:body consignment-schema/Consignment}}
+            :handler    (fn [{{:keys [path]} :parameters :keys [db whoami]}]
+                          (api-response/get-response
+                            (consignment-service/find-consignment db whoami path)
+                            (api-response/msg-404 "consignment" path)))}}]))

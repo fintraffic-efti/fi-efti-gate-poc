@@ -53,13 +53,14 @@
   [["/api" {:middleware [header-middleware/wrap-default-cache
                          header-middleware/wrap-default-content-type]}
     (tag "System" (system-routes config))
-    ["/private" {:middleware [header-middleware/wrap-disable-cache
-                              #(security/wrap-whoami-static-user % 0)
-                              security/wrap-access
-                              security/wrap-db-client]}
+    ["/v1" {:middleware [header-middleware/wrap-disable-cache
+                         #(security/wrap-whoami-static-user % 0)
+                         security/wrap-access
+                         security/wrap-db-client]}
      (tag "Geo API" geo-api/routes)
      (tag "User API" user-api/routes)
-     (tag "Consignment API" consignment-api/routes)]]])
+     (tag "Gate platform consignment API" consignment-api/platform)
+     (tag "CA consignment (AAP) API" consignment-api/aap)]]])
 
 (def route-opts
   {;; Uncomment line below to see diffs of requests in middleware chain
