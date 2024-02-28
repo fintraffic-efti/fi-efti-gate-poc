@@ -15,6 +15,8 @@ An objective is to an implement efti gateway main features using the best availa
 
 ## Start
 
+Start development environment and efti gateway:
 ``` 
-docker/start.sh
+$ docker/start.sh
+$ env $(cat backend/.env | xargs) backend/start.sh
 ```

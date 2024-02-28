@@ -14,11 +14,7 @@ See more from [docker](../docker/README.md)
 ### Bash
 Start backend for development environment: 
 ```
-EFTI_DB_HOST=localhost \
-EFTI_DB_USERNAME=efti_gateway \
-EFTI_DB_PASSWORD=efti \
-EFTI_DB_DATABASE_NAME=efti_dev \
-EFTI_GATE_URL=asdf ./start.sh
+env $(cat .env | xargs) ./start.sh
 ```
 
 Stop backend: `ctrl-c`
