@@ -1,4 +1,4 @@
-# Backend service for xxxxx xxxx
+# Efti gateway backend
 
 ## Prerequisites
 * GNU bash
