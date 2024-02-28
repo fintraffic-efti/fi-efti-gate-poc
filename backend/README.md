@@ -1,15 +1,51 @@
 # Backend service for xxxxx xxxx
 
-## Local setup
+## Prerequisites
+* GNU bash
+* Java 21 - https://openjdk.org/install/
+* Clojure - https://clojure.org/guides/install_clojure
+* See [docker](../docker/README.md)
 
-### Prerequisites
-* Java
-* Clojure
-* Docker / Podman
-* docker compose
+## Usage
 
-### Steps
-* Run ```docker/start.sh``` script
-* Start repl from ```backend/deps.edn``` with the ```dev``` profile
-* Run function ```(start!)``` in the repl
+Start development environment: ```../docker/start.sh```.
+See more from [docker](../docker/README.md)
+
+### Bash
+Start backend for development environment: 
+```
+EFTI_DB_HOST=localhost \
+EFTI_DB_USERNAME=efti_gateway \
+EFTI_DB_PASSWORD=efti \
+EFTI_DB_DATABASE_NAME=efti_dev \
+EFTI_GATE_URL=asdf ./start.sh
+```
+
+Stop backend: `ctrl-c`
+
+### Repl
+
+Start development repl: ```clj -A:dev```
+
+Start backend: ```(start!)```
+
+Stop backend: ```(stop!)```
+
+Exit repl: `ctrl-c` 
+
+### Docker
+
+Build dev image: ```./build-docker-image.sh```.
+Run dev image and connect to local development network: 
+```
+docker run --rm \
+--network efti_default \
+-p 127.0.0.1:8080:8080 \
+-e EFTI_DB_HOST=db \
+-e EFTI_DB_USERNAME=efti_gateway \
+-e EFTI_DB_PASSWORD=efti \
+-e EFTI_DB_DATABASE_NAME=efti_dev \
+-e EFTI_GATE_URL=asdf \
+efti/backend
+```
 

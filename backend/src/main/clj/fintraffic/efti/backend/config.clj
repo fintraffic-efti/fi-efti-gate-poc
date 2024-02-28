@@ -46,7 +46,7 @@
   (->> path
        (map (comp str/upper-case #(str/replace % "-" "_") name))
        (str/join "_")
-       (str "efti_")))
+       (str "EFTI_")))
 
 (defn path->flat-config-key [path]
   (->> path
@@ -77,7 +77,7 @@
 
 (defn from-environment [env]
   (as-> env %
-        (map/filter-keys #(str/starts-with? % "efti_") %)
+        (map/filter-keys #(str/starts-with? % "EFTI_") %)
         (set/rename-keys % environment-key-map)
         (flat/flat->tree #"\." %)
         (string-decoder %)

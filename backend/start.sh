@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-echo 'Start xxxx backend'
+echo 'Start efti backend'
 exec clojure \
   -J-Djava.awt.headless=true \
   -M --report stderr \
-  -m xxxxx.xxxx.backend.system
+  -m fintraffic.efti.backend.system

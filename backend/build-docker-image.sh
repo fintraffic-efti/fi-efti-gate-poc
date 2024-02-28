@@ -3,7 +3,7 @@ set -e
 cd $(dirname $0)
 
 registry_name="${1%/}/"
-repository_name='xxxx/backend'
+repository_name='efti/backend'
 
 containername=${registry_name#/}$repository_name
 git_sha=$(git rev-parse HEAD)
