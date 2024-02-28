@@ -45,3 +45,5 @@ docker run --rm \
 efti/backend
 ```
 
+Stop backend: `ctrl-c` (container is removed)
+
