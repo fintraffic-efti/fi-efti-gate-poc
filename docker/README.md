@@ -1,6 +1,7 @@
 # Development environment
 
 ## Prerequisites
+* GNU bash
 * Java 21 - https://openjdk.org/install/
 * Clojure - https://clojure.org/guides/install_clojure
 * Docker / Podman
