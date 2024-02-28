@@ -14,3 +14,6 @@ on conflict (gate_url, platform_url, data_id) do update set
   journey_end_time = excluded.journey_end_time,
   country_start_id = excluded.country_start_id,
   country_end_id = excluded.country_end_id;
+
+-- :name select-consignments
+select * from consignment limit :limit offset :offset;
