@@ -1,7 +1,8 @@
 (ns fintraffic.efti.db.flywaydb
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
-            [fintraffic.io :as fio])
+            [fintraffic.io :as fio]
+            [cheshire.core :as cheshire])
   (:import (java.io File)
            (java.util Map)
            (org.flywaydb.core Flyway)
@@ -63,16 +64,27 @@
       (.configuration ^Map flyway-configuration)
       .load))
 
+(defn db-url [host port dbname]
+  (str "jdbc:postgresql://" host ":" port "/" dbname))
+
+(defn read-aws-configuration
+  "Copilot passes DB config in env var named by db, here EFTI_DB_AWS_SECRET." []
+  (when-let [config (env "aws_secret" nil)]
+    (let [{:keys [host port dbname username password]} (cheshire/decode config keyword)]
+      {:user username
+       :password password
+       :gateway-password (env "gateway_password")
+       :url (db-url host port dbname)})))
+
 (defn read-configuration []
   {:user (env "user" "efti")
    :password (env "password")
    :gateway-password (env "gateway_password")
-   :url (str "jdbc:postgresql://" (env "host") ":"
-             (env "port", 5432) "/" (env "database_name"))})
+   :url (db-url (env "host") (env "port", 5432) (env "database_name"))})
 
 (defn run [args]
   (let [command (str/trim (or (first args) "<empty string>"))
-        db (read-configuration)
+        db (or (read-aws-configuration) (read-configuration))
         flyway (configure-flyway db)]
     (case command
       "clean" (.clean flyway)
