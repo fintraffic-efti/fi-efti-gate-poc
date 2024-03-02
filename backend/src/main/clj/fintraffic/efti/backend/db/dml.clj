@@ -1,12 +1,11 @@
 (ns fintraffic.efti.backend.db.dml
   (:require
-    [clojure.walk :as walk]
-    [flathead.logic :as logic]
-    [next.jdbc.sql.builder :as sql-builder]
+    [clojure.set :as set]
+    [clojure.string :as str]
+    [fintraffic.efti.backend.exception :as exception]
     [next.jdbc :as jdbc]
     [next.jdbc.sql :as sql]
-    [fintraffic.efti.backend.db :as db]
-    [fintraffic.efti.backend.exception :as exception]))
+    [next.jdbc.sql.builder :as sql-builder]))
 
 (defn for-update [table object where-keys options]
   (sql-builder/for-update
@@ -40,54 +39,17 @@
   (->> (update-multi! connectable table objects where-keys options)
        (map (partial assert-update-count-1! table where-keys))))
 
-(defn- concat-children-for-save [parents children-key parent-key other-parent-keys]
-  (mapcat
-    (fn [parent]
-      (map (fn [child]
-             (-> child
-                 (assoc parent-key (:id parent))
-                 (merge (select-keys parent other-parent-keys))))
-           (children-key parent)))
-    parents))
-
-(defn assert-update! [children-key where-keys children index updated]
-  (when (= updated 0)
-    (exception/throw-ex-info!
-      {:type :item-not-found
-       :list children-key
-       :identity (-> children (nth index) (select-keys where-keys))})))
-
-(defn save-children! [db parents {:keys [child-table children-key parent-key
-                                         other-parent-keys child->db]
-                                  :or {child->db identity other-parent-keys []}}]
-  (let [children (concat-children-for-save parents children-key parent-key other-parent-keys)
-        new-children (filter #(-> % :id nil?) children)
-        existing-children (filter #(-> % :id some?) children)
-        where-keys (concat [:id parent-key] other-parent-keys)]
-    (when-not (empty? existing-children)
-      (->>
-        (update-multi-1! db child-table (map child->db existing-children)
-                         where-keys db/default-opts)
-        (map-indexed (partial assert-update! children-key where-keys existing-children))
-        doall))
-    (if (empty? new-children)
-      children
-      (concat
-        (map
-          #(assoc %1 :id (:id %2))
-          new-children
-          (sql/insert-multi!
-            db child-table
-            (map (comp child->db #(dissoc % :id)) new-children)
-            db/default-opts))
-        existing-children))))
-
-(defn all-id->nil [m]
-  (walk/postwalk
-    (logic/when*
-      (every-pred map-entry? (comp #(= :id %) key))
-      (constantly [:id nil]))
-    m))
+(defn upsert [connectable table objects conflict-keys
+              {:keys [column-fn] :as options
+               :or {column-fn identity}}]
+  (let [conflict-clause (str " on conflict ("
+                             (sql-builder/as-cols conflict-keys options)
+                             ") do update set ")
+        update-keys (-> objects first keys set (set/difference conflict-keys))
+        update #(str % " = excluded." %)
+        update-clause (str/join ", " (map (comp update name column-fn) update-keys))]
+    (sql/insert-multi! connectable table objects
+                       (assoc options :suffix (str conflict-clause update-clause)))))
 
 (defn update-by-id+error [update-by-id! find-by-id error]
   (fn [db id update]

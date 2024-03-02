@@ -9,3 +9,4 @@ grant usage on schema audit to efti_gateway;
 -- insert/update privileges
 grant insert, update on table end_user to efti_gateway;
 grant insert, update on table consignment to efti_gateway;
+grant insert, update on table transport_vehicle to efti_gateway;

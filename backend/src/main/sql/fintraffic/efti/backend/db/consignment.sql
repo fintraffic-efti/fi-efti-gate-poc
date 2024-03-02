@@ -1,19 +1,12 @@
 
--- :name upsert-consignment! :!
-insert into consignment (
-  gate_url, platform_url, data_id, is_dangerous_goods,
-  journey_start_time, journey_end_time,
-  country_start_id, country_end_id)
-values (
-   :gate-url, :platform-url, :data-id, :is-dangerous-goods,
-   :journey-start-time, :journey-end-time,
-   :country-start-id, :country-end-id)
-on conflict (gate_url, platform_url, data_id) do update set
-  is_dangerous_goods = excluded.is_dangerous_goods,
-  journey_start_time = excluded.journey_start_time,
-  journey_end_time = excluded.journey_end_time,
-  country_start_id = excluded.country_start_id,
-  country_end_id = excluded.country_end_id;
+-- :name select-consignment
+select consignment.*
+from consignment_json consignment
+where consignment.gate_url = :gate-url and
+      consignment.platform_url = :platform-url and
+      consignment.data_id = :data-id
+;
 
 -- :name select-consignments
-select * from consignment limit :limit offset :offset;
+select consignment.* from consignment_json consignment
+limit :limit offset :offset;
