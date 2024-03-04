@@ -1,5 +1,6 @@
 (ns fintraffic.efti.backend.service.consignment
   (:require [clj-http.client :as http]
+            [fintraffic.common.map :as map]
             [fintraffic.efti.backend.db :as db]
             [fintraffic.efti.backend.db.dml :as dml]
             [fintraffic.efti.backend.db.query :as db-query]
@@ -31,6 +32,11 @@
   (when-let [consignment (find-consignment db _whoami uil)]
     (:body (http/get (str (:platform-url consignment) "/consignments/:data-id")))))
 
+(def default-query-params
+  (map/map-values (constantly nil) consignment-schema/ConsignmentQuery))
+
 (defn find-consignments [db query]
-  (->> (consignment-db/select-consignments db query)
+  (->> query
+       (merge default-query-params)
+       (consignment-db/select-consignments db)
        (map db->consignment)))

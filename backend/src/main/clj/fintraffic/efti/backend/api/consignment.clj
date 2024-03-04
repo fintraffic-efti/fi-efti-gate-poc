@@ -41,7 +41,8 @@
      [""
       {:get  {:summary    "Find consignments"
               :access     any?
-              :parameters {:query (query-schema/Window 100)}
+              :parameters {:query (merge (query-schema/Window 100)
+                                         consignment-schema/ConsignmentQuery)}
               :responses  {200 {:body (lmalli/vector consignment-schema/Consignment)}}
               :handler    (fn [{:keys [db parameters]}]
                             (r/response (consignment-service/find-consignments db (:query parameters))))}}]

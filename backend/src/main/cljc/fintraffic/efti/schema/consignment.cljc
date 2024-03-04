@@ -11,6 +11,8 @@
 (def TransportVehicle
   (schema/maybe-values
     {:transport-mode-id  (schema/ForeignKey :transport-mode)
+     :vehicle-id         (schema/LimitedString 200)
+     :vehicle-country-id geo/CountryCode
      :journey-start-time inst?
      :journey-end-time   inst?
      :country-start-id   geo/CountryCode
@@ -27,3 +29,7 @@
     (assoc :transport-vehicles (schema/vector TransportVehicle))))
 
 (def Consignment (assoc (merge ConsignmentSave UIL) :id schema/Id))
+
+(def ConsignmentQuery
+  (schema/optional-keys
+    {:vehicle-id (schema/LimitedString 200)}))
