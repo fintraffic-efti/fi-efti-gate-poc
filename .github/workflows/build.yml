@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+#    branches: [ "master" ]
+#  pull_request:
+#    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/install-jdk
+      - name: Install Clojure
+        uses: ./.github/actions/install-clj
+      - name: Cache Clojure dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            ~/.deps.clj
+          # List all files containing dependencies:
+          key: cljdeps-${{ hashFiles('deps.edn') }}
+          restore-keys: cljdeps-
+
+      - name: Start database
+        run: ./start.sh
+        working-directory: ./docker
+
+      - name: Run tests
+        working-directory: ./backend
+        run: clojure -A:dev -A:test
