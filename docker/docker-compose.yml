@@ -2,6 +2,22 @@ version: '3.7'
 name: 'efti'
 
 services:
+  alb:
+    image: nginx
+    ports:
+      - 127.0.0.1:8888:443
+    extra_hosts:
+      - "host.containers.internal:host-gateway"
+    volumes:
+      - type: bind
+        source: ./alb/nginx.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+      - type: bind
+        source: ./alb/certificates
+        target: /etc/nginx/certificates
+        read_only: true
+
   db:
     image: postgres:15
     command: postgres -c 'max_connections=500'

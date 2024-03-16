@@ -1,0 +1,8 @@
+# Extensions to add to a certificate
+basicConstraints       = CA:FALSE
+authorityKeyIdentifier = keyid:always, issuer:always
+extendedKeyUsage       = clientAuth
+subjectAltName         = @alt_names
+[ alt_names ]
+URI.1 = urn:efti:fi:-10
+URI.2 = http://127.0.0.1:9091
