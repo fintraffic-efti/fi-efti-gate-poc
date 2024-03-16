@@ -5,6 +5,8 @@ cd $(dirname $0)
 chmod a+rx initdb
 chmod a+r initdb/01-init.sql
 
+./alb/create-certificates.sh
+
 docker compose up --detach
 
 # Wait naively for PostgreSQL to start

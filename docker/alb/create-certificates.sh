@@ -5,10 +5,11 @@ cd $(dirname $0)
 certificate_dir='certificates'
 pwd='efti'
 
+
 if [ -d "$certificate_dir" ]; then
-  echo "Certificates are already created in $certificate_dir."
+  echo "Certificates are already created in docker/alb/$certificate_dir."
   echo "Remove directory if you want to recreate certificates."
-  exit 1
+  exit 0
 fi
 
 mkdir -p "$certificate_dir"
