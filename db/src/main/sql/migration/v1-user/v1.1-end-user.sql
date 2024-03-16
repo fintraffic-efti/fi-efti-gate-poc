@@ -8,8 +8,12 @@ create table end_user (
   cognito_id text unique,
   login_time timestamp with time zone,
 
-  first_name text not null,
-  last_name text not null
+  organisation text,
+  department text,
+  first_name text,
+  last_name text,
+  name text,
+  platform_url text
 );
 
 call audit.create_audit_table('end_user'::name, null);

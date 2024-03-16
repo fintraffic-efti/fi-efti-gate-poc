@@ -22,11 +22,11 @@
       :database-name string?}
 
      :environment keyword?
-     :gate-url string?
+     :gate-id     string?
 
-     :web {:csp boolean?}
+     :web         {:csp boolean?}
 
-     :nrepl (lmalli/optional {:port int?})
+     :nrepl       (lmalli/optional {:port int?})
 
      :http-server
      {:port     int?
@@ -34,9 +34,9 @@
       :thread   int?}}))
 
 (def default-config
-  {:db {:port     5432}
+  {:db          {:port 5432}
    :environment :dev
-   :web {:csp true}
+   :web         {:csp true}
    :http-server
    {:max-body (* 1024 1024 50)
     :thread   20

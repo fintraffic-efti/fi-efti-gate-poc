@@ -3,12 +3,18 @@
     [clojure.string :as str]
     [clojure.string]
     [clojure.tools.logging :as log]
+    [fintraffic.common.certificate :as certificate]
     [fintraffic.common.map :as map]
+    [fintraffic.common.string :as fstr]
+    [fintraffic.common.debug :as debug]
     [fintraffic.efti.backend.api.response :as response]
-    [fintraffic.efti.schema.role :as role]
+    [fintraffic.efti.backend.exception :as exception]
     [fintraffic.efti.backend.service.user :as whoami-service]
+    [fintraffic.efti.schema.role :as role]
+    [ring.util.codec :as ring-codec]
     [ring.util.response :as ring-response])
-  (:import (java.net URI)))
+  (:import (java.net URI)
+           (java.security.cert X509Certificate)))
 
 (defn log-safe-ssn [henkilotunnus]
   (let [char-count (count henkilotunnus)]
@@ -24,7 +30,7 @@
       (assoc-in [:client :service-uri] (str "backend.efti" (:uri request)))))
 
 (defn find+save-whoami! [db user request]
-  (let [db (db-client db (:cognito role/system-users) request)
+  (let [db (db-client db (:authentication role/system-users) request)
         whoami (whoami-service/find-whoami db (select-keys user [:email :ssn]))]
     (cond
       (nil? whoami)
@@ -33,7 +39,7 @@
       (whoami-service/update-user! db (:id whoami) user)
       :else (:id whoami))))
 
-(defn wrap-whoami [handler login-url]
+(defn wrap-session-whoami [handler login-url]
   (fn [request]
     (if-let [whoami
              (some->> request :session ::user-id
@@ -42,6 +48,34 @@
       (if (some? login-url)
         (ring-response/redirect login-url)
         response/unauthorized))))
+
+(defn unauthorized!
+  ([msg value] (unauthorized! some? msg value))
+  ([predicate msg value]
+   (if (predicate value)
+     value (exception/throw-ex-info! :unauthorized msg))))
+(defn wrap-certificate-whoami [handler]
+  (fn [{:keys [db] :as request}]
+    (let [db (db-client db (:authentication role/system-users) request)
+          ^X509Certificate certificate
+          (unauthorized!
+            "Client certificate is missing."
+            (some-> request :headers (get "x-amzn-mtls-clientcert-leaf")
+                    ring-codec/url-decode fstr/input-stream certificate/read))
+          platform-urn (unauthorized!
+                         (complement str/blank?)
+                         "Platform id urn is not defined in certificate."
+                         (some->>
+                           certificate .getSubjectAlternativeNames
+                           (filter #(-> % second str/trim (str/starts-with? "urn:efti")))
+                           first second str/trim))
+          platform-id (-> platform-urn (str/split #":") (nth 3) Long/parseLong)
+          whoami (unauthorized!
+                   (str "Unable to find platform: " platform-id)
+                   (whoami-service/find-whoami-by-id db platform-id))]
+
+      (handler (assoc request :whoami whoami)))))
+
 
 (defn wrap-whoami-static-user [handler user-id]
   (fn [request]

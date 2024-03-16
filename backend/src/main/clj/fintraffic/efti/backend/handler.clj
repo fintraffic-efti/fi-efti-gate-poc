@@ -17,6 +17,7 @@
     [reitit.ring.middleware.multipart :as multipart]
     [reitit.ring.middleware.muuntaja :as reitit-muuntaja]
     [reitit.ring.middleware.parameters :as reitit-parameters]
+    [reitit.ring.middleware.exception :as reitit-exception]
     [reitit.spec :as rs]
     [reitit.swagger :as swagger]
     [reitit.swagger-ui :as swagger-ui]))
@@ -50,17 +51,22 @@
                        :body   headers})}}]])
 
 (defn routes [config]
-  [["/api" {:middleware [header-middleware/wrap-default-cache
-                         header-middleware/wrap-default-content-type]}
+  [["/api" {:middleware [header-middleware/wrap-default-cache]}
     (tag "System" (system-routes config))
-    ["/v1" {:middleware [header-middleware/wrap-disable-cache
-                         #(security/wrap-whoami-static-user % 0)
-                         security/wrap-access
-                         security/wrap-db-client]}
-     (tag "Geo API" geo-api/routes)
-     (tag "User API" user-api/routes)
-     (tag "Gate platform consignment API" consignment-api/platform)
-     (tag "CA consignment (AAP) API" consignment-api/aap)]]])
+    ["/v1/public" {:middleware [#(security/wrap-whoami-static-user % nil)
+                                security/wrap-access
+                                security/wrap-db-client]}
+     (tag "Geo API" geo-api/routes)]
+    ["/v1/platform" {:middleware [security/wrap-certificate-whoami
+                                  security/wrap-access
+                                  security/wrap-db-client]}
+     (tag "Platform user API" user-api/whoami)
+     (tag "Platform consignment API" consignment-api/platform)]
+    ["/v1/aap" {:middleware [#(security/wrap-whoami-static-user % nil)
+                             security/wrap-access
+                             security/wrap-db-client]}
+     (tag "CA user API" user-api/whoami)
+     (tag "CA consignment API" consignment-api/aap)]]])
 
 (def route-opts
   {;; Uncomment line below to see diffs of requests in middleware chain
@@ -69,18 +75,19 @@
    :validate  rs/validate
    :data      {:coercion   efti-reitit/coercion
                :muuntaja   muuntaja/instance
-               :middleware [swagger/swagger-feature
+               :middleware [header-middleware/wrap-default-content-type
+                            swagger/swagger-feature
                             reitit-parameters/parameters-middleware
                             reitit-muuntaja/format-negotiate-middleware
                             reitit-muuntaja/format-response-middleware
                             reitit-muuntaja/format-request-middleware
                             security/wrap-enforce-origin
                             security/wrap-enforce-content-type
+                            exception/exception-middleware
                             coercion/coerce-response-middleware
                             coercion/coerce-request-middleware
                             multipart/multipart-middleware
-                            exception/log-4xx
-                            exception/exception-middleware]}})
+                            exception/log-4xx]}})
 
 (defn router [config] (reitit-ring/router (routes config) route-opts))
 
@@ -97,5 +104,5 @@
         ;; serve not found responses (404, 405, 406):
         (reitit-ring/create-default-handler)))
     {:middleware
-     [exception/exception-middleware
+     [reitit-exception/exception-middleware
       #_(when (-> config :web :csp) security/wrap-security-headers)]}))

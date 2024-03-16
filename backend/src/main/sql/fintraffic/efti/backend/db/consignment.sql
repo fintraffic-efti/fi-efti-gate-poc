@@ -2,8 +2,8 @@
 -- :name select-consignment
 select consignment.*
 from consignment_json consignment
-where consignment.gate_url = :gate-url and
-      consignment.platform_url = :platform-url and
+where consignment.gate_id = :gate-id and
+      consignment.platform_id = :platform-id::text and
       consignment.data_id = :data-id
 ;
 

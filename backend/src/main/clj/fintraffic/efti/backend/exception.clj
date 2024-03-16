@@ -4,6 +4,7 @@
             [clojure.string :as str]
             [clojure.tools.logging :as log]
             [fintraffic.common.map :as map]
+            [fintraffic.common.string :as fstr]
             [fintraffic.common.maybe :as maybe]
             [reitit.coercion :as coercion]
             [reitit.ring.middleware.exception :as exception]))
@@ -50,17 +51,20 @@
   (let [error (ex-data exception)]
     (log/info (str "Unique violation: " (name (:constraint error))
                    " in service: " (service-name request)))
-    {:status 409
-     :body   error}))
+    {:status 409 :body error}))
 
-(defn forbidden-handler [exception request]
+(defn forbidden-handler [exception {:keys [whoami] :as request}]
   (let [{:keys [reason]} (ex-data exception)]
-    (log/info (str "Service " (service-name request)
-                   " forbidden from identity: "
-                   (get-in request [:headers "x-amzn-oidc-identity"]) ".")
+    (log/info (str "Service " (service-name request) " forbidden.")
+              "End user id: " (or (:id whoami) "-") "."
               (or reason ""))
-    {:status 403
-     :body   "Forbidden"}))
+    {:status 403 :body "Forbidden"}))
+
+(defn unauthorized-handler [exception request]
+  (let [{:keys [message]} (ex-data exception)]
+    (log/info (str "Service " (service-name request) " unauthorized.")
+              (or message ""))
+    {:status 401 :body "Unauthorized"}))
 
 (defn class-name [object] (.getName (class object)))
 
@@ -96,12 +100,13 @@
       ::exception/default default-handler
       :unique-violation unique-exception-handler
       :forbidden forbidden-handler
+      :unauthorized unauthorized-handler
       ::coercion/request-coercion request-coercion-handler
       ::coercion/response-coercion response-coercion-handler)))
 
 (defn log-4xx [handler]
   #(let [{:keys [status body] :as response} (handler %)]
-     (when (and (some? status) (<= 400 status 499) (map? body))
+     (when (and (some? status) (<= 400 status 499))
        (log/warn
          (str "Client error - service: " (service-name %)
               ". Error status: " status

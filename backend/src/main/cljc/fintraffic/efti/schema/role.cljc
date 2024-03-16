@@ -9,6 +9,5 @@
 
 (def system-users
   {:database 0
-   :conversion -1
-   :cognito -2})
+   :authentication -1})
 

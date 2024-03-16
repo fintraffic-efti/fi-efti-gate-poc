@@ -34,3 +34,10 @@
   (let [start (Math/max 0 (- index chars-before))
         end (Math/min (count txt) (+ index chars-after 1))]
     (subs txt start end)))
+
+(defn input-stream
+  ([s] (input-stream s "UTF-8"))
+  ([s encoding]
+   (-> s
+       (.getBytes encoding)
+       (java.io.ByteArrayInputStream.))))

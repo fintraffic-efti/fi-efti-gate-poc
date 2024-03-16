@@ -4,9 +4,9 @@
     [fintraffic.efti.schema.geo :as geo]))
 
 (def UIL
-  {:gate-url     (schema/LimitedString 200)
-   :platform-url (schema/LimitedString 200)
-   :data-id      (schema/LimitedString 200)})
+  {:gate-id     (schema/LimitedString 200)
+   :platform-id (schema/LimitedString 200)
+   :data-id     (schema/LimitedString 200)})
 
 (def TransportVehicle
   (schema/maybe-values

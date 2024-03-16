@@ -30,7 +30,7 @@
 
 (defn find-platform-consignment [db _whoami uil]
   (when-let [consignment (find-consignment db _whoami uil)]
-    (:body (http/get (str (:platform-url consignment) "/consignments/:data-id")))))
+    (:body (http/get (str (:platform-id consignment) "/consignments/:data-id")))))
 
 (def default-query-params
   (map/map-values (constantly nil) consignment-schema/ConsignmentQuery))

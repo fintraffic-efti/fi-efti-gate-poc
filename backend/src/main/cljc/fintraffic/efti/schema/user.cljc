@@ -6,12 +6,13 @@
   "Any user"
   {:id         schema/Id
    :role-id    (schema/ForeignKey :role)
-   :last-name  string?
-   :first-name string?})
+   :last-name  (schema/maybe string?)
+   :first-name (schema/maybe string?)
+   :name (schema/maybe string?)})
 
 (def Whoami
   (assoc User
-    :email (schema/maybe string?)
+    :platform-url (schema/maybe string?)
     :ssn (schema/maybe string?)))
 
 (def Role schema/Classification)
