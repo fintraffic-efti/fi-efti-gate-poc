@@ -11,6 +11,7 @@
     [fintraffic.efti.backend.exception :as exception]
     [fintraffic.efti.backend.service.user :as whoami-service]
     [fintraffic.efti.schema.role :as role]
+    [fintraffic.efti.schema.user :as user-schema]
     [ring.util.codec :as ring-codec]
     [ring.util.response :as ring-response])
   (:import (java.net URI)
@@ -54,7 +55,7 @@
   ([predicate msg value]
    (if (predicate value)
      value (exception/throw-ex-info! :unauthorized msg))))
-(defn wrap-certificate-whoami [handler]
+(defn wrap-certificate-whoami [handler schema]
   (fn [{:keys [db] :as request}]
     (let [db (db-client db (:authentication role/system-users) request)
           ^X509Certificate certificate
@@ -72,14 +73,17 @@
           platform-id (-> platform-urn (str/split #":") (nth 3) Long/parseLong)
           whoami (unauthorized!
                    (str "Unable to find platform: " platform-id)
-                   (whoami-service/find-whoami-by-id db platform-id))]
+                   (whoami-service/find-whoami-by-id db schema platform-id))]
 
       (handler (assoc request :whoami whoami)))))
 
 
-(defn wrap-whoami-static-user [handler user-id]
+(defn wrap-whoami-static-user [handler schema user-id]
   (fn [request]
-    (handler (assoc request :whoami (whoami-service/find-whoami-by-id (:db request) user-id)))))
+    (handler (assoc request :whoami (whoami-service/find-whoami-by-id (:db request) schema user-id)))))
+
+(defn wrap-whoami-public-user [handler]
+  (fn [request] (handler (assoc request :whoami nil))))
 
 (defn wrap-access [handler]
   (fn [{:keys [request-method whoami] :as req}]

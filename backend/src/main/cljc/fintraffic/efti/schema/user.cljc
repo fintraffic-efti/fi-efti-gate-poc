@@ -7,13 +7,15 @@
   {:id         schema/Id
    :role-id    (schema/ForeignKey :role)
    :last-name  (schema/maybe string?)
-   :first-name (schema/maybe string?)
-   :name (schema/maybe string?)})
+   :first-name (schema/maybe string?)})
 
-(def Whoami
-  (assoc User
-    :platform-url (schema/maybe string?)
-    :ssn (schema/maybe string?)))
+(def SystemUser
+  "Any system user"
+  {:id      schema/Id
+   :role-id (schema/ForeignKey :role)
+   :name    (schema/maybe string?)})
+
+(def Platform (assoc SystemUser :platform-url (schema/maybe string?)))
 
 (def Role schema/Classification)
 
@@ -59,8 +61,4 @@
      :fintraffic.efti.schema/type :ssn-fi}
     valid-ssn-fi?]])
 
-(def WhoamiSave
-  (-> Whoami
-      (dissoc :id)
-      (assoc :ssn (schema/maybe SSN-FI))))
 

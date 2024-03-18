@@ -4,10 +4,10 @@
             [fintraffic.efti.backend.service.user :as user-service]
             [malli.experimental.lite :as lmalli]))
 
-(def whoami
+(defn whoami [schema]
   ["/whoami"
    {:get {:summary   "Find current signed in user"
-          :responses {200 {:body user-schema/Whoami}}
+          :responses {200 {:body schema}}
           :handler   (fn [{:keys [whoami]}]
                        (r/response whoami))}}])
 

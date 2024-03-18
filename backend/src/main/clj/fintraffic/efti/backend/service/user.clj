@@ -26,8 +26,8 @@
            (user-db/select-whoami db)
            (only-first! query)))
 
-(defn find-whoami-by-id [db id]
-  (first (db-query/find-by db :end-user user-schema/Whoami {:id id})))
+(defn find-whoami-by-id [db schema id]
+  (first (db-query/find-by db :end-user schema {:id id})))
 
 (defn find-users [db] (user-db/select-users db))
 

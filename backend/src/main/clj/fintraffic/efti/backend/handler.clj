@@ -11,6 +11,7 @@
     [fintraffic.efti.backend.security :as security]
     [fintraffic.efti.backend.version :as version]
     [fintraffic.efti.reitit :as efti-reitit]
+    [fintraffic.efti.schema.user :as user-schema]
     [reitit.dev.pretty :as pretty]
     [reitit.ring :as reitit-ring]
     [reitit.ring.coercion :as coercion]
@@ -53,19 +54,19 @@
 (defn routes [config]
   [["/api" {:middleware [header-middleware/wrap-default-cache]}
     (tag "System" (system-routes config))
-    ["/v1/public" {:middleware [#(security/wrap-whoami-static-user % nil)
+    ["/v1/public" {:middleware [security/wrap-whoami-public-user
                                 security/wrap-access
                                 security/wrap-db-client]}
      (tag "Geo API" geo-api/routes)]
-    ["/v1/platform" {:middleware [security/wrap-certificate-whoami
+    ["/v1/platform" {:middleware [#(security/wrap-certificate-whoami % user-schema/Platform)
                                   security/wrap-access
                                   security/wrap-db-client]}
-     (tag "Platform user API" user-api/whoami)
+     (tag "Platform user API" (user-api/whoami user-schema/Platform))
      (tag "Platform consignment API" consignment-api/platform)]
-    ["/v1/aap" {:middleware [#(security/wrap-whoami-static-user % nil)
+    ["/v1/aap" {:middleware [#(security/wrap-whoami-static-user % user-schema/SystemUser -20)
                              security/wrap-access
                              security/wrap-db-client]}
-     (tag "CA user API" user-api/whoami)
+     (tag "CA user API" (user-api/whoami user-schema/SystemUser))
      (tag "CA consignment API" consignment-api/aap)]]])
 
 (def route-opts
