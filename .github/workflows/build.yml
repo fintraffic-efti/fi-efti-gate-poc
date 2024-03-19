@@ -53,11 +53,17 @@ jobs:
       - name: Build db migration tool image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         working-directory: ./db
-        run: ./build-docker-image.sh $ECR_REGISTRY
+        run: |
+          ./build-docker-image.sh $ECR_REGISTRY
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_DB:$IMAGE_TAG
 
       - name: Build application image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         working-directory: ./backend
-        run: ./build-docker-image.sh $ECR_REGISTRY
+        run: | 
+          ./build-docker-image.sh $ECR_REGISTRY
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
