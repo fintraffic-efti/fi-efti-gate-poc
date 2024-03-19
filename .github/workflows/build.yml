@@ -5,6 +5,10 @@ on:
 #    branches: [ "master" ]
 #  pull_request:
 #    branches: [ "master" ]
+env:
+  AWS_REGION: "eu-west-1"
+  ECR_REPOSITORY_DB: "efti/db"
+  ECR_REPOSITORY_BACKEND: "efti/backend"
 
 jobs:
   build:
@@ -34,3 +38,26 @@ jobs:
       - name: Run tests
         working-directory: ./backend
         run: clojure -A:dev -A:test
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_DEPLOY_ROLE }}
+          role-session-name: githubdeploymentsession
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@ebdeac79a5f9525e298b368a491c338b8fd60fe9
+
+      - name: Build db migration tool image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        working-directory: ./db
+        run: ./build-docker-image.sh $ECR_REGISTRY
+
+      - name: Build application image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        working-directory: ./backend
+        run: ./build-docker-image.sh $ECR_REGISTRY
