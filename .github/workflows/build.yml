@@ -43,6 +43,12 @@ jobs:
         working-directory: ./backend
         run: clojure -A:dev -A:test
 
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -62,6 +68,7 @@ jobs:
         run: |
           ./build-docker-image.sh $ECR_REGISTRY
           docker push $ECR_REGISTRY/$ECR_REPOSITORY_DB:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_DB:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Build application image
         env:
@@ -71,3 +78,4 @@ jobs:
         run: | 
           ./build-docker-image.sh $ECR_REGISTRY
           docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_DB:$IMAGE_TAG" >> $GITHUB_OUTPUT

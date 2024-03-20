@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-cd $(dirname $0)
+cd "$(dirname $0)"
 
 registry_name="${1%/}/"
 repository_name='efti/db'
@@ -9,4 +9,4 @@ containername=${registry_name#/}$repository_name
 git_sha=$(git rev-parse HEAD)
 
 echo "Building image $containername:$git_sha"
-DOCKER_BUILDKIT=1 docker build --ssh default . --tag $containername:$git_sha --tag $containername:latest
+docker build . --tag $containername:$git_sha --tag $containername:latest
