@@ -7,6 +7,9 @@ chmod a+r initdb/01-init.sql
 
 ./alb/create-certificates.sh
 
+./harmony/init.sh 'fi'
+./harmony/init.sh 'se'
+
 docker compose up --detach
 
 # Wait naively for PostgreSQL to start

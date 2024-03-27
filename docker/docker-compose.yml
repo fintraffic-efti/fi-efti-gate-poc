@@ -1,4 +1,3 @@
-version: '3.7'
 name: 'efti'
 
 services:
@@ -48,6 +47,84 @@ services:
       - ../mock-platform/data/:/var/data/
     environment:
       MOCK_PLATFORM_DATA_DIR: /var/data/
+
+  harmony-ap-fi:
+    image: niis/harmony-ap:2.2.0
+    depends_on:
+      - harmony-db-fi
+    environment:
+      - DB_HOST=harmony-db-fi
+      - DB_SCHEMA=harmony_ap
+      - DB_PASSWORD=efti
+      - ADMIN_PASSWORD=efti
+      - USE_DYNAMIC_DISCOVERY=false
+      - PARTY_NAME=fi_1_efti
+      - SERVER_FQDN=harmony-ap-fi
+      - SECURITY_KEYSTORE_PASSWORD=efti1234
+      - SECURITY_TRUSTSTORE_PASSWORD=efti1234
+      - TLS_KEYSTORE_PASSWORD=efti1234
+      - TLS_TRUSTSTORE_PASSWORD=efti1234
+      - DOMIBUS_AUTH_UNSECURELOGINALLOWED=true
+    ports:
+      - "127.0.0.1:8443:8443"
+    volumes:
+      - type: bind
+        source: ./harmony/fi/etc
+        target: /var/opt/harmony-ap/etc
+    restart: on-failure
+    mem_limit: 1500m
+
+  harmony-db-fi:
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=efti
+      - MYSQL_DATABASE=harmony_ap
+      - MYSQL_USER=harmony_ap
+      - MYSQL_PASSWORD=efti
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_bin"
+    restart: on-failure
+    mem_limit: 512m
+
+  harmony-ap-se:
+    image: niis/harmony-ap:2.2.0
+    depends_on:
+      - harmony-db-se
+    environment:
+      - DB_HOST=harmony-db-se
+      - DB_SCHEMA=harmony_ap
+      - DB_PASSWORD=efti
+      - ADMIN_PASSWORD=efti
+      - USE_DYNAMIC_DISCOVERY=false
+      - PARTY_NAME=se_1_efti
+      - SERVER_FQDN=harmony-ap-se
+      - SECURITY_KEYSTORE_PASSWORD=efti1234
+      - SECURITY_TRUSTSTORE_PASSWORD=efti1234
+      - TLS_KEYSTORE_PASSWORD=efti1234
+      - TLS_TRUSTSTORE_PASSWORD=efti1234
+      - DOMIBUS_AUTH_UNSECURELOGINALLOWED=true
+    ports:
+      - "127.0.0.1:8444:8443"
+    volumes:
+      - type: bind
+        source: ./harmony/se/etc
+        target: /var/opt/harmony-ap/etc
+    restart: on-failure
+    mem_limit: 1500m
+
+  harmony-db-se:
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=efti
+      - MYSQL_DATABASE=harmony_ap
+      - MYSQL_USER=harmony_ap
+      - MYSQL_PASSWORD=efti
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_bin"
+    restart: on-failure
+    mem_limit: 512m
 
 volumes:
   data:
