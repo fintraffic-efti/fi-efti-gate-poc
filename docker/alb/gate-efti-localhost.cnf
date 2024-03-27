@@ -5,3 +5,4 @@ keyUsage               = nonRepudiation, digitalSignature, keyEncipherment, data
 subjectAltName         = @alt_names
 [ alt_names ]
 DNS.1 = gate.efti.localhost
+DNS.2 = localhost
