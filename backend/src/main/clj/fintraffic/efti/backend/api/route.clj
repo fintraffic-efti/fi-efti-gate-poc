@@ -8,7 +8,7 @@
 (defn find-all [name schema find-all-service]
   [(str "/" name)
    {:get {:summary   (str "Find all " name)
-          :responses {200 {:body (lmalli/vector schema)}}
+          :responses {200 {:body (schema/vector schema)}}
           :handler   (fn [{:keys [db]}]
                        (r/response (find-all-service db)))}}])
 

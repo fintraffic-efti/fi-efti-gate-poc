@@ -16,14 +16,14 @@
            ring/ring-core                    {:mvn/version "1.10.0"}
            ring/ring-session-timeout         {:mvn/version "0.3.0"}
            javax.servlet/servlet-api         {:mvn/version "2.5"}
-           metosin/malli                     {:mvn/version "0.8.9"}
-           metosin/reitit-ring               {:mvn/version "0.5.18"}
-           metosin/reitit-swagger            {:mvn/version "0.5.18"}
-           metosin/reitit-swagger-ui         {:mvn/version "0.5.18"}
-           metosin/reitit-middleware         {:mvn/version "0.5.18"}
-           metosin/reitit-malli              {:mvn/version "0.5.18"}
-           metosin/reitit-dev                {:mvn/version "0.5.18"}
-           metosin/muuntaja                  {:mvn/version "0.6.8"}
+           metosin/malli                     {:mvn/version "0.15.0"}
+           metosin/reitit-ring               {:mvn/version "0.7.0-alpha7"}
+           metosin/reitit-swagger-ui         {:mvn/version "0.7.0-alpha7"}
+           metosin/reitit-middleware         {:mvn/version "0.7.0-alpha7"}
+           metosin/reitit-malli              {:mvn/version "0.7.0-alpha7"}
+           metosin/reitit-dev                {:mvn/version "0.7.0-alpha7"}
+           fi.metosin/reitit-openapi         {:mvn/version "0.7.0-alpha7"}
+           metosin/muuntaja                  {:mvn/version "0.6.10"}
            metosin/jsonista                  {:mvn/version "0.3.8"}
 
            buddy/buddy-sign                  {:mvn/version "3.4.333"}

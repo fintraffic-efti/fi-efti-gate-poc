@@ -14,13 +14,13 @@
     [fintraffic.efti.schema.user :as user-schema]
     [reitit.dev.pretty :as pretty]
     [reitit.ring :as reitit-ring]
+    [reitit.openapi :as reitit-openapi]
     [reitit.ring.coercion :as coercion]
     [reitit.ring.middleware.multipart :as multipart]
     [reitit.ring.middleware.muuntaja :as reitit-muuntaja]
     [reitit.ring.middleware.parameters :as reitit-parameters]
     [reitit.ring.middleware.exception :as reitit-exception]
-    [reitit.spec :as rs]
-    [reitit.swagger :as swagger]
+    [reitit.spec :as reitit-spec]
     [reitit.swagger-ui :as swagger-ui]))
 
 (defn tag [tag routes]
@@ -30,23 +30,26 @@
     routes))
 
 (defn system-routes [config]
-  [["/swagger.json"
+  [["/openapi.json"
     {:get {:no-doc  true
-           :swagger {:info {:title       "Efti Gateway API"
-                            :description "Open api definition for Efti Gateway"}}
-           :handler (swagger/create-swagger-handler)}}]
+           :openapi {:info {:title       "Efti Gateway API"
+                            :description "Open api definition for Efti Gateway"
+                            :version     "0.0.1"}}
+           :handler (reitit-openapi/create-openapi-handler)}}]
    ["/health"
-    {:get {:summary "Health check"
-           :handler (let [count (atom 0) max-count 10]
-                      (fn [req]
-                        (when (<= (swap! count inc) max-count)
-                          (log/info "Health check #" @count "(max" max-count "logged)"))
-                        {:status 200}))}}]
+    {:get {:summary   "Health check"
+           :responses {200 {:body nil?}}
+           :handler   (let [count (atom 0) max-count 10]
+                        #(when (<= (swap! count inc) max-count)
+                           (log/info "Health check #" @count "(max" max-count "logged)"))
+                        {:status 200})}}]
    ["/version"
     {:get {:summary "System version"
+           :responses {200 {:body any?}}
            :handler (version/version-handler config)}}]
    ["/headers"
     {:get {:summary "Endpoint for seeing request headers"
+           :responses {200 {:body any?}}
            :handler (fn [{:keys [headers]}]
                       {:status 200
                        :body   headers})}}]])
@@ -73,11 +76,11 @@
   {;; Uncomment line below to see diffs of requests in middleware chain
    ;;:reitit.middleware/transform dev/print-request-diffs
    :exception pretty/exception
-   :validate  rs/validate
+   :validate  reitit-spec/validate
    :data      {:coercion   efti-reitit/coercion
                :muuntaja   muuntaja/instance
-               :middleware [header-middleware/wrap-default-content-type
-                            swagger/swagger-feature
+               :middleware [reitit-openapi/openapi-feature
+                            header-middleware/wrap-default-content-type
                             reitit-parameters/parameters-middleware
                             reitit-muuntaja/format-negotiate-middleware
                             reitit-muuntaja/format-response-middleware
@@ -98,10 +101,10 @@
     (->
       (reitit-ring/routes
         (swagger-ui/create-swagger-ui-handler
-          {:path             "/api/documentation"
-           :url              "/api/swagger.json"
-           :config           {:validationUrl nil}
-           :operationsSorter "alpha"})
+          {:path   "/api/documentation"
+           :url    "/api/openapi.json"
+           :config {:validatorUrl     nil
+                    :operationsSorter "alpha"}})
         ;; serve not found responses (404, 405, 406):
         (reitit-ring/create-default-handler)))
     {:middleware
