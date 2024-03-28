@@ -35,7 +35,7 @@
     (:body (http/get (str (->> consignment :platform-id Long/parseLong
                                (user-service/find-whoami-by-id db user-schema/Platform)
                                :platform-url)
-                          "/consignments/:data-id")))))
+                          "/consignments/" (:data-id uil))))))
 
 (def default-query-params
   (map/map-values (constantly nil) consignment-schema/ConsignmentQuery))
