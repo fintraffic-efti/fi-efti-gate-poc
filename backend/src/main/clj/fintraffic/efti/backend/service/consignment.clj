@@ -5,7 +5,9 @@
             [fintraffic.efti.backend.db.dml :as dml]
             [fintraffic.efti.backend.db.query :as db-query]
             [fintraffic.efti.backend.db.query]
-            [fintraffic.efti.schema.consignment :as consignment-schema]))
+            [fintraffic.efti.backend.service.user :as user-service]
+            [fintraffic.efti.schema.consignment :as consignment-schema]
+            [fintraffic.efti.schema.user :as user-schema]))
 
 (db/require-queries 'consignment)
 
@@ -28,9 +30,12 @@
        (map db->consignment)
        first))
 
-(defn find-platform-consignment [db _whoami uil]
-  (when-let [consignment (find-consignment db _whoami uil)]
-    (:body (http/get (str (:platform-id consignment) "/consignments/:data-id")))))
+(defn find-platform-consignment [db whoami uil]
+  (when-let [consignment (find-consignment db whoami uil)]
+    (:body (http/get (str (->> consignment :platform-id Long/parseLong
+                               (user-service/find-whoami-by-id db user-schema/Platform)
+                               :platform-url)
+                          "/consignments/:data-id")))))
 
 (def default-query-params
   (map/map-values (constantly nil) consignment-schema/ConsignmentQuery))
