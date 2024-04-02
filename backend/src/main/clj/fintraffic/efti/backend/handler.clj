@@ -21,7 +21,8 @@
     [reitit.ring.middleware.parameters :as reitit-parameters]
     [reitit.ring.middleware.exception :as reitit-exception]
     [reitit.spec :as reitit-spec]
-    [reitit.swagger-ui :as swagger-ui]))
+    [reitit.swagger-ui :as swagger-ui]
+    [reitit.swagger :as reitit-swagger]))
 
 (defn tag [tag routes]
   (walk/prewalk
@@ -33,9 +34,14 @@
   [["/openapi.json"
     {:get {:no-doc  true
            :openapi {:info {:title       "Efti Gateway API"
-                            :description "Open api definition for Efti Gateway"
+                            :description "Open api 3.1 definition for Efti Gateway"
                             :version     "0.0.1"}}
            :handler (reitit-openapi/create-openapi-handler)}}]
+   ["/swagger.json"
+    {:get {:no-doc  true
+           :swagger {:info {:title       "Efti Gateway API"
+                            :description "Open api 2.0 (swagger) definition for Efti Gateway"}}
+           :handler (reitit-swagger/create-swagger-handler)}}]
    ["/health"
     {:get {:summary   "Health check"
            :responses {200 {:body nil?}}
