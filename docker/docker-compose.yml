@@ -67,10 +67,15 @@ services:
       - DOMIBUS_AUTH_UNSECURELOGINALLOWED=true
     ports:
       - "127.0.0.1:8443:8443"
+    extra_hosts:
+      - "host.containers.internal:host-gateway"
     volumes:
       - type: bind
         source: ./harmony/fi/etc
         target: /var/opt/harmony-ap/etc
+      - type: bind
+        source: ./harmony/fi/wsplugin.properties
+        target: /opt/harmony-ap/plugins/config/ws-plugin.properties
     restart: on-failure
     mem_limit: 1500m
 
