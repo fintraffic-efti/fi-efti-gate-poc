@@ -61,4 +61,7 @@
      :fintraffic.efti.schema/type :ssn-fi}
     valid-ssn-fi?]])
 
-
+(def system
+  {:database 0
+   :authentication -1
+   :edelivery -2})

@@ -5,6 +5,7 @@
     [fintraffic.efti.backend.api.geo :as geo-api]
     [fintraffic.efti.backend.api.user :as user-api]
     [fintraffic.efti.backend.api.consignment :as consignment-api]
+    [fintraffic.efti.backend.api.edelivery :as edelivery-api]
     [fintraffic.efti.backend.exception :as exception]
     [fintraffic.efti.backend.header-middleware :as header-middleware]
     [fintraffic.efti.backend.muuntaja :as muuntaja]
@@ -72,11 +73,16 @@
                                   security/wrap-db-client]}
      (tag "Platform user API" (user-api/whoami user-schema/Platform))
      (tag "Platform consignment API" consignment-api/platform)]
-    ["/v1/aap" {:middleware [#(security/wrap-whoami-static-user % user-schema/SystemUser -20)
+    ["/v1/aap" {:middleware [#(security/wrap-whoami-static-user % user-schema/SystemUser -20) ;;TODO: authentication
                              security/wrap-access
                              security/wrap-db-client]}
      (tag "CA user API" (user-api/whoami user-schema/SystemUser))
-     (tag "CA consignment API" consignment-api/aap)]]])
+     (tag "CA consignment API" consignment-api/aap)]
+    ["/edelivery" {:middleware [#(security/wrap-whoami-static-user % user-schema/SystemUser
+                                                                   (:edelivery user-schema/system))
+                                security/wrap-access
+                                security/wrap-db-client]}
+     (tag "E-delivery API" edelivery-api/routes)]]])
 
 (def route-opts
   {;; Uncomment line below to see diffs of requests in middleware chain
@@ -92,7 +98,7 @@
                             reitit-muuntaja/format-response-middleware
                             reitit-muuntaja/format-request-middleware
                             security/wrap-enforce-origin
-                            security/wrap-enforce-content-type
+                            #_security/wrap-enforce-content-type
                             exception/exception-middleware
                             coercion/coerce-response-middleware
                             coercion/coerce-request-middleware
