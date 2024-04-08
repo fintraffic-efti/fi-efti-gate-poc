@@ -3,7 +3,7 @@ from flask_app import api
 from flask import request, json, send_from_directory
 
 
-@api.route('/consignments/<data_id>', methods=['GET'])
+@api.route('/api/v1/consignments/<data_id>', methods=['GET'])
 def get_with_parameter(data_id):
     response = {
         'country-start-id': 'FI',
