@@ -76,6 +76,10 @@
 (defn xml-response [body path-filename filename inline? not-found]
   (file-response body path-filename filename "text/xml; charset=utf-8" inline? not-found))
 
+(defn soap-response [xml]
+  (-> xml r/response
+      (r/content-type "application/soap+xml;charset=UTF-8")))
+
 (defn conflict [body]
   {:status 409
    :body body})
