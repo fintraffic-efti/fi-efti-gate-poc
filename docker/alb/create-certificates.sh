@@ -26,16 +26,21 @@ openssl req -new -x509 -days 365 -key root-ca.key -out root-ca.crt -subj '/C=FI/
 echo "Create test private keys"
 openssl genrsa -out gate-efti-localhost.key 4096
 openssl genrsa -aes256 -passout pass:$pwd -out test-platform.key 4096
+openssl genrsa -aes256 -passout pass:$pwd -out mock-platform.key 4096
 
 echo "Create certificate requests"
 openssl req -new -key test-platform.key -out test-platform.csr -passin pass:$pwd -subj '/C=FI/O=Fintraffic/OU=EFTI/CN=Test platform'
-openssl req -new -key gate-efti-localhost.key -out gate-efti-localhost.csr -subj '/C=FI/O=Fintraffic/OU=EFTI/CN=Test platform'
+openssl req -new -key mock-platform.key -out mock-platform.csr -passin pass:$pwd -subj '/C=FI/O=Fintraffic/OU=EFTI/CN=Mock platform'
+openssl req -new -key gate-efti-localhost.key -out gate-efti-localhost.csr -subj '/C=FI/O=Fintraffic/OU=EFTI/CN=Gate localhost'
 
 echo "Create certificates from requests"
 openssl x509 -req -days 365 -in test-platform.csr -CA platform-ca.crt -CAkey platform-ca.key -CAcreateserial \
   -out test-platform.crt -extfile ../test-platform.cnf -passin pass:$pwd
+openssl x509 -req -days 365 -in mock-platform.csr -CA platform-ca.crt -CAkey platform-ca.key -CAcreateserial \
+  -out mock-platform.crt -extfile ../mock-platform.cnf -passin pass:$pwd
 openssl x509 -req -days 365 -in gate-efti-localhost.csr -CA root-ca.crt -CAkey root-ca.key -CAcreateserial \
   -out gate-efti-localhost.crt -extfile ../gate-efti-localhost.cnf -passin pass:$pwd
 
-echo "Create p12 file for chrome client certificate"
+echo "Create p12 files for chrome client certificates"
 openssl pkcs12 -export -inkey test-platform.key -in test-platform.crt -out test-platform.p12 -passin pass:$pwd -passout pass:$pwd
+openssl pkcs12 -export -inkey mock-platform.key -in mock-platform.crt -out mock-platform.p12 -passin pass:$pwd -passout pass:$pwd

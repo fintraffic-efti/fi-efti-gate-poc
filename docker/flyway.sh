@@ -14,6 +14,7 @@ cd ../db
 export EFTI_DB_PASSWORD="efti"
 export EFTI_DB_GATEWAY_PASSWORD="efti"
 export EFTI_DB_HOST="localhost"
+export EFTI_DB_PORT="8432"
 
 # Don't run test migrations to template db: efti_template
 EFTI_DB_DATABASE_NAME="efti_template" ./db.sh $1

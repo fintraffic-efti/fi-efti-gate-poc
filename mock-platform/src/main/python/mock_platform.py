@@ -45,4 +45,4 @@ if __name__ == '__main__':
     dir = get_data_dir()
     print('Serving files from path: %s' % dir)
     api.config['DATA_DIR'] = dir
-    api.run(host='0.0.0.0', port=9091)
+    api.run(host='0.0.0.0', port=8091)
