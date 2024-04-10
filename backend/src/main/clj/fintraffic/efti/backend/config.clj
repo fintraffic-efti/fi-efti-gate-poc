@@ -21,12 +21,13 @@
       :password      string?
       :database-name string?}
 
-     :environment keyword?
-     :gate-id     string?
+     :environment  keyword?
+     :gate-id      string?
+     :edelivery-ap string?
 
-     :web         {:csp boolean?}
+     :web          {:csp boolean?}
 
-     :nrepl       (lmalli/optional {:port int?})
+     :nrepl        (lmalli/optional {:port int?})
 
      :http-server
      {:port     int?

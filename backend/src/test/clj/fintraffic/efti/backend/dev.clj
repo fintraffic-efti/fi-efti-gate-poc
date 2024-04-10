@@ -10,6 +10,7 @@
     {:host        "https://localhost:8280"
      :environment :dev
      :gate-id     "finland"
+     :edelivery-ap "https://localhost:8443/services/backend"
      :db
      {:host          "localhost"
       :port          8432

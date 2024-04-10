@@ -63,7 +63,7 @@
               :direction-id message-direction/out)
             (update :payload (comp xml/emit-str xml/sexp-as-element)))]
     (->> message submit-request-xml post-request
-         (http/post "https://localhost:8443/services/backend")
+         (http/post (:edelivery-ap config))
          :body fxml/parse message-id (assoc message :message-id)
          (edelivery-service/add-message db))))
 
