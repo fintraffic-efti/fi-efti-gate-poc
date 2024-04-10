@@ -3,10 +3,12 @@
     [clojure.data.xml :as xml]
     [fintraffic.common.xml :as fxml]
     [fintraffic.common.xpath :as xpath]
+    [fintraffic.efti.backend.service.consignment :as consignment-service]
     [fintraffic.efti.backend.service.edelivery :as edelivery]
     [fintraffic.efti.schema :as schema]
     [fintraffic.efti.schema.edelivery :as edelivery-schema]
     [fintraffic.efti.schema.edelivery.message-direction :as message-direction]
+    [fintraffic.efti.schema.edelivery.message-type :as message-type]
     [malli.core :as malli]
     [ring.util.codec :as ring-codec])
   (:import (java.nio.charset StandardCharsets)))
@@ -35,9 +37,24 @@
 
 (defn bytes->string [^bytes bytes] (String. bytes StandardCharsets/UTF_8))
 
-(defn add-message-xml [db input]
+(defn find-consignment [db message xml]
+  (consignment-service/find-consignment-db db (edelivery/uil->xml xml)))
+
+(def request-routes
+  {:uil [message-type/find-consignment find-consignment]})
+
+(defn process-request [db message]
+  (let [xml (-> message :payload xml/parse-str fxml/element->sexp)
+        [request-type handler] (-> xml first request-routes)]
+    (if (some? handler)
+      (do (handler db message xml)
+          (assoc message :type-id request-type))
+      (assoc message :type-id message-type/response))))
+
+
+(defn handle-message-xml [db input]
   (-> input fxml/parse xml->message
       (update :payload (comp bytes->string ring-codec/base64-decode))
       (assoc :direction-id message-direction/in) coerce
-      (->> (edelivery/add-message db)) :message-id
-      submit-response xml/sexp-as-element xml/emit-str))
+      (->> (process-request db) (edelivery/add-message db))
+      :message-id submit-response xml/sexp-as-element xml/emit-str))

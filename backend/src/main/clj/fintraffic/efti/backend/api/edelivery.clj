@@ -15,5 +15,5 @@
              :responses  {200 {:body any?}}
              :handler    (fn [{:keys [db body]}]
                            (->> body
-                                (edelivery-push-service/add-message-xml db)
+                                (edelivery-push-service/handle-message-xml db)
                                 api-response/soap-response))}}]))

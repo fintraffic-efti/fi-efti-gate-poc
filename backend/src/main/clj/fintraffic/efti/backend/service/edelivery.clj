@@ -75,3 +75,6 @@
 
 (defn xml->consignment [xml]
   (->> xml (fxml/xml->object #{:transport-vehicles}) coerce-consignment))
+
+(defn uil->xml [uil] (fxml/object->xml :uil {} uil))
+(defn xml->uil [xml] (fxml/xml->object #{} xml))

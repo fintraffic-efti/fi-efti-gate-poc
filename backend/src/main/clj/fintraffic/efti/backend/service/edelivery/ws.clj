@@ -6,6 +6,7 @@
     [fintraffic.common.xpath :as xpath]
     [fintraffic.efti.backend.service.edelivery :as edelivery-service]
     [fintraffic.efti.schema.edelivery.message-direction :as message-direction]
+    [fintraffic.efti.schema.edelivery.message-type :as message-type]
     [ring.util.codec :as ring-codec]
     [tick.core :as tick])
   (:import (java.nio.charset StandardCharsets)))
@@ -66,9 +67,8 @@
          :body fxml/parse message-id (assoc message :message-id)
          (edelivery-service/add-message db))))
 
-(defn uil-xml [uil] (fxml/object->xml :uil {} uil))
-
 (defn send-find-consignment-message! [db config conversation-id uil]
   (send-message! db config {:to-id           (:gate-id uil)
+                            :type-id         message-type/find-consignment
                             :conversation-id conversation-id
-                            :payload         (uil-xml uil)}))
+                            :payload         (edelivery-service/uil->xml uil)}))
