@@ -12,6 +12,7 @@
      :gate-id     "finland"
      :db
      {:host          "localhost"
+      :port          8432
       :username      "efti_gateway"
       :password      "efti"
       :database-name "efti_dev"}

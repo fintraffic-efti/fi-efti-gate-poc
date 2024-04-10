@@ -4,6 +4,7 @@ cd $(dirname $0)
 
 chmod a+rx initdb
 chmod a+r initdb/01-init.sql
+chmod a+r harmony/fi/wsplugin.properties
 
 ./alb/create-certificates.sh
 
