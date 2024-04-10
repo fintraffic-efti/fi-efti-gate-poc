@@ -13,3 +13,6 @@ grant insert, update on table transport_vehicle to efti_gateway;
 
 -- insert privileges
 grant insert on table ed_message to efti_gateway;
+
+-- sequences
+grant usage, select on sequence conversation_id_seq to efti_gateway;

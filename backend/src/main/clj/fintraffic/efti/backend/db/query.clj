@@ -12,7 +12,8 @@
     [malli.util :as malli-util]
     [malli.core :as malli]
     [next.jdbc.sql :as jdbc-sql]
-    [fintraffic.efti.backend.db :as db]))
+    [fintraffic.efti.backend.db :as db]
+    [tick.core :as tick]))
 
 (defn schema->columns
   "Returns db column keywords for given malli-schema."
@@ -73,7 +74,8 @@
   (malli-transform/transformer
     {:name :string
      :decoders (assoc (malli-transform/-string-decoders)
-                 'number? (maybe/lift1 bigdec))
+                 'number? (maybe/lift1 bigdec)
+                 'inst? tick/instant)
      :encoders (malli-transform/-string-encoders)}))
 
 (defn decoder [schema]

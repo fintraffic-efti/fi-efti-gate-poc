@@ -15,3 +15,5 @@ create table ed_message (
   to_id text,
   payload text
 );
+
+create sequence conversation_id_seq start 1;

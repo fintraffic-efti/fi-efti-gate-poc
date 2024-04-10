@@ -23,6 +23,10 @@
 (defn txt [xml ^XPathExpression xpath]
   (.evaluate xpath xml XPathConstants/STRING))
 
+(defn compile-fn [^CharSequence expression namespaces]
+  (let [xpath-exp (compile expression namespaces)]
+    (fn [xml] (txt xml xpath-exp))))
+
 (defn converter [description namespaces]
   (let [compiled (map/map-values #(compile % namespaces) description)]
     (fn [xml] (map/map-values #(txt xml %) compiled))))

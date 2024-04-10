@@ -33,9 +33,9 @@
              :access     any?
              :parameters {:path ConsignmentId}
              :responses  {200 {:body consignment-schema/Consignment}}
-             :handler    (fn [{{:keys [path]} :parameters :keys [db whoami config]}]
+             :handler    (fn [{{:keys [path]} :parameters :keys [db config whoami]}]
                            (api-response/get-response
-                             (consignment-service/find-consignment db whoami (uil path config whoami))
+                             (consignment-service/find-consignment db config whoami (uil path config whoami))
                              (api-response/msg-404 "consignment" path)))}}]))
 
 (def aap
@@ -55,9 +55,9 @@
               :access     any?
               :parameters {:path consignment-schema/UIL}
               :responses  {200 {:body consignment-schema/Consignment}}
-              :handler    (fn [{{:keys [path]} :parameters :keys [db whoami]}]
+              :handler    (fn [{{:keys [path]} :parameters :keys [db config whoami]}]
                             (api-response/get-response
-                              (consignment-service/find-consignment db whoami path)
+                              (consignment-service/find-consignment db config whoami path)
                               (api-response/msg-404 "consignment" path)))}}]
       ["/full"
        {:get {:summary    "Find an existing consignment by uil - full dataset from the platform"

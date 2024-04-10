@@ -1,15 +1,15 @@
 (ns fintraffic.efti.backend.service.edelivery.push
   (:require
     [clojure.data.xml :as xml]
+    [fintraffic.common.xml :as fxml]
     [fintraffic.common.xpath :as xpath]
-    [fintraffic.efti.backend.db :as db]
     [fintraffic.efti.backend.service.edelivery :as edelivery]
     [fintraffic.efti.schema :as schema]
     [fintraffic.efti.schema.edelivery :as edelivery-schema]
+    [fintraffic.efti.schema.edelivery.message-direction :as message-direction]
     [malli.core :as malli]
-    [next.jdbc.sql :as sql]
-    [fintraffic.common.xml :as java-xml]
-    [fintraffic.efti.schema.edelivery.message-direction :as message-direction]))
+    [ring.util.codec :as ring-codec])
+  (:import (java.nio.charset StandardCharsets)))
 
 (def namespaces
   {:soap "http://www.w3.org/2003/05/soap-envelope"
@@ -30,14 +30,14 @@
 
 (def coerce (malli/coercer (schema/schema edelivery-schema/Message) edelivery/transformer))
 
-(defn add-message [db message]
-  (sql/insert! db :ed-message message db/default-opts))
-
 (defn submit-response [message-id]
   [::soap/Envelope [::soap/Body [::eu/submitResponse [:messageID message-id]]]])
 
+(defn bytes->string [^"[[B" bytes] (String. bytes StandardCharsets/UTF_8))
+
 (defn add-message-xml [db input]
-  (-> input java-xml/parse xml->message
+  (-> input fxml/parse xml->message
+      (update :payload (comp bytes->string ring-codec/base64-decode))
       (assoc :direction-id message-direction/in) coerce
-      (->> (add-message db)) :message-id
+      (->> (edelivery/add-message db)) :message-id
       submit-response xml/sexp-as-element xml/emit-str))

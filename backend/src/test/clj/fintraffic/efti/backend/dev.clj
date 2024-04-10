@@ -9,7 +9,7 @@
     config/default-config
     {:host        "https://localhost:8280"
      :environment :dev
-     :gate-id     "fi"
+     :gate-id     "finland"
      :db
      {:host          "localhost"
       :username      "efti_gateway"
