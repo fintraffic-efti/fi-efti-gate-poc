@@ -33,7 +33,7 @@
 (defn submit-response [message-id]
   [::soap/Envelope [::soap/Body [::eu/submitResponse [:messageID message-id]]]])
 
-(defn bytes->string [^"[[B" bytes] (String. bytes StandardCharsets/UTF_8))
+(defn bytes->string [^bytes bytes] (String. bytes StandardCharsets/UTF_8))
 
 (defn add-message-xml [db input]
   (-> input fxml/parse xml->message
