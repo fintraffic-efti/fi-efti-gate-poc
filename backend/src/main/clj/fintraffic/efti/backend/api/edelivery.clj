@@ -13,7 +13,7 @@
              :access     any?
              :parameters {:body any?}
              :responses  {200 {:body any?}}
-             :handler    (fn [{:keys [db body]}]
+             :handler    (fn [{:keys [db config body]}]
                            (->> body
-                                (edelivery-push-service/handle-message-xml db)
+                                (edelivery-push-service/handle-message-xml db config)
                                 api-response/soap-response))}}]))

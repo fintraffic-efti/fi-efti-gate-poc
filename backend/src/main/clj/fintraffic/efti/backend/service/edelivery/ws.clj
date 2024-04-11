@@ -20,7 +20,7 @@
 
 (defn party-id [id] [::eb/PartyId {:type "urn:oasis:names:tc:ebcore:partyid-type:unregistered"} id])
 
-(defn submit-request-xml [{:keys [from-id to-id conversation-id payload]}]
+(defn submit-request-xml [{:keys [from-id to-id conversation-id payload content-type]}]
   [::soap/Envelope
    [::soap/Header
     [::eb/Messaging
@@ -43,7 +43,7 @@
       [::eb/ProcessingType "PUSH"]]]]
    [::soap/Body
     [::eu/submitRequest
-     [:payload {:payloadId "cid:message", :contentType "text/xml"}
+     [:payload {:payloadId "cid:message", :contentType content-type}
       [:value (-> payload (.getBytes StandardCharsets/UTF_8) ring-codec/base64-encode)]]]]])
 
 (def message-id (xpath/compile-fn "/soap:Envelope/soap:Body/eu:submitResponse/messageID/text()" namespaces))
@@ -60,6 +60,7 @@
             (assoc
               :timestamp (tick/now)
               :from-id (:gate-id config)
+              :content-type "text/xml"
               :direction-id message-direction/out)
             (update :payload (comp xml/emit-str xml/sexp-as-element)))]
     (->> message submit-request-xml post-request
@@ -72,3 +73,9 @@
                             :type-id         message-type/find-consignment
                             :conversation-id conversation-id
                             :payload         (edelivery-service/uil->xml uil)}))
+
+(defn send-find-consignment-response-message! [db config request consignment]
+  (send-message! db config {:to-id           (:from-id request)
+                            :type-id         message-type/find-consignment
+                            :conversation-id (:conversation-id request)
+                            :payload         (edelivery-service/consignment-xml consignment)}))

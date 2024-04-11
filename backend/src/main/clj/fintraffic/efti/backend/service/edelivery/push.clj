@@ -5,6 +5,7 @@
     [fintraffic.common.xpath :as xpath]
     [fintraffic.efti.backend.service.consignment :as consignment-service]
     [fintraffic.efti.backend.service.edelivery :as edelivery]
+    [fintraffic.efti.backend.service.edelivery.ws :as edelivery-ws-service]
     [fintraffic.efti.schema :as schema]
     [fintraffic.efti.schema.edelivery :as edelivery-schema]
     [fintraffic.efti.schema.edelivery.message-direction :as message-direction]
@@ -37,24 +38,27 @@
 
 (defn bytes->string [^bytes bytes] (String. bytes StandardCharsets/UTF_8))
 
-(defn find-consignment [db message xml]
-  (consignment-service/find-consignment-db db (edelivery/uil->xml xml)))
+(defn find-consignment [db config message xml]
+  (->>
+    xml edelivery/xml->uil
+    (consignment-service/find-consignment-db db)
+    (edelivery-ws-service/send-find-consignment-response-message! db config message)))
 
 (def request-routes
   {:uil [message-type/find-consignment find-consignment]})
 
-(defn process-request [db message]
+(defn process-request [message db config]
   (let [xml (-> message :payload xml/parse-str fxml/element->sexp)
-        [request-type handler] (-> xml first request-routes)]
-    (if (some? handler)
-      (do (handler db message xml)
-          (assoc message :type-id request-type))
-      (assoc message :type-id message-type/response))))
+        [request-type handler] (-> xml first request-routes)
+        message (->> (or request-type message-type/response)
+                     (assoc message :type-id)
+                     (edelivery/add-message db))]
+    (when (some? handler) (handler db config message xml))
+    message))
 
-
-(defn handle-message-xml [db input]
+(defn handle-message-xml [db config input]
   (-> input fxml/parse xml->message
       (update :payload (comp bytes->string ring-codec/base64-decode))
-      (assoc :direction-id message-direction/in) coerce
-      (->> (process-request db) (edelivery/add-message db))
+      (assoc :direction-id message-direction/in)
+      coerce (process-request db config)
       :message-id submit-response xml/sexp-as-element xml/emit-str))
