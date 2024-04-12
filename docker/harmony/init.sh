@@ -2,6 +2,8 @@
 set -e
 cd $(dirname $0)
 
+chmod a+r "$1/wsplugin.properties"
+
 etc_dir="$1/etc"
 
 if [ -d "$etc_dir" ]; then

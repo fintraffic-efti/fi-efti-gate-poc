@@ -5,6 +5,7 @@ services:
     image: nginx
     ports:
       - 127.0.0.1:8888:443
+      - 127.0.0.1:8889:444
     extra_hosts:
       - "host.containers.internal:host-gateway"
     volumes:
@@ -115,6 +116,9 @@ services:
       - type: bind
         source: ./harmony/se/etc
         target: /var/opt/harmony-ap/etc
+      - type: bind
+        source: ./harmony/se/wsplugin.properties
+        target: /opt/harmony-ap/plugins/config/ws-plugin.properties
     restart: on-failure
     mem_limit: 1500m
 
@@ -130,6 +134,10 @@ services:
       - "--collation-server=utf8mb4_bin"
     restart: on-failure
     mem_limit: 512m
+
+  gate-se:
+    image: efti/backend:latest
+    env_file: gate-se.env
 
 volumes:
   data:

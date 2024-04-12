@@ -4,12 +4,14 @@ cd $(dirname $0)
 
 chmod a+rx initdb
 chmod a+r initdb/01-init.sql
-chmod a+r harmony/fi/wsplugin.properties
 
 ./alb/create-certificates.sh
 
 ./harmony/init.sh 'fi'
 ./harmony/init.sh 'se'
+
+echo "Build gate image"
+../backend/build-docker-image.sh
 
 docker compose up --detach
 
