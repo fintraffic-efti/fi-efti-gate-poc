@@ -20,7 +20,7 @@ jobs:
           save-always: true
           path: |
             ~/.m2/repository
-            ~/.gitlibs/
+            ~/.gitlibs
             ~/.deps.clj
       - name: NVD check
         run: ./nvd-vulnerability-scan.sh
