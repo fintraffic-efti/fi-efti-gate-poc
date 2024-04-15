@@ -5,7 +5,6 @@ services:
     image: nginx
     ports:
       - 127.0.0.1:8888:443
-      - 127.0.0.1:8889:444
     extra_hosts:
       - "host.containers.internal:host-gateway"
     volumes:
