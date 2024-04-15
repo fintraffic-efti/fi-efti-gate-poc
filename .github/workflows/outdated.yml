@@ -20,4 +20,6 @@ jobs:
             ~/.m2/repository
             ~/.gitlibs/
             ~/.deps.clj
-      - run: ./nvd/nvd-vulnerability-scan.sh
+      - name: NVD check
+        run: ./nvd-vulnerability-scan.sh
+        working-directory: ./nvd
