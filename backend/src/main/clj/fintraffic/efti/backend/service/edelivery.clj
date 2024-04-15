@@ -7,6 +7,7 @@
             [fintraffic.efti.schema.consignment :as consignment-schema]
             [fintraffic.efti.schema.edelivery :as edelivery-schema]
             [fintraffic.efti.schema.edelivery.message-direction :as message-direction]
+            [fintraffic.efti.schema.query :as query-schema]
             [malli.core :as malli]
             [malli.transform :as malli-transform]
             [next.jdbc.sql :as sql]
@@ -78,3 +79,9 @@
 
 (defn uil->xml [uil] (fxml/object->xml :uil {} uil))
 (defn xml->uil [xml] (fxml/xml->object #{} xml))
+
+(defn query->xml [uil] (fxml/object->xml :query {} uil))
+(def coerce-query
+  (malli/coercer (schema/schema (merge (query-schema/Window 100)
+                                       consignment-schema/ConsignmentQuery)) transformer))
+(defn xml->query [xml] (->> xml (fxml/xml->object #{}) coerce-query))

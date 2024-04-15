@@ -1,6 +1,7 @@
 (ns fintraffic.efti.backend.service.edelivery.push
   (:require
     [clojure.data.xml :as xml]
+    [fintraffic.common.debug :as debug]
     [fintraffic.common.xml :as fxml]
     [fintraffic.common.xpath :as xpath]
     [fintraffic.efti.backend.service.consignment :as consignment-service]
@@ -44,8 +45,15 @@
     (consignment-service/find-consignment-db db)
     (edelivery-ws-service/send-find-consignment-response-message! db config message)))
 
+(defn find-consignments [db config message xml]
+  (->>
+    xml edelivery/xml->query
+    (consignment-service/find-consignments-db db)
+    (edelivery-ws-service/send-find-consignments-response-message! db config message)))
+
 (def request-routes
-  {:uil [message-type/find-consignment find-consignment]})
+  {:uil [message-type/find-consignment find-consignment]
+   :query [message-type/find-consignment find-consignments]})
 
 (defn process-request [message db config]
   (let [xml (-> message :payload xml/parse-str fxml/element->sexp)

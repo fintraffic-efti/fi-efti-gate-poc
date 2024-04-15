@@ -47,8 +47,8 @@
               :parameters {:query (merge (query-schema/Window 100)
                                          consignment-schema/ConsignmentQuery)}
               :responses  {200 {:body (lmalli/vector consignment-schema/Consignment)}}
-              :handler    (fn [{:keys [db parameters]}]
-                            (r/response (consignment-service/find-consignments db (:query parameters))))}}]
+              :handler    (fn [{:keys [db config parameters]}]
+                            (r/response (consignment-service/find-consignments db config (:query parameters))))}}]
      ["/:gate-id/:platform-id/:data-id"
       ["/identifiers"
        {:get {:summary    "Find an existing consignment by uil - gate subset"

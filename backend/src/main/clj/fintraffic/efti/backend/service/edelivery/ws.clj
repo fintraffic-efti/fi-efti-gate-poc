@@ -79,3 +79,17 @@
                             :type-id         message-type/find-consignment
                             :conversation-id (:conversation-id request)
                             :payload         (edelivery-service/consignment-xml consignment)}))
+
+(defn send-find-consignments-message! [db config conversation-id gate-id query]
+  (send-message! db config {:to-id           gate-id
+                            :type-id         message-type/find-consignments
+                            :conversation-id conversation-id
+                            :payload         (edelivery-service/query->xml query)}))
+
+(defn send-find-consignments-response-message! [db config request consignments]
+  (send-message! db config {:to-id           (:from-id request)
+                            :type-id         message-type/find-consignments
+                            :conversation-id (:conversation-id request)
+                            :payload         (->> consignments
+                                                  (map edelivery-service/consignment-xml)
+                                                  (cons :consignments) vec)}))
