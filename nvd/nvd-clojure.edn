@@ -11,9 +11,9 @@
 {;; You can use the `:suppression-file` in order to silence false positives.
  ;; This file will be automatically created, with whatever filename is specified here, if it didn't exist already.
  :suppression-file "nvd_suppressions.xml"
+ :fail-threshold 9 ; Fail on CRITICAL vulns found
 
- ;; MANDATORY - please set this (or a `NVD_API_TOKEN` environment variable, deleting this entry)
- ;; according to an API key that you can obtain in https://nvd.nist.gov/developers/request-an-api-key
+ ;; API key currently not used. Can use the `NVD_API_TOKEN` environment variable, deleting this entry. API keys can be obtained in https://nvd.nist.gov/developers/request-an-api-key
  :nvd-api {:key nil}
 
  #_:analyzer ;; Analyzer options, which are mostly advanced/internal
