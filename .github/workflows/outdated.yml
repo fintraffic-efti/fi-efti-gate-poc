@@ -18,10 +18,11 @@ jobs:
         with:
           key: cljdeps-${{ hashFiles('backend/deps.edn') }}
           save-always: true
+          # user.home (/etc/passwd) in Docker container points to /root
           path: |
-            ~/.m2/repository
-            ~/.gitlibs
-            ~/.deps.clj
+            /root/.m2/repository
+            /root/.gitlibs
+            /root/.deps.clj
       - name: NVD check
         run: ./nvd-vulnerability-scan.sh
         working-directory: ./nvd
