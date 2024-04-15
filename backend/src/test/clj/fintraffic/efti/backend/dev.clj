@@ -7,9 +7,10 @@
 (def config
   (deep/deep-merge
     config/default-config
-    {:host        "https://localhost:8280"
-     :environment :dev
-     :gate-id     "finland"
+    {:host         "https://localhost:8280"
+     :environment  :dev
+     :gate-id      "finland"
+     :gate-ids     ["sweden"]
      :edelivery-ap "https://localhost:8443/services/backend"
      :db
      {:host          "localhost"
@@ -18,5 +19,5 @@
       :password      "efti"
       :database-name "efti_dev"}
 
-     :http-server {:port 8080}
-     :nrepl       {:port 5959}}))
+     :http-server  {:port 8080}
+     :nrepl        {:port 5959}}))

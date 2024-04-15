@@ -1,16 +1,18 @@
 (ns fintraffic.efti.backend.config
-  (:require [clojure.string :as str]
-            [cheshire.core :as cheshire]
+  (:require [cheshire.core :as cheshire]
+            [clojure.data.csv :as csv]
+            [clojure.set :as set]
+            [clojure.string :as str]
+            [clojure.tools.logging :as log]
+            [fintraffic.common.logic :as logic]
+            [fintraffic.common.map :as map]
+            [fintraffic.efti.backend.exception :as exception]
             [flathead.flatten :as flat]
             [malli.core :as malli]
-            [malli.util :as malli-util]
             [malli.error]
-            [malli.transform :as malli-transform]
             [malli.experimental.lite :as lmalli]
-            [fintraffic.common.map :as map]
-            [clojure.set :as set]
-            [fintraffic.efti.backend.exception :as exception]
-            [clojure.tools.logging :as log]))
+            [malli.transform :as malli-transform]
+            [malli.util :as malli-util]))
 
 (def schema
   (lmalli/schema
@@ -23,6 +25,7 @@
 
      :environment  keyword?
      :gate-id      string?
+     :gate-ids     [:vector string?]
      :edelivery-ap string?
 
      :web          {:csp boolean?}
@@ -63,8 +66,17 @@
         flat-config-keys (map path->flat-config-key paths)]
     (into {} (map vector env-keys flat-config-keys))))
 
+(defn parse-vector [txt] (-> txt csv/read-csv first))
+
+(def string-transformer
+  (malli-transform/transformer
+    {:name :string
+     :decoders (update (malli-transform/-string-decoders)
+                       :vector (fn [decoder] (logic/if* string? parse-vector decoder)))
+     :encoders (malli-transform/-string-encoders)}))
+
 (def ^:private string-decoder
-  (malli/decoder schema malli-transform/string-transformer))
+  (malli/decoder schema string-transformer))
 
 (defn aws-db-config-from-env
   "Copilot passes DB config in env var named by db, here MAINDB_SECRET."
@@ -77,12 +89,12 @@
             :database-name dbname}})))
 
 (defn from-environment [env]
-  (as-> env %
-        (map/filter-keys #(str/starts-with? % "EFTI_") %)
-        (set/rename-keys % environment-key-map)
-        (flat/flat->tree #"\." %)
-        (string-decoder %)
-        (merge (aws-db-config-from-env env) %)))
+  (as-> env $
+        (map/filter-keys #(str/starts-with? % "EFTI_") $)
+        (set/rename-keys $ environment-key-map)
+        (flat/flat->tree #"\." $)
+        (string-decoder $)
+        (merge (aws-db-config-from-env env) $)))
 
 (def ^:private explainer (malli/explainer schema))
 (defn validate! [config]
