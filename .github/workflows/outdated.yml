@@ -2,9 +2,9 @@ name: Outdated dependencies
 on:
   push:
     branches:
-      - feature/efti-185
-    # schedule:
-    #   - cron: '0 8 * * 1'
+      - main
+    schedule:
+      - cron: '0 8 * * 1'
     workflow_dispatch:
 jobs:
   nvd:
