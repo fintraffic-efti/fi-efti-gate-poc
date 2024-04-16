@@ -32,18 +32,7 @@
     routes))
 
 (defn system-routes [config]
-  [["/openapi.json"
-    {:get {:no-doc  true
-           :openapi {:info {:title       "Efti Gateway API"
-                            :description "Open api 3.1 definition for Efti Gateway"
-                            :version     "0.0.1"}}
-           :handler (reitit-openapi/create-openapi-handler)}}]
-   ["/swagger.json"
-    {:get {:no-doc  true
-           :swagger {:info {:title       "Efti Gateway API"
-                            :description "Open api 2.0 (swagger) definition for Efti Gateway"}}
-           :handler (reitit-swagger/create-swagger-handler)}}]
-   ["/health"
+  [["/health"
     {:get {:summary   "Health check"
            :responses {200 {:body nil?}}
            :handler   (let [count (atom 0) max-count 10]
@@ -61,9 +50,24 @@
                       {:status 200
                        :body   headers})}}]])
 
+(defn documentation-routes [config]
+  ["/documentation" {:middleware [header-middleware/wrap-default-cache]}
+    ["/openapi.json"
+      {:get {:no-doc  true
+             :openapi {:info {:title       "Efti Gateway API"
+                              :description "Open api 3.1 definition for Efti Gateway"
+                              :version     "0.0.1"}}
+             :handler (reitit-openapi/create-openapi-handler)}}]
+    ["/swagger.json"
+      {:get {:no-doc  true
+             :swagger {:info {:title       "Efti Gateway API"
+                              :description "Open api 2.0 (swagger) definition for Efti Gateway"}}
+             :handler (reitit-swagger/create-swagger-handler)}}]])
+
 (defn routes [config]
   [["/api" {:middleware [header-middleware/wrap-default-cache]}
     (tag "System" (system-routes config))
+    (tag "Documentation" (documentation-routes config))
     ["/v1/public" {:middleware [security/wrap-whoami-public-user
                                 security/wrap-access
                                 security/wrap-db-client]}
@@ -114,7 +118,7 @@
       (reitit-ring/routes
         (swagger-ui/create-swagger-ui-handler
           {:path   "/api/documentation"
-           :url    "/api/openapi.json"
+           :url    "/api/documentation/openapi.json"
            :config {:validatorUrl     nil
                     :operationsSorter "alpha"}})
         ;; serve not found responses (404, 405, 406):
