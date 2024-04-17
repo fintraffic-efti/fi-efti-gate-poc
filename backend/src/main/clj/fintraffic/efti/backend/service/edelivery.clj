@@ -7,6 +7,7 @@
             [fintraffic.efti.schema.consignment :as consignment-schema]
             [fintraffic.efti.schema.edelivery :as edelivery-schema]
             [fintraffic.efti.schema.edelivery.message-direction :as message-direction]
+            [fintraffic.efti.schema.edelivery.message-type :as message-type]
             [fintraffic.efti.schema.query :as query-schema]
             [malli.core :as malli]
             [malli.transform :as malli-transform]
@@ -53,7 +54,8 @@
 (defn find-messages [db conversation-id]
   (db-query/find-by db :ed-message edelivery-schema/Message
                     {:conversation-id (str conversation-id)
-                     :direction-id message-direction/in}))
+                     :type-id         message-type/response
+                     :direction-id    message-direction/in}))
 
 (defn find-messages-until [db conversation-id predicate timeout]
   (let [response (atom [])

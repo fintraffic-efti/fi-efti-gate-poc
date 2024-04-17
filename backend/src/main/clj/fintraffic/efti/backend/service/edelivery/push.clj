@@ -1,7 +1,6 @@
 (ns fintraffic.efti.backend.service.edelivery.push
   (:require
     [clojure.data.xml :as xml]
-    [fintraffic.common.debug :as debug]
     [fintraffic.common.xml :as fxml]
     [fintraffic.common.xpath :as xpath]
     [fintraffic.efti.backend.service.consignment :as consignment-service]
@@ -42,7 +41,7 @@
 (defn find-consignment [db config message xml]
   (->>
     xml edelivery/xml->uil
-    (consignment-service/find-consignment-db db)
+    (consignment-service/find-consignment db config)
     (edelivery-ws-service/send-find-consignment-response-message! db config message)))
 
 (defn find-consignments [db config message xml]

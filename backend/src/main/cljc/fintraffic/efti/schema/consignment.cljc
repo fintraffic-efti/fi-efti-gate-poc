@@ -33,3 +33,5 @@
 (def ConsignmentQuery
   (schema/optional-keys
     {:vehicle-id (schema/LimitedString 200)}))
+
+(def UILQuery (assoc UIL :dataset-id keyword?))

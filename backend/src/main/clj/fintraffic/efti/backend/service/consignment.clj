@@ -35,29 +35,30 @@
        (map db->consignment)
        first))
 
-(defn find-consignment-gate [db config uil]
+(defn find-consignment-gate [db config query]
   (let [conversation-id (edelivery-service/new-conversation-id db)
-        request (edelivery-ws-service/send-find-consignment-message! db config conversation-id uil)
+        request (edelivery-ws-service/send-find-consignment-message! db config conversation-id query)
         response (edelivery-service/find-messages-until db conversation-id (complement empty?) 60000)]
     (if (empty? response)
-      (exception/throw-ex-info! :timeout (str "Foreign gate " (:gate-id uil)
+      (exception/throw-ex-info! :timeout (str "Foreign gate " (:gate-id query)
                                               " did not respond within 60s. Request message id: "
                                               (:message-id request)))
       (-> response first :payload xml/parse-str fxml/element->sexp
           edelivery/xml->consignment))))
 
-(defn find-consignment [db config _whoami uil]
-  (if (= (:gate-id config) (:gate-id uil))
-    (find-consignment-db db uil)
-    (find-consignment-gate db config uil)))
-
-
-(defn find-platform-consignment [db whoami uil]
+(defn find-platform-consignment [db uil]
   (when-let [consignment (find-consignment-db db uil)]
     (:body (http/get (str (->> consignment :platform-id Long/parseLong
                                (user-service/find-whoami-by-id db user-schema/Platform)
                                :platform-url)
                           "/consignments/" (:data-id uil))))))
+
+(defn find-consignment [db config query]
+  (if (= (:gate-id config) (:gate-id query))
+    (if (nil? (:dataset-id query))
+      (find-consignment-db db query)
+      (find-platform-consignment db query))
+    (find-consignment-gate db config query)))
 
 (def default-query-params
   {:limit      10

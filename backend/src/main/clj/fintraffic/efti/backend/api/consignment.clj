@@ -35,7 +35,7 @@
              :responses  {200 {:body consignment-schema/Consignment}}
              :handler    (fn [{{:keys [path]} :parameters :keys [db config whoami]}]
                            (api-response/get-response
-                             (consignment-service/find-consignment db config whoami (uil path config whoami))
+                             (consignment-service/find-consignment db config (uil path config whoami))
                              (api-response/msg-404 "consignment" path)))}}]))
 
 (def aap
@@ -51,20 +51,22 @@
                             (r/response (consignment-service/find-consignments db config (:query parameters))))}}]
      ["/:gate-id/:platform-id/:data-id"
       ["/identifiers"
-       {:get {:summary    "Find an existing consignment by uil - gate subset"
+       {:conflicting true
+        :get         {:summary    "Find an existing consignment by uil - gate subset"
               :access     any?
               :parameters {:path consignment-schema/UIL}
               :responses  {200 {:body consignment-schema/Consignment}}
-              :handler    (fn [{{:keys [path]} :parameters :keys [db config whoami]}]
+              :handler    (fn [{{:keys [path]} :parameters :keys [db config]}]
                             (api-response/get-response
-                              (consignment-service/find-consignment db config whoami path)
+                              (consignment-service/find-consignment db config path)
                               (api-response/msg-404 "consignment" path)))}}]
-      ["/full"
-       {:get {:summary    "Find an existing consignment by uil - full dataset from the platform"
+      ["/:dataset-id"
+       {:conflicting true
+        :get {:summary    "Find an existing consignment by uil - full dataset or some subset from the platform"
               :access     any?
-              :parameters {:path consignment-schema/UIL}
+              :parameters {:path consignment-schema/UILQuery}
               :responses  {200 {:body any?}}
-              :handler    (fn [{{:keys [path]} :parameters :keys [db whoami]}]
+              :handler    (fn [{{:keys [path]} :parameters :keys [db config]}]
                             (api-response/get-response
-                              (consignment-service/find-platform-consignment db whoami path)
+                              (consignment-service/find-consignment db config path)
                               (api-response/msg-404 "consignment" path)))}}]]]))
