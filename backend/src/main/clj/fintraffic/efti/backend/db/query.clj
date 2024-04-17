@@ -75,7 +75,7 @@
     {:name :string
      :decoders (assoc (malli-transform/-string-decoders)
                  'number? (maybe/lift1 bigdec)
-                 'inst? tick/instant)
+                 'inst? (maybe/lift1 tick/instant))
      :encoders (malli-transform/-string-encoders)}))
 
 (defn decoder [schema]
