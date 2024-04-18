@@ -8,6 +8,10 @@ def get_with_parameter(data_id):
     response = {
         'country-start-id': 'FI',
         'data-id': data_id,
+        'gate-id': 'finland',
+        'platform-id': -11,
+        'id': 2,
+        'transport-vehicles': []
     }
     return response, 200
 

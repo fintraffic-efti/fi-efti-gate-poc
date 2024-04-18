@@ -51,7 +51,8 @@
     (:body (http/get (str (->> consignment :platform-id Long/parseLong
                                (user-service/find-whoami-by-id db user-schema/Platform)
                                :platform-url)
-                          "/consignments/" (:data-id uil))))))
+                          "/consignments/" (:data-id uil))
+                     {:as :json}))))
 
 (defn find-consignment [db config query]
   (if (= (:gate-id config) (:gate-id query))
