@@ -44,8 +44,8 @@
 
 (defn xml->object [list-element? xml]
   (let [xml (walk/postwalk (logic/when* vector? (partial filterv (complement map?))) xml)]
-    (cond (and (-> xml second vector?) (-> xml first list-element?))
-          (mapv #(xml->object list-element? %) (rest xml))
+    (cond (-> xml first list-element?)
+          (or (mapv #(xml->object list-element? %) (rest xml)) [])
           (-> xml second vector?)
           (into {} (map #(vector (first %) (xml->object list-element? %))) (rest xml))
           :else (second xml))))
