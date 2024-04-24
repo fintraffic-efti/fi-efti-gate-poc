@@ -2,7 +2,6 @@
   (:require [fintraffic.efti.backend.api.response :as api-response]
             [fintraffic.efti.backend.service.consignment :as consignment-service]
             [fintraffic.efti.schema :as schema]
-            [fintraffic.efti.schema.query :as query-schema]
             [fintraffic.efti.schema.consignment :as consignment-schema]
             [malli.experimental.lite :as lmalli]
             [ring.util.response :as r]))
@@ -44,8 +43,7 @@
      [""
       {:get  {:summary    "Find consignments"
               :access     any?
-              :parameters {:query (merge (query-schema/Window 100)
-                                         consignment-schema/ConsignmentQuery)}
+              :parameters {:query consignment-schema/ConsignmentQuery}
               :responses  {200 {:body (lmalli/vector consignment-schema/Consignment)}}
               :handler    (fn [{:keys [db config parameters]}]
                             (r/response (consignment-service/find-consignments db config (:query parameters))))}}]

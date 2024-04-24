@@ -84,6 +84,5 @@
 
 (defn query->xml [uil] (fxml/object->xml :query {} uil))
 (def coerce-query
-  (malli/coercer (schema/schema (merge (query-schema/Window 100)
-                                       consignment-schema/ConsignmentQuery)) transformer))
+  (malli/coercer (schema/schema consignment-schema/ConsignmentQuery) transformer))
 (defn xml->query [xml] (->> xml (fxml/xml->object #{}) coerce-query))

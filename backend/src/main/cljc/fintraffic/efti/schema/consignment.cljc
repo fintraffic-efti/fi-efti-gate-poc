@@ -1,7 +1,8 @@
 (ns fintraffic.efti.schema.consignment
   (:require
     [fintraffic.efti.schema :as schema]
-    [fintraffic.efti.schema.geo :as geo]))
+    [fintraffic.efti.schema.geo :as geo]
+    [fintraffic.efti.schema.query :as query-schema]))
 
 (def UIL
   {:gate-id     (schema/LimitedString 200)
@@ -31,7 +32,9 @@
 (def Consignment (assoc (merge ConsignmentSave UIL) :id schema/Id))
 
 (def ConsignmentQuery
-  (schema/optional-keys
-    {:vehicle-id (schema/LimitedString 200)}))
+  (-> {:vehicle-id (schema/LimitedString 200)
+       :gate-ids (schema/vector (schema/LimitedString 200))}
+      (merge (query-schema/Window 100))
+      schema/optional-keys))
 
 (def UILQuery (assoc UIL :dataset-id keyword?))

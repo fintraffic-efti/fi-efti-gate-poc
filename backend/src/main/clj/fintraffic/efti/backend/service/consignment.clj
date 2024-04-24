@@ -1,6 +1,7 @@
 (ns fintraffic.efti.backend.service.consignment
   (:require [clj-http.client :as http]
             [clojure.data.xml :as xml]
+            [fintraffic.common.debug :as debug]
             [fintraffic.common.xml :as fxml]
             [fintraffic.efti.backend.db :as db]
             [fintraffic.efti.backend.db.dml :as dml]
@@ -73,8 +74,11 @@
        (map db->consignment)))
 
 (defn find-consignments-gate [db config query]
-  (let [conversation-id (edelivery-service/new-conversation-id db)
-        gate-ids (:gate-ids config)]
+  (let [query (merge {:limit 10 :offset 0} query)
+        conversation-id (edelivery-service/new-conversation-id db)
+        gate-ids (if (empty? (:gate-ids query)) (:gate-ids config)
+                   (-> query :gate-ids set (disj (:gate-id config))))
+        query (dissoc query :gate-ids)]
     (doseq [to-id gate-ids]
       (edelivery-ws-service/send-find-consignments-message! db config conversation-id to-id query))
     (->>
@@ -84,5 +88,7 @@
 
 (defn find-consignments [db config query]
   (concat
-    (find-consignments-db db query)
+    (if (or (empty? (:gate-ids query))
+            (-> query :gate-ids set (contains? (:gate-id config))))
+      (find-consignments-db db query) [])
     (find-consignments-gate db config query)))
