@@ -8,7 +8,7 @@
     [fintraffic.efti.backend.api.edelivery :as edelivery-api]
     [fintraffic.efti.backend.exception :as exception]
     [fintraffic.efti.backend.header-middleware :as header-middleware]
-    [fintraffic.efti.backend.muuntaja :as muuntaja]
+    [muuntaja.core :as muuntaja]
     [fintraffic.efti.backend.security :as security]
     [fintraffic.efti.backend.version :as version]
     [fintraffic.efti.reitit :as efti-reitit]
@@ -94,7 +94,11 @@
    :exception pretty/exception
    :validate  reitit-spec/validate
    :data      {:coercion   efti-reitit/coercion
-               :muuntaja   muuntaja/instance
+               :muuntaja   (muuntaja/create
+                             (update muuntaja/default-options :formats
+                                     #(dissoc % "application/edn"
+                                              "application/transit+json"
+                                              "application/transit+msgpack")))
                :middleware [reitit-openapi/openapi-feature
                             header-middleware/wrap-default-content-type
                             reitit-parameters/parameters-middleware
