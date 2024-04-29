@@ -3,6 +3,7 @@
             [fintraffic.efti.backend.service.consignment :as consignment-service]
             [fintraffic.efti.schema :as schema]
             [fintraffic.efti.schema.consignment :as consignment-schema]
+            [fintraffic.efti.schema.role :as role]
             [malli.experimental.lite :as lmalli]
             [ring.util.response :as r]))
 
@@ -16,7 +17,7 @@
   (with-bindings {#'lmalli/*options* schema/options}
     ["/consignments/:data-id"
       {:put {:summary    "Add new or update an existing consignment - gate subset"
-             :access     any?
+             :access     role/platform?
              :parameters {:path ConsignmentId
                           :body consignment-schema/ConsignmentSave}
              :responses  {200 {:body nil?}}
@@ -29,7 +30,7 @@
                               {:constraint :consignment-country-end-id-fkey :response 400}]))}
 
        :get {:summary    "Find an existing consignment by uil - gate subset"
-             :access     any?
+             :access     role/platform?
              :parameters {:path ConsignmentId}
              :responses  {200 {:body consignment-schema/Consignment}}
              :handler    (fn [{{:keys [path]} :parameters :keys [db config whoami]}]
@@ -42,7 +43,7 @@
     ["/consignments"
      [""
       {:get  {:summary    "Find consignments"
-              :access     any?
+              :access     role/ca?
               :parameters {:query consignment-schema/ConsignmentQuery}
               :responses  {200 {:body (lmalli/vector consignment-schema/Consignment)}}
               :handler    (fn [{:keys [db config parameters]}]
@@ -51,7 +52,7 @@
       ["/identifiers"
        {:conflicting true
         :get         {:summary    "Find an existing consignment by uil - gate subset"
-              :access     any?
+              :access     role/ca?
               :parameters {:path consignment-schema/UIL}
               :responses  {200 {:body consignment-schema/Consignment}}
               :handler    (fn [{{:keys [path]} :parameters :keys [db config]}]
@@ -61,7 +62,7 @@
       ["/:dataset-id"
        {:conflicting true
         :get {:summary    "Find an existing consignment by uil - full dataset or some subset from the platform"
-              :access     any?
+              :access     role/ca?
               :parameters {:path consignment-schema/UILQuery}
               :responses  {200 {:body any?}}
               :handler    (fn [{{:keys [path]} :parameters :keys [db config]}]

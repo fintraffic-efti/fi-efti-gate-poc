@@ -77,7 +77,7 @@
                                   security/wrap-db-client]}
      (tag "Platform user API" (user-api/whoami user-schema/Platform))
      (tag "Platform consignment API" consignment-api/platform)]
-    ["/v1/aap" {:middleware [#(security/wrap-whoami-static-user % user-schema/SystemUser -20) ;;TODO: authentication
+    ["/v1/aap" {:middleware [#(security/wrap-certificate-whoami % user-schema/SystemUser)
                              security/wrap-access
                              security/wrap-db-client]}
      (tag "CA user API" (user-api/whoami user-schema/SystemUser))
