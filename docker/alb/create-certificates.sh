@@ -43,9 +43,9 @@ echo "Create certificates from requests"
 openssl x509 -req -days 365 -in gate-efti-localhost.csr -CA root-ca.crt -CAkey root-ca.key -CAcreateserial \
   -out gate-efti-localhost.crt -extfile ../gate-efti-localhost.cnf -passin pass:$pwd
 openssl x509 -req -days 365 -in test-platform-fi-1.csr -CA platform-ca.crt -CAkey platform-ca.key -CAcreateserial \
-  -out test-platform-fi-1.crt -extfile ../test-platform.cnf -passin pass:$pwd
+  -out test-platform-fi-1.crt -extfile ../test-platform-fi-1.cnf -passin pass:$pwd
 openssl x509 -req -days 365 -in test-platform-fi-2.csr -CA platform-ca.crt -CAkey platform-ca.key -CAcreateserial \
-  -out test-platform-fi-2.crt -extfile ../test-platform.cnf -passin pass:$pwd
+  -out test-platform-fi-2.crt -extfile ../test-platform-fi-2.cnf -passin pass:$pwd
 openssl x509 -req -days 365 -in mock-platform.csr -CA platform-ca.crt -CAkey platform-ca.key -CAcreateserial \
   -out mock-platform.crt -extfile ../mock-platform.cnf -passin pass:$pwd
 openssl x509 -req -days 365 -in aap.csr -CA aap-ca.crt -CAkey aap-ca.key -CAcreateserial \
