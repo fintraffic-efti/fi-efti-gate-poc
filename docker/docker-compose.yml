@@ -49,9 +49,11 @@ services:
       MOCK_PLATFORM_DATA_DIR: /var/data/
 
   harmony-ap-fi:
-    image: niis/harmony-ap:2.2.0
+    image: efti/harmony:latest
     depends_on:
       - harmony-db-fi
+    env_file:
+      - harmony/fi/.env
     environment:
       - DB_HOST=harmony-db-fi
       - DB_SCHEMA=harmony_ap
@@ -69,13 +71,6 @@ services:
       - "127.0.0.1:8443:8443"
     extra_hosts:
       - "host.containers.internal:host-gateway"
-    volumes:
-      - type: bind
-        source: ./harmony/fi/etc
-        target: /var/opt/harmony-ap/etc
-      - type: bind
-        source: ./harmony/fi/wsplugin.properties
-        target: /opt/harmony-ap/plugins/config/ws-plugin.properties
     restart: on-failure
     mem_limit: 1500m
 
@@ -93,9 +88,11 @@ services:
     mem_limit: 512m
 
   harmony-ap-se:
-    image: niis/harmony-ap:2.2.0
+    image: efti/harmony:latest
     depends_on:
       - harmony-db-se
+    env_file:
+      - harmony/se/.env
     environment:
       - DB_HOST=harmony-db-se
       - DB_SCHEMA=harmony_ap
@@ -111,13 +108,6 @@ services:
       - DOMIBUS_AUTH_UNSECURELOGINALLOWED=true
     ports:
       - "127.0.0.1:8444:8443"
-    volumes:
-      - type: bind
-        source: ./harmony/se/etc
-        target: /var/opt/harmony-ap/etc
-      - type: bind
-        source: ./harmony/se/wsplugin.properties
-        target: /opt/harmony-ap/plugins/config/ws-plugin.properties
     restart: on-failure
     mem_limit: 1500m
 

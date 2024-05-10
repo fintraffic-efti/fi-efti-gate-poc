@@ -7,8 +7,8 @@ chmod a+r initdb/01-init.sql
 
 ./alb/create-certificates.sh
 
-./harmony/init.sh 'fi'
-./harmony/init.sh 'se'
+./harmony/config.sh 'fi'
+./harmony/config.sh 'se'
 
 echo "Build gate image"
 ../backend/build-docker-image.sh

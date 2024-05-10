@@ -1,3 +1,5 @@
 alb/certificates
 harmony/fi/etc
 harmony/se/etc
+/harmony/fi/.env
+/harmony/se/.env
