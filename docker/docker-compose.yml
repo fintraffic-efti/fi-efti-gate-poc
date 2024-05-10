@@ -60,6 +60,7 @@ services:
       - DB_PASSWORD=efti
       - ADMIN_PASSWORD=efti
       - EFTI_PMODE_ADMIN_PASSWORD=efti_pmode
+      - DOMIBUS_PLUGIN_PASSWORDPOLICY_PATTERN=^.+$
       - USE_DYNAMIC_DISCOVERY=false
       - PARTY_NAME=fi_1_efti
       - SERVER_FQDN=harmony-ap-fi
@@ -100,6 +101,7 @@ services:
       - DB_PASSWORD=efti
       - ADMIN_PASSWORD=efti
       - EFTI_PMODE_ADMIN_PASSWORD=efti_pmode
+      - DOMIBUS_PLUGIN_PASSWORDPOLICY_PATTERN=^.+$
       - USE_DYNAMIC_DISCOVERY=false
       - PARTY_NAME=se_1_efti
       - SERVER_FQDN=harmony-ap-se
