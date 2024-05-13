@@ -35,6 +35,8 @@ jobs:
           key: cljdeps-${{ hashFiles('deps.edn') }}
           restore-keys: cljdeps-
 
+      - uses: ./.github/actions/aws-ecr-login
+
       - name: Start database
         run: ./start.sh
         working-directory: ./docker

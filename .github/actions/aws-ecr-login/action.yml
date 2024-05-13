@@ -1,0 +1,26 @@
+name: AWS POC account login
+
+inputs:
+  region:
+    description: AWS Region
+    required: false
+    default: 'eu-west-1'
+
+outputs:
+  registry:
+    description: AWS ECR Registry
+    value: ${{ steps.login-ecr.outputs.registry }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ env.AWS_DEPLOY_ROLE }}
+        role-session-name: githubdeploymentsession
+        aws-region: ${{ inputs.region }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
