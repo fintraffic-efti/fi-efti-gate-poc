@@ -15,7 +15,13 @@ An objective is to an implement efti gateway main features using the best availa
 
 ## Start
 
-Start development environment and efti gateway:
+Harmony image is pulled from Amazon ECR. You need to do docker login before starting the efti gateway:
+
+```bash
+./infra/bin/docker-login.sh efti-poc
+```
+
+After that, you can start development environment and efti gateway:
 
 ```bash
 docker/start.sh && env $(cat backend/.env | xargs) backend/start.sh
