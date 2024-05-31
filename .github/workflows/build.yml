@@ -5,6 +5,11 @@ on:
 #    branches: [ "master" ]
 #  pull_request:
 #    branches: [ "master" ]
+  workflow_call:
+    secrets:
+        AWS_DEPLOY_ROLE:
+            required: true
+            description: "The ARN of the role to assume for deployment"
 env:
   AWS_REGION: "eu-west-1"
   ECR_REPOSITORY_DB: "efti/db"
@@ -36,6 +41,8 @@ jobs:
           restore-keys: cljdeps-
 
       - uses: ./.github/actions/aws-ecr-login
+        with:
+          AWS_DEPLOY_ROLE: ${{ secrets.AWS_DEPLOY_ROLE }}
 
       - name: Start database
         run: ./start.sh
@@ -54,7 +61,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.AWS_DEPLOY_ROLE }}
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
           role-session-name: githubdeploymentsession
           aws-region: ${{ env.AWS_REGION }}
 
@@ -77,7 +84,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         working-directory: ./backend
-        run: | 
+        run: |
           ./build-docker-image.sh $ECR_REGISTRY
           docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_DB:$IMAGE_TAG" >> $GITHUB_OUTPUT
