@@ -9,7 +9,9 @@
    {:get {:summary   "Find current signed in user"
           :responses {200 {:body schema}}
           :handler   (fn [{:keys [whoami]}]
-                       (r/response whoami))}}])
+                       (r/response (-> whoami
+                                       (update :id str)
+                                       (update :role-id str))))}}])
 
 (def routes
   [whoami
