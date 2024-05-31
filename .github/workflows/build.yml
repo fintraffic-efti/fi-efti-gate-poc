@@ -65,9 +65,9 @@ jobs:
           role-session-name: githubdeploymentsession
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@ebdeac79a5f9525e298b368a491c338b8fd60fe9
+      - uses: ./.github/actions/aws-ecr-login
+        with:
+          AWS_DEPLOY_ROLE: ${{ secrets.AWS_DEPLOY_ROLE }}
 
       - name: Build db migration tool image
         env:
