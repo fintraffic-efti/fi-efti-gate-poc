@@ -7,9 +7,9 @@
 * See [docker](../docker/README.md)
 
 ## Usage
-
-Start development environment: ```../docker/start.sh```.
-See more from [docker](../docker/README.md)
+* Build harmony image for eDelivery AP from `fi-efti-harmony` repository
+* Start development environment: ```../docker/start.sh```
+* See more from [docker](../docker/README.md)
 
 ### Bash
 Start backend for development environment: 
