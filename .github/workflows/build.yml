@@ -10,6 +10,9 @@ on:
         AWS_DEPLOY_ROLE:
             required: true
             description: "The ARN of the role to assume for deployment"
+        AWS_POC_ACCOUNT:
+            required: true
+            description: "The account number of the POC account"
 env:
   AWS_REGION: "eu-west-1"
   ECR_REPOSITORY_DB: "efti/db"
@@ -43,6 +46,11 @@ jobs:
       - uses: ./.github/actions/aws-ecr-login
         with:
           AWS_DEPLOY_ROLE: ${{ secrets.AWS_DEPLOY_ROLE }}
+
+      - name: Pull harmony image for tests
+        run: \
+          docker pull ${{ secrets.AWS_POC_ACCOUNT }}.dkr.ecr.eu-west-1.amazonaws.com/efti/harmony:latest
+          docker tag ${{ secrets.AWS_POC_ACCOUNT }}.dkr.ecr.eu-west-1.amazonaws.com/efti/harmony:latest efti/harmony:latest
 
       - name: Start database
         run: ./start.sh
