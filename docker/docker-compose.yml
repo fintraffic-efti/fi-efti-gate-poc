@@ -49,7 +49,7 @@ services:
       MOCK_PLATFORM_DATA_DIR: /var/data/
 
   harmony-ap-fi:
-    image: efti/harmony
+    image: efti/harmony:latest
     depends_on:
       - harmony-db-fi
     env_file:
@@ -90,7 +90,7 @@ services:
     mem_limit: 512m
 
   harmony-ap-se:
-    image: efti/harmony
+    image: efti/harmony:latest
     depends_on:
       - harmony-db-se
     env_file:
