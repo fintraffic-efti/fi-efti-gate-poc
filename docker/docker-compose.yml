@@ -48,14 +48,14 @@ services:
     environment:
       MOCK_PLATFORM_DATA_DIR: /var/data/
 
-  harmony-ap-fi1:
+  edelivery-ap-fi1:
     image: efti/harmony:latest
     depends_on:
-      - harmony-db-fi1
+      - edelivery-db-fi1
     env_file:
       - harmony/fi1/.env
     environment:
-      - DB_HOST=harmony-db-fi1
+      - DB_HOST=edelivery-db-fi1
       - DB_SCHEMA=harmony_ap
       - DB_PASSWORD=efti
       - ADMIN_PASSWORD=efti
@@ -63,7 +63,7 @@ services:
       - DOMIBUS_PLUGIN_PASSWORDPOLICY_PATTERN=^.+$
       - USE_DYNAMIC_DISCOVERY=false
       - PARTY_NAME=fi1
-      - SERVER_FQDN=harmony-ap-fi1
+      - SERVER_FQDN=edelivery-ap-fi1
       - SECURITY_KEYSTORE_PASSWORD=ap-keystore-fi1
       - SECURITY_TRUSTSTORE_PASSWORD=ap-truststore-fi1
       - TLS_KEYSTORE_PASSWORD=tls-keystore-fi1
@@ -76,7 +76,7 @@ services:
     restart: on-failure
     mem_limit: 1500m
 
-  harmony-db-fi1:
+  edelivery-db-fi1:
     image: mysql:8
     environment:
       - MYSQL_ROOT_PASSWORD=efti
@@ -89,14 +89,14 @@ services:
     restart: on-failure
     mem_limit: 512m
 
-  harmony-ap-fi2:
+  edelivery-ap-fi2:
     image: efti/harmony:latest
     depends_on:
-      - harmony-db-fi2
+      - edelivery-db-fi2
     env_file:
       - harmony/fi2/.env
     environment:
-      - DB_HOST=harmony-db-fi2
+      - DB_HOST=edelivery-db-fi2
       - DB_SCHEMA=harmony_ap
       - DB_PASSWORD=efti
       - ADMIN_PASSWORD=efti
@@ -104,7 +104,7 @@ services:
       - DOMIBUS_PLUGIN_PASSWORDPOLICY_PATTERN=^.+$
       - USE_DYNAMIC_DISCOVERY=false
       - PARTY_NAME=fi2
-      - SERVER_FQDN=harmony-ap-fi2
+      - SERVER_FQDN=edelivery-ap-fi2
       - SECURITY_KEYSTORE_PASSWORD=ap-keystore-fi2
       - SECURITY_TRUSTSTORE_PASSWORD=ap-truststore-fi2
       - TLS_KEYSTORE_PASSWORD=tls-keystore-fi2
@@ -115,7 +115,7 @@ services:
     restart: on-failure
     mem_limit: 1500m
 
-  harmony-db-fi2:
+  edelivery-db-fi2:
     image: mysql:8
     environment:
       - MYSQL_ROOT_PASSWORD=efti

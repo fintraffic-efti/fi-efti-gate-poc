@@ -5,6 +5,12 @@
 # clojure
 .cpcache
 .nrepl-port
+/.clj-kondo/.cache/
+.lsp/
 
 # MacOS
 .DS_Store
+
+# Emacs
+.dir-locals.el
+

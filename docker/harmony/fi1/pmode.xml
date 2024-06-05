@@ -12,10 +12,10 @@
         <partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
         <partyIdType name="urn:oasis:names:tc:ebcore:partyid-type:EU-LU3" value=""/>
       </partyIdTypes>
-      <party name="fi1" endpoint="https://harmony-ap-fi1:8443/services/msh">
+      <party name="fi1" endpoint="https://edelivery-ap-fi1:8443/services/msh">
         <identifier partyId="fi1" partyIdType="partyTypeUrn"/>
       </party>
-      <party name="fi2" endpoint="https://harmony-ap-fi2:8443/services/msh">
+      <party name="fi2" endpoint="https://edelivery-ap-fi2:8443/services/msh">
         <identifier partyId="fi2" partyIdType="partyTypeUrn"/>
       </party>
     </parties>
