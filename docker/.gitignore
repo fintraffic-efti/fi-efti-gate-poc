@@ -1,5 +1,5 @@
 alb/certificates
-harmony/fi/etc
-harmony/se/etc
-/harmony/fi/.env
-/harmony/se/.env
+harmony/fi1/etc
+harmony/fi2/etc
+/harmony/fi1/.env
+/harmony/fi2/.env

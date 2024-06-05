@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:configuration xmlns:ns2="http://domibus.eu/configuration" party="fi_1_efti">
+<ns2:configuration xmlns:ns2="http://domibus.eu/configuration" party="fi2">
   <businessProcesses>
     <roles>
       <role name="defaultInitiatorRole"
@@ -12,11 +12,11 @@
         <partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
         <partyIdType name="urn:oasis:names:tc:ebcore:partyid-type:EU-LU3" value=""/>
       </partyIdTypes>
-      <party name="fi_1_efti" endpoint="https://harmony-ap-fi:8443/services/msh">
-        <identifier partyId="finland" partyIdType="partyTypeUrn"/>
+      <party name="fi1" endpoint="https://harmony-ap-fi1:8443/services/msh">
+        <identifier partyId="fi1" partyIdType="partyTypeUrn"/>
       </party>
-      <party name="se_1_efti" endpoint="https://harmony-ap-se:8443/services/msh">
-        <identifier partyId="sweden" partyIdType="partyTypeUrn"/>
+      <party name="fi2" endpoint="https://harmony-ap-fi2:8443/services/msh">
+        <identifier partyId="fi2" partyIdType="partyTypeUrn"/>
       </party>
     </parties>
     <meps>
@@ -87,12 +87,12 @@
     <process name="tc1Process" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole" mep="oneway"
              binding="push">
       <initiatorParties>
-        <initiatorParty name="fi_1_efti"/>
-        <initiatorParty name="se_1_efti"/>
+        <initiatorParty name="fi1"/>
+        <initiatorParty name="fi2"/>
       </initiatorParties>
       <responderParties>
-        <responderParty name="fi_1_efti"/>
-        <responderParty name="se_1_efti"/>
+        <responderParty name="fi1"/>
+        <responderParty name="fi2"/>
       </responderParties>
       <legs>
         <leg name="testLeg1"/>

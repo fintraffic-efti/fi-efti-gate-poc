@@ -48,26 +48,26 @@ services:
     environment:
       MOCK_PLATFORM_DATA_DIR: /var/data/
 
-  harmony-ap-fi:
+  harmony-ap-fi1:
     image: efti/harmony:latest
     depends_on:
-      - harmony-db-fi
+      - harmony-db-fi1
     env_file:
-      - harmony/fi/.env
+      - harmony/fi1/.env
     environment:
-      - DB_HOST=harmony-db-fi
+      - DB_HOST=harmony-db-fi1
       - DB_SCHEMA=harmony_ap
       - DB_PASSWORD=efti
       - ADMIN_PASSWORD=efti
       - EFTI_PMODE_ADMIN_PASSWORD=efti_pmode
       - DOMIBUS_PLUGIN_PASSWORDPOLICY_PATTERN=^.+$
       - USE_DYNAMIC_DISCOVERY=false
-      - PARTY_NAME=fi_1_efti
-      - SERVER_FQDN=harmony-ap-fi
-      - SECURITY_KEYSTORE_PASSWORD=efti1234
-      - SECURITY_TRUSTSTORE_PASSWORD=efti1234
-      - TLS_KEYSTORE_PASSWORD=efti1234
-      - TLS_TRUSTSTORE_PASSWORD=efti1234
+      - PARTY_NAME=fi1
+      - SERVER_FQDN=harmony-ap-fi1
+      - SECURITY_KEYSTORE_PASSWORD=ap-keystore-fi1
+      - SECURITY_TRUSTSTORE_PASSWORD=ap-truststore-fi1
+      - TLS_KEYSTORE_PASSWORD=tls-keystore-fi1
+      - TLS_TRUSTSTORE_PASSWORD=tls-truststore-fi1
       - DOMIBUS_AUTH_UNSECURELOGINALLOWED=true
     ports:
       - "127.0.0.1:8443:8443"
@@ -76,7 +76,7 @@ services:
     restart: on-failure
     mem_limit: 1500m
 
-  harmony-db-fi:
+  harmony-db-fi1:
     image: mysql:8
     environment:
       - MYSQL_ROOT_PASSWORD=efti
@@ -89,33 +89,33 @@ services:
     restart: on-failure
     mem_limit: 512m
 
-  harmony-ap-se:
+  harmony-ap-fi2:
     image: efti/harmony:latest
     depends_on:
-      - harmony-db-se
+      - harmony-db-fi2
     env_file:
-      - harmony/se/.env
+      - harmony/fi2/.env
     environment:
-      - DB_HOST=harmony-db-se
+      - DB_HOST=harmony-db-fi2
       - DB_SCHEMA=harmony_ap
       - DB_PASSWORD=efti
       - ADMIN_PASSWORD=efti
       - EFTI_PMODE_ADMIN_PASSWORD=efti_pmode
       - DOMIBUS_PLUGIN_PASSWORDPOLICY_PATTERN=^.+$
       - USE_DYNAMIC_DISCOVERY=false
-      - PARTY_NAME=se_1_efti
-      - SERVER_FQDN=harmony-ap-se
-      - SECURITY_KEYSTORE_PASSWORD=efti1234
-      - SECURITY_TRUSTSTORE_PASSWORD=efti1234
-      - TLS_KEYSTORE_PASSWORD=efti1234
-      - TLS_TRUSTSTORE_PASSWORD=efti1234
+      - PARTY_NAME=fi2
+      - SERVER_FQDN=harmony-ap-fi2
+      - SECURITY_KEYSTORE_PASSWORD=ap-keystore-fi2
+      - SECURITY_TRUSTSTORE_PASSWORD=ap-truststore-fi2
+      - TLS_KEYSTORE_PASSWORD=tls-keystore-fi2
+      - TLS_TRUSTSTORE_PASSWORD=tls-truststore-fi2
       - DOMIBUS_AUTH_UNSECURELOGINALLOWED=true
     ports:
       - "127.0.0.1:8444:8443"
     restart: on-failure
     mem_limit: 1500m
 
-  harmony-db-se:
+  harmony-db-fi2:
     image: mysql:8
     environment:
       - MYSQL_ROOT_PASSWORD=efti
@@ -128,9 +128,9 @@ services:
     restart: on-failure
     mem_limit: 512m
 
-  gate-se:
+  gate-fi2:
     image: efti/backend:latest
-    env_file: gate-se.env
+    env_file: gate-fi2.env
 
 volumes:
   data:

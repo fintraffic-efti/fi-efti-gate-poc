@@ -22,5 +22,5 @@ EFTI_DB_DATABASE_NAME="efti_template" ./db.sh $1
 # Run test migrations to efti_dev
 EFTI_DB_DATABASE_NAME="efti_dev" ./db.sh $1 test
 
-# Run test migrations to efti_se
-EFTI_DB_DATABASE_NAME="efti_se" ./db.sh $1 test
+# Run test migrations to efti_fi2
+EFTI_DB_DATABASE_NAME="efti_fi2" ./db.sh $1 test

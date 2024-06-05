@@ -4,8 +4,8 @@ authorityKeyIdentifier = keyid:always, issuer:always
 keyUsage               = nonRepudiation, digitalSignature, keyEncipherment, dataEncipherment
 subjectAltName         = @alt_names
 [ alt_names ]
-DNS.1 = platform.gate.efti.fi.localhost
-DNS.2 = aap.gate.efti.fi.localhost
-DNS.3 = platform.gate.efti.se.localhost
-DNS.4 = aap.gate.efti.se.localhost
+DNS.1 = platform.gate.efti.fi1.localhost
+DNS.2 = aap.gate.efti.fi1.localhost
+DNS.3 = platform.gate.efti.fi2.localhost
+DNS.4 = aap.gate.efti.fi2.localhost
 DNS.5 = localhost

@@ -9,8 +9,8 @@
     config/default-config
     {:host         "https://localhost:8280"
      :environment  :dev
-     :gate-id      "finland"
-     :gate-ids     ["sweden"]
+     :gate-id      "fi1"
+     :gate-ids     ["fi2"]
      :edelivery-ap "https://localhost:8443/services/backend"
      :db
      {:host          "localhost"
