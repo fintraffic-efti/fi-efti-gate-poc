@@ -1,16 +1,24 @@
-create or replace procedure create_classification(table_name name)
+create or replace procedure create_classification(table_name name, id_type name)
 language plpgsql
 as $$
 begin
 execute format(
 'create table %I (
-  id int primary key,
+  id %s primary key,
   label_en text, label_fi text, label_sv text,
   abbr_en text, abbr_fi text, abbr_sv text,
   valid boolean not null default true,
   ordinal int not null default 0,
   description text
-)', table_name);
+)', table_name, id_type);
+end
+$$;
+
+create or replace procedure create_classification(table_name name)
+language plpgsql
+as $$
+begin
+  call create_classification(table_name, 'int'::name);
 end
 $$;
 
