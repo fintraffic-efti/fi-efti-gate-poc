@@ -48,6 +48,12 @@
 (defn contains-in? [m path]
   (not= (get-in m path ::undefined) ::undefined))
 
+(defn update-in-if [m path predicate f]
+  (if (predicate (get-in m path ::undefined))
+    (update-in m path f) m))
+
+(defn defined? [value] (not= value ::undefined))
+
 (defn join-key [& parts]
   (->> parts
        (map name)

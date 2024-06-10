@@ -1,9 +1,13 @@
 (ns fintraffic.efti.backend.api.route
   (:require
-    [ring.util.response :as r]
-    [malli.experimental.lite :as lmalli]
+    [clojure.walk :as walk]
+    [fintraffic.common.logic :as logic]
+    [fintraffic.common.map :as map]
+    [fintraffic.efti.backend.api.response :as api-response]
     [fintraffic.efti.schema :as schema]
-    [fintraffic.efti.backend.api.response :as api-response]))
+    [fintraffic.malli.map :as malli-map]
+    [flathead.plain :as plain]
+    [ring.util.response :as r]))
 
 (defn find-all [name schema find-all-service]
   [(str "/" name)
@@ -29,3 +33,43 @@
                              (api-response/msg-404 entity-name id))
                           [{:type     (:type error-409)
                             :response 409}]))}}])
+
+(defn rename-malli [rename malli]
+  (->> malli schema/schema (malli-map/rename-entries rename)))
+
+
+(defn rename-responses [rename responses]
+  (walk/postwalk
+    (logic/when*
+      (every-pred map-entry? #(= (key %) :body))
+      #(update % 1 (partial rename-malli rename)))
+    responses))
+
+(defn rename-properties-object [rename object]
+  (walk/postwalk (logic/when* map? #(plain/map-keys rename %)) object))
+
+(defn rename-properties-middleware [->external-name ->internal-name handler]
+  (fn [request]
+    (-> request
+        (map/update-in-if
+          [:parameters :body] map/defined?
+          (partial rename-properties-object ->internal-name))
+        handler
+        (->> (rename-properties-object ->external-name)))))
+
+(defn rename-api [->external-name ->internal-name route]
+  (->> route
+       (walk/postwalk
+         (logic/when*
+           (every-pred map-entry? #(= (key %) :parameters))
+           #(map/update-in-if % [1 :body] map/defined? (partial rename-malli ->external-name))))
+       (walk/postwalk
+         (logic/when*
+           (every-pred map-entry? #(= (key %) :responses))
+           #(update % 1 (partial rename-responses ->external-name))))
+       (walk/postwalk
+         (logic/when*
+           (every-pred map-entry? #(= (key %) :handler))
+           #(update % 1 (partial rename-properties-middleware ->external-name ->internal-name))))))
+
+
