@@ -10,7 +10,16 @@ where consignment.uil$gate_id = :gate-id and
 -- :name select-consignments
 select consignment.* from consignment_json consignment
 where
-  (:vehicle-id::text is null or exists (
-    select from transport_vehicle vehicle
-    where vehicle.consignment_id = consignment.id and vehicle.vehicle_id = :vehicle-id))
+  (:identifier::text is null or exists (
+    select from transport_movement movement
+    where movement.consignment_id = consignment.id and
+          movement.used_transport_means$identifier = :identifier
+    union all
+    select from transport_equipment equipment
+    where equipment.consignment_id = consignment.id and
+          equipment.identifier = :identifier
+    union all
+    select from carried_transport_equipment equipment
+    where equipment.consignment_id = consignment.id and
+          equipment.identifier = :identifier))
 limit :limit offset :offset;

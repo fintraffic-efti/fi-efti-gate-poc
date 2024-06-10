@@ -107,7 +107,7 @@
 (def default-query-params
   {:limit      10
    :offset     0
-   :vehicle-id nil})
+   :identifier nil})
 
 (defn find-consignments-db [db query]
   (->> query

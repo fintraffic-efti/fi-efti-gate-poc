@@ -57,7 +57,7 @@
 (def Consignment (assoc ConsignmentSave :id schema/Id :uil UIL))
 
 (def ConsignmentQuery
-  (-> {:vehicle-id (schema/LimitedString 200)
+  (-> {:identifier (schema/LimitedString 200)
        :gate-ids (schema/vector (schema/LimitedString 200))}
       (merge (query-schema/Window 100))
       schema/optional-keys))
