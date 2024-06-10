@@ -25,6 +25,12 @@
         (assoc % :uil uil)
         (flat/tree->flat "$" %)))
 
+(defn transport-equipment->db [consignment-id ordinal equipment]
+  (as-> equipment %
+        (dissoc % :carried-transport-equipments)
+        (assoc % :ordinal ordinal :consignment-id consignment-id)
+        (flat/tree->flat "$" %)))
+
 (defn save-consignment! [db _whoami uil consignment]
   (db/with-transaction
     [tx db]
@@ -37,6 +43,10 @@
                   (map-indexed #(assoc (flat/tree->flat "$" %2)
                                   :ordinal %1 :consignment-id id)
                                (:main-carriage-transport-movements consignment))
+                  [:consignment-id :ordinal] db/default-opts)
+      (dml/upsert tx :transport-equipment
+                  (map-indexed #(transport-equipment->db id %1 %2)
+                               (:utilized-transport-equipments consignment))
                   [:consignment-id :ordinal] db/default-opts))))
 
 (def db->consignment
