@@ -20,7 +20,7 @@
              :access     role/platform?
              :parameters {:path ConsignmentId
                           :body consignment-schema/ConsignmentSave}
-             :responses  {200 {:body nil?}}
+             :responses  {204 {:body nil?}}
              :handler    (fn [{{:keys [body path]} :parameters :keys [db whoami config]}]
                            (api-response/with-exceptions
                              #(do (consignment-service/save-consignment!

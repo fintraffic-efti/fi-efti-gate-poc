@@ -1,8 +1,10 @@
 (ns fintraffic.efti.backend.handler
   (:require
+    [camel-snake-kebab.core :as csk]
     [clojure.tools.logging :as log]
     [clojure.walk :as walk]
     [fintraffic.efti.backend.api.geo :as geo-api]
+    [fintraffic.efti.backend.api.route :as api-route]
     [fintraffic.efti.backend.api.user :as user-api]
     [fintraffic.efti.backend.api.consignment :as consignment-api]
     [fintraffic.efti.backend.api.edelivery :as edelivery-api]
@@ -72,11 +74,13 @@
                                 security/wrap-access
                                 security/wrap-db-client]}
      (tag "Geo API" geo-api/routes)]
-    ["/v1/platform" {:middleware [#(security/wrap-certificate-whoami % user-schema/Platform)
-                                  security/wrap-access
-                                  security/wrap-db-client]}
-     (tag "Platform user API" (user-api/whoami user-schema/Platform))
-     (tag "Platform consignment API" consignment-api/platform)]
+    (api-route/rename-api
+      csk/->camelCaseKeyword csk/->kebab-case-keyword
+      ["/v1/platform" {:middleware [#(security/wrap-certificate-whoami % user-schema/Platform)
+                                    security/wrap-access
+                                    security/wrap-db-client]}
+       (tag "Platform user API" (user-api/whoami user-schema/Platform))
+       (tag "Platform consignment API" consignment-api/platform)])
     ["/v1/aap" {:middleware [#(security/wrap-certificate-whoami % user-schema/SystemUser)
                              security/wrap-access
                              security/wrap-db-client]}

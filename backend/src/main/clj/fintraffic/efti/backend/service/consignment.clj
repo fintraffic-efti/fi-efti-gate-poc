@@ -2,6 +2,7 @@
   (:require [clj-http.client :as http]
             [clojure.data.xml :as xml]
             [fintraffic.common.debug :as debug]
+            [fintraffic.common.map :as map]
             [fintraffic.common.xml :as fxml]
             [fintraffic.efti.backend.db :as db]
             [fintraffic.efti.backend.db.dml :as dml]
@@ -13,24 +14,35 @@
             [fintraffic.efti.backend.service.edelivery.ws :as edelivery-ws-service]
             [fintraffic.efti.backend.service.user :as user-service]
             [fintraffic.efti.schema.consignment :as consignment-schema]
-            [fintraffic.efti.schema.user :as user-schema]))
+            [fintraffic.efti.schema.user :as user-schema]
+            [flathead.flatten :as flat]))
 
 (db/require-queries 'consignment)
+
+(defn consignment->db [uil consignment]
+  (as-> consignment %
+        (dissoc % :main-carriage-transport-movements :utilized-transport-equipments)
+        (assoc % :uil uil)
+        (flat/tree->flat "$" %)))
 
 (defn save-consignment! [db _whoami uil consignment]
   (db/with-transaction
     [tx db]
     (let [[{:keys [id]}]
           (dml/upsert tx :consignment
-                      [(merge uil (dissoc consignment :transport-vehicles))]
-                      (keys consignment-schema/UIL)
+                      [(consignment->db uil consignment)]
+                      [:uil$gate-id :uil$platform-id :uil$data-id]
                       db/default-opts)]
-      (dml/upsert tx :transport-vehicle
-                  (map-indexed #(assoc %2 :ordinal %1 :consignment-id id)
-                               (:transport-vehicles consignment))
+      (dml/upsert tx :transport-movement
+                  (map-indexed #(assoc (flat/tree->flat "$" %2)
+                                  :ordinal %1 :consignment-id id)
+                               (:main-carriage-transport-movements consignment))
                   [:consignment-id :ordinal] db/default-opts))))
 
-(def db->consignment (db-query/decoder consignment-schema/Consignment))
+(def db->consignment
+  (comp (db-query/decoder consignment-schema/Consignment)
+        db-query/flat->tree))
+
 (defn find-consignment-db [db uil]
   (->> (consignment-db/select-consignment db uil)
        (map db->consignment)
