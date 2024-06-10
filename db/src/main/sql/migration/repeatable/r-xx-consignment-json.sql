@@ -7,7 +7,7 @@ select
     select
       (select json_agg(carried) from carried_transport_equipment carried
        where carried.consignment_id = consignment.id and
-             carried.transport_equipment$ordinal = equipment.ordinal)
+             carried.transport_equipment_ordinal = equipment.ordinal)
         as carried_transport_equipments,
       equipment.* from transport_equipment equipment
     where equipment.consignment_id = consignment.id) equipment) as utilized_transport_equipments,

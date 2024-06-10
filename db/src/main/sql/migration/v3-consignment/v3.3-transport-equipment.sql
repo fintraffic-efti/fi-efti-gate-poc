@@ -15,13 +15,13 @@ create table transport_equipment (
 
 create table carried_transport_equipment (
   consignment_id     int not null references consignment (id),
-  transport_equipment$ordinal int not null,
+  transport_equipment_ordinal int not null,
   ordinal            int not null,
 
   identifier text,
   sequence_numeric int,
 
-  primary key (consignment_id, transport_equipment$ordinal, ordinal),
-  foreign key (consignment_id, transport_equipment$ordinal)
+  primary key (consignment_id, transport_equipment_ordinal, ordinal),
+  foreign key (consignment_id, transport_equipment_ordinal)
     references transport_equipment (consignment_id, ordinal)
 );
