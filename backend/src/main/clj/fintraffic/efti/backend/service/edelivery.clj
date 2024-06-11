@@ -71,13 +71,19 @@
   (-> (edelivery-db/select-next-conversation-id-seq db) first :nextval))
 
 (defn consignment-xml [consignment]
-  (fxml/object->xml :consignment {:transport-vehicles :transport-vehicle} consignment))
+  (fxml/object->xml :consignment {:main-carriage-transport-movements :transport-movement
+                                  :utilized-transport-equipments :transport-equipment
+                                  :carried-transport-equipments :transport-equipment}
+                    consignment))
 
 (def coerce-consignment
   (malli/coercer (schema/schema consignment-schema/Consignment) transformer))
 
 (defn xml->consignment [xml]
-  (->> xml (fxml/xml->object #{:transport-vehicles}) coerce-consignment))
+  (->> xml (fxml/xml->object #{:main-carriage-transport-movements
+                               :utilized-transport-equipments
+                               :carried-transport-equipments})
+       coerce-consignment))
 
 (defn uil->xml [uil] (fxml/object->xml :uil {} uil))
 (defn xml->uil [xml] (fxml/xml->object #{} xml))
