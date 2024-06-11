@@ -86,7 +86,7 @@
       ["/v1/aap" {:middleware [#(security/wrap-certificate-whoami % user-schema/SystemUser)
                                security/wrap-access
                                security/wrap-db-client]}
-       (tag "CA user API" (user-api/whoami user-schema/CAUser))
+       (tag "CA user API" (user-api/whoami user-schema/SystemUser))
        (tag "CA consignment API" consignment-api/aap)])
     ["/edelivery" {:middleware [#(security/wrap-whoami-static-user % user-schema/SystemUser
                                                                    (:edelivery user-schema/system))

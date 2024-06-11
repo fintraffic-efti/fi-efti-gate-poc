@@ -15,14 +15,7 @@
    :role-id (schema/ForeignKey :role)
    :name    (schema/maybe string?)})
 
-(def Platform (assoc SystemUser
-                     :id string?
-                     :role-id string?
-                     :platform-url (schema/maybe string?)))
-
-(def CAUser (assoc SystemUser
-                   :id string?
-                   :role-id string?))
+(def Platform (assoc SystemUser :platform-url (schema/maybe string?)))
 
 (def Role schema/Classification)
 

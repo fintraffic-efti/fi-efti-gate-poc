@@ -7,7 +7,9 @@
 (defn whoami [schema]
   ["/whoami"
    {:get {:summary   "Find current signed in user"
-          :responses {200 {:body schema}}
+          :responses {200 {:body (assoc schema
+                                   :id string?
+                                   :role-id string?)}}
           :handler   (fn [{:keys [whoami]}]
                        (r/response (-> whoami
                                        (update :id str)
