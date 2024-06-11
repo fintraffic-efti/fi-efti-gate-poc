@@ -74,12 +74,6 @@
                             :conversation-id conversation-id
                             :payload         (edelivery-service/uil->xml uil)}))
 
-(defn send-find-consignment-response-message! [db config request consignment]
-  (send-message! db config {:to-id           (:from-id request)
-                            :type-id         message-type/find-consignment
-                            :conversation-id (:conversation-id request)
-                            :payload         (edelivery-service/consignment-xml consignment)}))
-
 (defn send-find-consignments-message! [db config conversation-id gate-id query]
   (send-message! db config {:to-id           gate-id
                             :type-id         message-type/find-consignments
