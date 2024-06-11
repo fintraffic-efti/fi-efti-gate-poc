@@ -19,38 +19,38 @@
 
 (def TransportMeans
   (->
-    {:identifier (schema/LimitedString 200)}
+    {:identifier (schema/LimitedString 17)} ;eFTI618
     schema/maybe-values
-    (assoc :registration-country Country)))
+    (assoc :registration-country Country))) ;eFTI620
 
 (def TransportMovement
   (->
     {:dangerous-goods-indicator boolean?
-     :transport-mode-code       (schema/ForeignKey :transport-mode)}
+     :transport-mode-code       (schema/ForeignKey :transport-mode)} ;eFTI581
     schema/maybe-values
     (assoc :used-transport-means TransportMeans)))
 
 (def CarriedTransportEquipment
   (schema/maybe-values
-    {:identifier           (schema/LimitedString 200)
-     :sequence-numeric     int?}))
+    {:identifier           (schema/LimitedString 17) ;eFTI448
+     :sequence-numeric     int?})) ;eFTI1000
 
 (def TransportEquipment
   (->
-    {:category-code (schema/LimitedString 3)
-     :identifier (schema/LimitedString 200)
-     :sequence-numeric int?}
+    {:category-code (schema/LimitedString 3) ;eFTI378
+     :identifier (schema/LimitedString 17) ;eFTI374
+     :sequence-numeric int?} ;eFTI987
     schema/maybe-values
     (assoc
-      :registration-country Country
+      :registration-country Country ;eFTI578
       :carried-transport-equipments (schema/vector CarriedTransportEquipment))))
 
 (def ConsignmentSave
   (->
-    {:carrier-acceptance-date-time inst?}
+    {:carrier-acceptance-date-time inst?} ;eFTI39
     schema/maybe-values
     (assoc
-      :delivery-event TransportEvent
+      :delivery-event TransportEvent ;eFTI188
       :main-carriage-transport-movements (schema/vector TransportMovement)
       :utilized-transport-equipments (schema/vector TransportEquipment))))
 
