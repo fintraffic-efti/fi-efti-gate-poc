@@ -91,7 +91,7 @@
 
 (defn find-platform-consignment [db uil]
   (when-let [consignment (find-consignment-db db uil)]
-    (:body (http/get (str (->> consignment :platform-id Long/parseLong
+    (:body (http/get (str (->> consignment :uil :platform-id Long/parseLong
                                (user-service/find-whoami-by-id db user-schema/Platform)
                                :platform-url)
                           "/consignments/" (:data-id uil))
