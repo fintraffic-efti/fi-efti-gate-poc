@@ -4,7 +4,7 @@ create table transport_equipment (
   consignment_id     int not null references consignment (id),
   ordinal            int not null,
 
-  category_code text not null references transport_equipment_category (id),
+  category_code text references transport_equipment_category (id),
   dangerous_goods_indicator boolean,
   identifier text,
   sequence_numeric int,
