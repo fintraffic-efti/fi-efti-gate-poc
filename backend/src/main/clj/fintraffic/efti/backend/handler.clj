@@ -70,10 +70,12 @@
   [["/api" {:middleware [header-middleware/wrap-default-cache]}
     (tag "System" (system-routes config))
     (tag "Documentation" (documentation-routes config))
-    ["/v1/public" {:middleware [security/wrap-whoami-public-user
-                                security/wrap-access
-                                security/wrap-db-client]}
-     (tag "Geo API" geo-api/routes)]
+    (api-route/rename-api
+      csk/->camelCaseKeyword csk/->kebab-case-keyword
+      ["/v1/public" {:middleware [security/wrap-whoami-public-user
+                                  security/wrap-access
+                                  security/wrap-db-client]}
+       (tag "Geo API" geo-api/routes)])
     (api-route/rename-api
       csk/->camelCaseKeyword csk/->kebab-case-keyword
       ["/v1/platform" {:middleware [#(security/wrap-certificate-whoami % user-schema/Platform)
