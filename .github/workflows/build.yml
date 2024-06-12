@@ -73,7 +73,8 @@ jobs:
           role-session-name: githubdeploymentsession
           aws-region: ${{ env.AWS_REGION }}
 
-      - uses: ./.github/actions/aws-ecr-login
+      - id: login-ecr
+        uses: ./.github/actions/aws-ecr-login
         with:
           AWS_DEPLOY_ROLE: ${{ secrets.AWS_DEPLOY_ROLE }}
 
