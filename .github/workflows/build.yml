@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-#    branches: [ "master" ]
+#    branches: [ "main" ]
 #  pull_request:
-#    branches: [ "master" ]
+#    branches: [ "main" ]
   workflow_call:
     secrets:
         AWS_DEPLOY_ROLE:
@@ -61,7 +61,7 @@ jobs:
         run: clojure -A:dev -A:test
 
   deploy:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     steps:
