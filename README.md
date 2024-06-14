@@ -15,11 +15,8 @@ An objective is to an implement efti gateway main features using the best availa
 
 ## Start
 
-Harmony image is pulled from Amazon ECR. You need to do docker login before starting the efti gateway:
-
-```bash
-./infra/bin/docker-login.sh efti-poc
-```
+The docker environment uses a harmony image that can be built from
+https://github.com/fintraffic-efti/fi-efti-harmony
 
 After that, you can start development environment and efti gateway:
 
