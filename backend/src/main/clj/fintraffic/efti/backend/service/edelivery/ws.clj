@@ -84,6 +84,4 @@
   (send-message! db config {:to-id           (:from-id request)
                             :type-id         message-type/find-consignments
                             :conversation-id (:conversation-id request)
-                            :payload         (->> consignments
-                                                  (map edelivery-service/consignment-xml)
-                                                  (cons :consignments) vec)}))
+                            :payload         (edelivery-service/consignments->xml consignments)}))
