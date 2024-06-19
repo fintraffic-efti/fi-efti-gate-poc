@@ -45,7 +45,7 @@
     (let [[{:keys [id]}]
           (dml/upsert tx :consignment
                       [(consignment->db uil consignment)]
-                      [:uil$gate-id :uil$platform-id :uil$data-id]
+                      [:uil$gate-id :uil$platform-id :uil$dataset-id]
                       db/default-opts)]
       (dml/upsert tx :transport-movement
                   (map-indexed #(assoc (flat/tree->flat "$" %2)
@@ -91,12 +91,12 @@
     (:body (http/get (str (->> consignment :uil :platform-id Long/parseLong
                                (user-service/find-whoami-by-id db user-schema/Platform)
                                :platform-url)
-                          "/consignments/" (:data-id uil))
+                          "/consignments/" (:dataset-id uil))
                      {:as :json}))))
 
 (defn find-consignment [db config query]
   (if (= (:gate-id config) (:gate-id query))
-    (if (nil? (:dataset-id query))
+    (if (nil? (:subset-id query))
       (find-consignment-db db query)
       (find-platform-consignment db query))
     (find-consignment-gate db config query)))

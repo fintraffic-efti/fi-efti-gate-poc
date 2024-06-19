@@ -41,7 +41,7 @@
 
 (defn find-consignment [db config message xml]
   (->>
-    xml edelivery/xml->uil
+    xml edelivery/xml->uil-query
     (consignment-service/find-consignment db config) (maybe/fold [] vector)
     (edelivery-ws-service/send-find-consignments-response-message! db config message)))
 
@@ -52,8 +52,8 @@
     (edelivery-ws-service/send-find-consignments-response-message! db config message)))
 
 (def request-routes
-  {:uil [message-type/find-consignment find-consignment]
-   :query [message-type/find-consignment find-consignments]})
+  {:uilQuery [message-type/find-consignment find-consignment]
+   :identifierQuery [message-type/find-consignment find-consignments]})
 
 (defn process-request [message db config]
   (let [xml (-> message :payload xml/parse-str fxml/element->sexp)

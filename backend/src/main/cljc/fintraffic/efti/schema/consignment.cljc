@@ -7,7 +7,7 @@
 (def UIL
   {:gate-id     (schema/LimitedString 200)
    :platform-id (schema/LimitedString 200)
-   :data-id     (schema/LimitedString 200)})
+   :dataset-id  (schema/LimitedString 200)})
 
 (def TransportEvent
   (schema/maybe-values
@@ -62,4 +62,4 @@
       (merge (query-schema/Window 100))
       schema/optional-keys))
 
-(def UILQuery (assoc UIL :dataset-id keyword?))
+(def UILQuery (assoc UIL :subset-id keyword?))

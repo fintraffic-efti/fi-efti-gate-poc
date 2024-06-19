@@ -72,7 +72,7 @@
   (send-message! db config {:to-id           (:gate-id uil)
                             :type-id         message-type/find-consignment
                             :conversation-id conversation-id
-                            :payload         (edelivery-service/uil->xml uil)}))
+                            :payload         (edelivery-service/uil-query->xml uil)}))
 
 (defn send-find-consignments-message! [db config conversation-id gate-id query]
   (send-message! db config {:to-id           gate-id

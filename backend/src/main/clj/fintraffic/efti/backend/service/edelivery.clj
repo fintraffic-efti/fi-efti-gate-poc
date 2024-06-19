@@ -108,10 +108,14 @@
 (defn xml->consignments [xml]
   (->> xml xml->object :consignments (map coerce-consignment)))
 
-(defn uil->xml [uil] (object->xml :uil  uil))
-(defn xml->uil [xml] (xml->object xml))
+(defn uil-query->xml [query]
+  (object->xml :uilQuery {:uil (dissoc query :subset-id)
+                          :subset-id (:subset-id query)}))
+(defn xml->uil-query [xml]
+  (let [query (xml->object xml)]
+    (assoc (:uil query) :subset-id (:subset-id query))))
 
-(defn query->xml [uil] (fxml/object->xml :query {} uil))
+(defn query->xml [uil] (fxml/object->xml :identifierQuery {} uil))
 (def coerce-query
   (malli/coercer (schema/schema consignment-schema/ConsignmentQuery) transformer))
 (defn xml->query [xml] (->> xml (fxml/xml->object #{}) coerce-query))
