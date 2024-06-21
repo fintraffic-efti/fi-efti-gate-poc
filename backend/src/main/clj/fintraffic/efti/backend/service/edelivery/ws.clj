@@ -2,6 +2,7 @@
   (:require
     [clj-http.client :as http]
     [clojure.data.xml :as xml]
+    [fintraffic.common.maybe :as maybe]
     [fintraffic.common.xml :as fxml]
     [fintraffic.common.xpath :as xpath]
     [fintraffic.efti.backend.service.edelivery :as edelivery-service]
@@ -80,8 +81,15 @@
                             :conversation-id conversation-id
                             :payload         (edelivery-service/query->xml query)}))
 
+(defn send-find-consignment-response-message! [db config request consignment]
+  (send-message! db config {:to-id           (:from-id request)
+                            :type-id         message-type/find-consignment
+                            :conversation-id (:conversation-id request)
+                            :payload         (edelivery-service/consignments->xml
+                                               :uilResponse (maybe/fold [] vector consignment))}))
+
 (defn send-find-consignments-response-message! [db config request consignments]
   (send-message! db config {:to-id           (:from-id request)
                             :type-id         message-type/find-consignments
                             :conversation-id (:conversation-id request)
-                            :payload         (edelivery-service/consignments->xml consignments)}))
+                            :payload         (edelivery-service/consignments->xml :identifierResponse consignments)}))

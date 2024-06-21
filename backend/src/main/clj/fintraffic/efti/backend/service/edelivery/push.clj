@@ -42,8 +42,8 @@
 (defn find-consignment [db config message xml]
   (->>
     xml edelivery/xml->uil-query
-    (consignment-service/find-consignment db config) (maybe/fold [] vector)
-    (edelivery-ws-service/send-find-consignments-response-message! db config message)))
+    (consignment-service/find-consignment db config)
+    (edelivery-ws-service/send-find-consignment-response-message! db config message)))
 
 (defn find-consignments [db config message xml]
   (->>

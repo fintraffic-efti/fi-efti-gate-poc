@@ -84,7 +84,7 @@
       (exception/throw-ex-info! :timeout (str "Foreign gate " (:gate-id query)
                                               " did not respond within 60s. Request message id: "
                                               (:message-id request)))
-      (-> response first :payload xml/parse-str fxml/element->sexp edelivery/xml->consignments first))))
+      (-> response first :payload xml/parse-str fxml/element->sexp edelivery/xml->consignment))))
 
 (defn find-platform-consignment [db uil]
   (when-let [consignment (find-consignment-db db uil)]

@@ -99,14 +99,17 @@
        (fxml/xml->object+nowrap lists)
        (rename-properties-object csk/->kebab-case-keyword)))
 
-(defn consignments->xml [consignments]
-  (object->xml :consignments {:consignments consignments}))
+(defn consignments->xml [tag consignments]
+  (object->xml tag {:consignments consignments}))
 
 (def coerce-consignment
   (malli/coercer (schema/schema consignment-schema/Consignment) transformer))
 
 (defn xml->consignments [xml]
   (->> xml xml->object :consignments (map coerce-consignment)))
+
+(defn xml->consignment [xml]
+  (->> xml xml->object :consignments first))
 
 (defn uil-query->xml [query]
   (object->xml :uilQuery {:uil (dissoc query :subset-id)
