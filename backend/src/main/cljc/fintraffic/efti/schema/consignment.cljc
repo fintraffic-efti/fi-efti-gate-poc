@@ -62,4 +62,4 @@
       (merge (query-schema/Window 100))
       schema/optional-keys))
 
-(def UILQuery (assoc UIL :subset-id keyword?))
+(def UILQuery (assoc UIL :subset-id (schema/LimitedString 10)))

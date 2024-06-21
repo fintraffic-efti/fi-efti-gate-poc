@@ -12,6 +12,7 @@
             [fintraffic.efti.backend.service.edelivery.ws :as edelivery-ws-service]
             [fintraffic.efti.backend.service.user :as user-service]
             [fintraffic.efti.schema.consignment :as consignment-schema]
+            [fintraffic.efti.schema.subset :as subset]
             [fintraffic.efti.schema.user :as user-schema]
             [flathead.flatten :as flat]))
 
@@ -84,7 +85,8 @@
       (exception/throw-ex-info! :timeout (str "Foreign gate " (:gate-id query)
                                               " did not respond within 60s. Request message id: "
                                               (:message-id request)))
-      (-> response first :payload xml/parse-str fxml/element->sexp edelivery/xml->consignment))))
+      (->> response first :payload xml/parse-str fxml/element->sexp
+           (edelivery/xml->consignment query)))))
 
 (defn find-platform-consignment [db uil]
   (when-let [consignment (find-consignment-db db uil)]
@@ -96,7 +98,7 @@
 
 (defn find-consignment [db config query]
   (if (= (:gate-id config) (:gate-id query))
-    (if (nil? (:subset-id query))
+    (if (subset/identifier? query)
       (find-consignment-db db query)
       (find-platform-consignment db query))
     (find-consignment-gate db config query)))

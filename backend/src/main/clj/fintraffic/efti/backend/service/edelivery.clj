@@ -11,6 +11,7 @@
             [fintraffic.efti.schema.edelivery :as edelivery-schema]
             [fintraffic.efti.schema.edelivery.message-direction :as message-direction]
             [fintraffic.efti.schema.edelivery.message-type :as message-type]
+            [fintraffic.efti.schema.subset :as subset]
             [flathead.plain :as plain]
             [malli.core :as malli]
             [malli.transform :as malli-transform]
@@ -108,8 +109,9 @@
 (defn xml->consignments [xml]
   (->> xml xml->object :consignments (map coerce-consignment)))
 
-(defn xml->consignment [xml]
-  (->> xml xml->object :consignments first))
+(defn xml->consignment [query xml]
+  (-> xml xml->object :consignments first
+      (cond-> (subset/identifier? query) coerce-consignment)))
 
 (defn uil-query->xml [query]
   (object->xml :uilQuery {:uil (dissoc query :subset-id)
