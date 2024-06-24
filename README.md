@@ -23,17 +23,3 @@ After that, you can start development environment and efti gateway:
 ```bash
 docker/start.sh && env $(cat backend/.env | xargs) backend/start.sh
 ```
-
-## Infra / AWS Copilot
-
-To deploy gate to AWS run the following script:
-
-```bash
-./infra/bin/deploy.sh <env> <commit_hash>
-```
-
-And similarly to deploy Harmony to AWS:
-
-```bash
-./infra/bin/deploy-edelivery.sh <env> <commit_hash:latest>
-```
