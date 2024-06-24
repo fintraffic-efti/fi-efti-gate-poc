@@ -3,11 +3,11 @@ create table consignment (
   -- UIL
   uil$gate_id            text not null,
   uil$platform_id        text not null,
-  uil$data_id            text not null,
+  uil$dataset_id            text not null,
 
   -- identifiers
   carrier_acceptance_date_time timestamptz,
   delivery_event$actual_occurrence_date_time timestamptz
 );
 
-create unique index on consignment (uil$gate_id, uil$platform_id, uil$data_id);
+create unique index on consignment (uil$gate_id, uil$platform_id, uil$dataset_id);

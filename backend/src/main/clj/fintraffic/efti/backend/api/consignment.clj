@@ -15,8 +15,8 @@
 
 (def platform
   (with-bindings {#'lmalli/*options* schema/options}
-    ["/consignments/:data-id"
-      {:put {:summary    "Add new or update an existing consignment - gate subset"
+    ["/consignments/:dataset-id"
+      {:put {:summary    "Add new or update an existing consignment - identifier subset"
              :access     role/platform?
              :parameters {:path ConsignmentId
                           :body consignment-schema/ConsignmentSave}
@@ -29,7 +29,7 @@
                              [{:constraint :consignment-country-start-id-fkey :response 400}
                               {:constraint :consignment-country-end-id-fkey :response 400}]))}
 
-       :get {:summary    "Find an existing consignment by uil - gate subset"
+       :get {:summary    "Find an existing consignment by uil - identifier subset"
              :access     role/platform?
              :parameters {:path ConsignmentId}
              :responses  {200 {:body consignment-schema/Consignment}}
@@ -48,7 +48,7 @@
               :responses  {200 {:body (lmalli/vector consignment-schema/Consignment)}}
               :handler    (fn [{:keys [db config parameters]}]
                             (r/response (consignment-service/find-consignments db config (:query parameters))))}}]
-     ["/:gate-id/:platform-id/:data-id"
+     ["/:gate-id/:platform-id/:dataset-id"
       ["/identifiers"
        {:conflicting true
         :get         {:summary    "Find an existing consignment by uil - gate subset"
@@ -59,7 +59,7 @@
                             (api-response/get-response
                               (consignment-service/find-consignment db config path)
                               (api-response/msg-404 "consignment" path)))}}]
-      ["/:dataset-id"
+      ["/:subset-id"
        {:conflicting true
         :get {:summary    "Find an existing consignment by uil - full dataset or some subset from the platform"
               :access     role/ca?

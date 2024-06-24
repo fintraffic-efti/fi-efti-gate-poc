@@ -4,7 +4,7 @@ select consignment.*
 from consignment_json consignment
 where consignment.uil$gate_id = :gate-id and
       consignment.uil$platform_id = :platform-id::text and
-      consignment.uil$data_id = :data-id
+      consignment.uil$dataset_id = :dataset-id
 ;
 
 -- :name select-consignments

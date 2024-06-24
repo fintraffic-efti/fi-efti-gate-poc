@@ -1,5 +1,8 @@
 (ns fintraffic.efti.backend.service.edelivery
-  (:require [fintraffic.common.logic :as logic]
+  (:require [camel-snake-kebab.core :as csk]
+            [clojure.walk :as walk]
+            [fintraffic.common.collection :as collection]
+            [fintraffic.common.logic :as logic]
             [fintraffic.common.xml :as fxml]
             [fintraffic.efti.backend.db :as db]
             [fintraffic.efti.backend.db.query :as db-query]
@@ -8,7 +11,8 @@
             [fintraffic.efti.schema.edelivery :as edelivery-schema]
             [fintraffic.efti.schema.edelivery.message-direction :as message-direction]
             [fintraffic.efti.schema.edelivery.message-type :as message-type]
-            [fintraffic.efti.schema.query :as query-schema]
+            [fintraffic.efti.schema.subset :as subset]
+            [flathead.plain :as plain]
             [malli.core :as malli]
             [malli.transform :as malli-transform]
             [next.jdbc.sql :as sql]
@@ -70,25 +74,53 @@
 (defn new-conversation-id [db]
   (-> (edelivery-db/select-next-conversation-id-seq db) first :nextval))
 
-(defn consignment-xml [consignment]
-  (fxml/object->xml :consignment {:main-carriage-transport-movements :transport-movement
-                                  :utilized-transport-equipments :transport-equipment
-                                  :carried-transport-equipments :transport-equipment}
-                    consignment))
+(def lists
+  {:consignments :consignment
+   :mainCarriageTransportMovements :mainCarriageTransportMovement
+   :utilizedTransportEquipments :utilizedTransportEquipment
+   :carriedTransportEquipments :carriedTransportEquipment})
+
+(def order
+  [:uil :carrierAcceptanceDateTime :deliveryTransportEvent :utilizedTransportEquipment :mainCarriageTransportMovement
+   :gateId :platformId :dataId
+   :categoryCode :identifier :registrationCountry :sequenceNumeric :carriedTransportEquipment
+   :transportModeCode :dangerousGoodsIndicator :usedTransportMeans])
+
+(defn rename-properties-object [rename object]
+  (walk/postwalk (logic/when* map? #(plain/map-keys rename %)) object))
+
+(defn object->xml [element-key value]
+  (->> value
+       (rename-properties-object csk/->camelCaseKeyword)
+       (fxml/object->xml+nowrap lists element-key)
+       (fxml/reorder-children (comp #(collection/find-index (partial = %) order) first))))
+
+(defn xml->object [xml]
+  (->> xml
+       (fxml/xml->object+nowrap lists)
+       (rename-properties-object csk/->kebab-case-keyword)))
+
+(defn consignments->xml [tag consignments]
+  (object->xml tag {:consignments consignments}))
 
 (def coerce-consignment
   (malli/coercer (schema/schema consignment-schema/Consignment) transformer))
 
-(defn xml->consignment [xml]
-  (->> xml (fxml/xml->object #{:main-carriage-transport-movements
-                               :utilized-transport-equipments
-                               :carried-transport-equipments})
-       coerce-consignment))
+(defn xml->consignments [xml]
+  (->> xml xml->object :consignments (map coerce-consignment)))
 
-(defn uil->xml [uil] (fxml/object->xml :uil {} uil))
-(defn xml->uil [xml] (fxml/xml->object #{} xml))
+(defn xml->consignment [query xml]
+  (-> xml xml->object :consignments first
+      (cond-> (subset/identifier? query) coerce-consignment)))
 
-(defn query->xml [uil] (fxml/object->xml :query {} uil))
+(defn uil-query->xml [query]
+  (object->xml :uilQuery {:uil (dissoc query :subset-id)
+                          :subset-id (:subset-id query)}))
+(defn xml->uil-query [xml]
+  (let [query (xml->object xml)]
+    (assoc (:uil query) :subset-id (:subset-id query))))
+
+(defn query->xml [uil] (fxml/object->xml :identifierQuery {} uil))
 (def coerce-query
   (malli/coercer (schema/schema consignment-schema/ConsignmentQuery) transformer))
 (defn xml->query [xml] (->> xml (fxml/xml->object #{}) coerce-query))

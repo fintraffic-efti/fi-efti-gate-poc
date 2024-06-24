@@ -1,8 +1,6 @@
 (ns fintraffic.efti.backend.service.consignment
   (:require [clj-http.client :as http]
             [clojure.data.xml :as xml]
-            [fintraffic.common.debug :as debug]
-            [fintraffic.common.map :as map]
             [fintraffic.common.xml :as fxml]
             [fintraffic.efti.backend.db :as db]
             [fintraffic.efti.backend.db.dml :as dml]
@@ -14,6 +12,7 @@
             [fintraffic.efti.backend.service.edelivery.ws :as edelivery-ws-service]
             [fintraffic.efti.backend.service.user :as user-service]
             [fintraffic.efti.schema.consignment :as consignment-schema]
+            [fintraffic.efti.schema.subset :as subset]
             [fintraffic.efti.schema.user :as user-schema]
             [flathead.flatten :as flat]))
 
@@ -47,7 +46,7 @@
     (let [[{:keys [id]}]
           (dml/upsert tx :consignment
                       [(consignment->db uil consignment)]
-                      [:uil$gate-id :uil$platform-id :uil$data-id]
+                      [:uil$gate-id :uil$platform-id :uil$dataset-id]
                       db/default-opts)]
       (dml/upsert tx :transport-movement
                   (map-indexed #(assoc (flat/tree->flat "$" %2)
@@ -78,9 +77,6 @@
        (map db->consignment)
        first))
 
-(defn xml->consignments [consignments]
-  (->> consignments (drop 2) (map edelivery/xml->consignment)))
-
 (defn find-consignment-gate [db config query]
   (let [conversation-id (edelivery-service/new-conversation-id db)
         request (edelivery-ws-service/send-find-consignment-message! db config conversation-id query)
@@ -89,19 +85,20 @@
       (exception/throw-ex-info! :timeout (str "Foreign gate " (:gate-id query)
                                               " did not respond within 60s. Request message id: "
                                               (:message-id request)))
-      (-> response first :payload xml/parse-str fxml/element->sexp xml->consignments first))))
+      (->> response first :payload xml/parse-str fxml/element->sexp
+           (edelivery/xml->consignment query)))))
 
 (defn find-platform-consignment [db uil]
   (when-let [consignment (find-consignment-db db uil)]
     (:body (http/get (str (->> consignment :uil :platform-id Long/parseLong
                                (user-service/find-whoami-by-id db user-schema/Platform)
                                :platform-url)
-                          "/consignments/" (:data-id uil))
+                          "/consignments/" (:dataset-id uil))
                      {:as :json}))))
 
 (defn find-consignment [db config query]
   (if (= (:gate-id config) (:gate-id query))
-    (if (nil? (:dataset-id query))
+    (if (subset/identifier? query)
       (find-consignment-db db query)
       (find-platform-consignment db query))
     (find-consignment-gate db config query)))
@@ -127,7 +124,7 @@
       (edelivery-ws-service/send-find-consignments-message! db config conversation-id to-id query))
     (->>
       (edelivery-service/find-messages-until db conversation-id #(= (count %) (count gate-ids)) 60000)
-      (mapcat #(->> % :payload xml/parse-str fxml/element->sexp xml->consignments)))))
+      (mapcat #(->> % :payload xml/parse-str fxml/element->sexp edelivery/xml->consignments)))))
 
 (defn find-consignments [db config query]
   (concat
