@@ -3,15 +3,13 @@ from flask_app import api
 from flask import request, json, send_from_directory
 
 
-@api.route('/api/v1/consignments/<data_id>', methods=['GET'])
-def get_with_parameter(data_id):
+@api.route('/api/v1/consignments/<dataset_id>/<subset_id>', methods=['GET'])
+def get_with_parameter(dataset_id, subset_id):
     response = {
-        'country-start-id': 'FI',
-        'data-id': data_id,
-        'gate-id': 'fi1',
-        'platform-id': -11,
-        'id': 2,
-        'transport-vehicles': []
+        'datasetId': dataset_id,
+        'gateId': 'fi1',
+        'platformId': -11,
+        'carrierAcceptanceDateTime': '2024-01-01T00:00:00Z'
     }
     return response, 200
 
