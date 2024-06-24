@@ -88,12 +88,12 @@
       (->> response first :payload xml/parse-str fxml/element->sexp
            (edelivery/xml->consignment query)))))
 
-(defn find-platform-consignment [db uil]
-  (when-let [consignment (find-consignment-db db uil)]
+(defn find-platform-consignment [db query]
+  (when-let [consignment (find-consignment-db db query)]
     (:body (http/get (str (->> consignment :uil :platform-id Long/parseLong
                                (user-service/find-whoami-by-id db user-schema/Platform)
                                :platform-url)
-                          "/consignments/" (:dataset-id uil))
+                          "/consignments/" (:dataset-id query) "/" (:subset-id query))
                      {:as :json}))))
 
 (defn find-consignment [db config query]
