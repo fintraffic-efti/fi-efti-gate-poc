@@ -1,6 +1,8 @@
 # Fintraffic efti POC
 
-Fintraffic efti proof of concept for efti gate. More information about efti: http://efti.fi
+Fintraffic efti proof of concept for efti gate. More information about efti: 
+- https://efti.fi 
+- https://efti4eu.eu/
 
 An objective is to an implement efti gate main features using the best available tools for rapid and agile development.
 
