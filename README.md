@@ -6,6 +6,8 @@ An objective is to an implement efti gate main features using the best available
 
 :exclamation: This is not intended for production use and this is not an official reference implementation. 
 
+Official reference implementation is here: https://github.com/EFTI4EU/reference-implementation
+
 ## Modules
 
 - frontend                     - frontend applications (TODO?)
