@@ -7,7 +7,6 @@
 * See [docker](../docker/README.md)
 
 ## Usage
-* Build harmony image for eDelivery AP from `fi-efti-harmony` repository
 * Start development environment: ```../docker/start.sh```
 * See more from [docker](../docker/README.md)
 

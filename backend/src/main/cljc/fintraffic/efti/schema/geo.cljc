@@ -3,7 +3,7 @@
     [fintraffic.efti.schema :as schema]))
 
 (def CountryCode
-  [:string {:title "ISO 3166-1 alpha-2" :min 2, :max 2}])
+  [:string {:title "ISO 3166-1 alpha-2" :min 2, :max 2 :json-schema/example "FI"}])
 
 (def LanguageCode
   [:string {:title "ISO 639-2/T alpha-3" :min 3, :max 3}])
