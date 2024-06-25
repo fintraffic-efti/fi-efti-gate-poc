@@ -16,7 +16,7 @@
 (def platform
   (with-bindings {#'lmalli/*options* schema/options}
     ["/consignments/:dataset-id"
-      {:put {:summary    "Add new or update an existing consignment - identifier subset"
+      {:put {:summary    "Add new or update an existing consignment for the authenticated platform - identifier subset"
              :access     role/platform?
              :parameters {:path ConsignmentId
                           :body consignment-schema/ConsignmentSave}
@@ -32,7 +32,7 @@
                               {:constraint :transport-movement-transport-mode-code-fkey :response 400}
                               {:constraint :transport-movement-used-transport-means$registration-count-fkey :response 400}]))}
 
-       :get {:summary    "Find an existing consignment saved by this platform with given dataset id - identifier subset"
+       :get {:summary    "Find an existing consignment saved by the authenticated platform with given dataset id - identifier subset"
              :access     role/platform?
              :parameters {:path ConsignmentId}
              :responses  {200 {:body consignment-schema/Consignment}
