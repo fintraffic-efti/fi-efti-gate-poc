@@ -4,7 +4,7 @@ Fintraffic efti proof of concept for efti gate.
 
 An objective is to an implement efti gate main features using the best available tools for rapid and agile development.
 
-:exclamation: This is not intended for production use. 
+:exclamation: This is not intended for production use and this is not an official reference implementation. 
 
 ## Modules
 
