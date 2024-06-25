@@ -20,19 +20,23 @@
              :access     role/platform?
              :parameters {:path ConsignmentId
                           :body consignment-schema/ConsignmentSave}
-             :responses  {204 {:body nil?}}
+             :responses  {204 {:body nil?}
+                          400 {:body schema/ConstraintError}}
              :handler    (fn [{{:keys [body path]} :parameters :keys [db whoami config]}]
                            (api-response/with-exceptions
                              #(do (consignment-service/save-consignment!
                                     db whoami (uil path config whoami) body)
                                   (r/status 204))
-                             [{:constraint :consignment-country-start-id-fkey :response 400}
-                              {:constraint :consignment-country-end-id-fkey :response 400}]))}
+                             [{:constraint :transport-equipment-registration-country$id-fkey :response 400}
+                              {:constraint :transport-equipment-category-code-fkey :response 400}
+                              {:constraint :transport-movement-transport-mode-code-fkey :response 400}
+                              {:constraint :transport-movement-used-transport-means$registration-count-fkey :response 400}]))}
 
-       :get {:summary    "Find an existing consignment by uil - identifier subset"
+       :get {:summary    "Find an existing consignment saved by this platform with given dataset id - identifier subset"
              :access     role/platform?
              :parameters {:path ConsignmentId}
-             :responses  {200 {:body consignment-schema/Consignment}}
+             :responses  {200 {:body consignment-schema/Consignment}
+                          404 {:body string?}}
              :handler    (fn [{{:keys [path]} :parameters :keys [db config whoami]}]
                            (api-response/get-response
                              (consignment-service/find-consignment db config (uil path config whoami))

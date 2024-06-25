@@ -46,7 +46,7 @@
            :responses {200 {:body any?}}
            :handler (version/version-handler config)}}]
    ["/headers"
-    {:get {:summary "Endpoint for seeing request headers"
+    {:get {:summary "See request headers"
            :responses {200 {:body any?}}
            :handler (fn [{:keys [headers]}]
                       {:status 200
@@ -72,20 +72,20 @@
     (tag "Documentation" (documentation-routes config))
     (api-route/rename-api
       csk/->camelCaseKeyword csk/->kebab-case-keyword
-      ["/v1/public" {:middleware [security/wrap-whoami-public-user
+      ["/v0/public" {:middleware [security/wrap-whoami-public-user
                                   security/wrap-access
                                   security/wrap-db-client]}
        (tag "Geo API" geo-api/routes)])
     (api-route/rename-api
       csk/->camelCaseKeyword csk/->kebab-case-keyword
-      ["/v1/platform" {:middleware [#(security/wrap-certificate-whoami % user-schema/Platform)
+      ["/v0/platform" {:middleware [#(security/wrap-certificate-whoami % user-schema/Platform)
                                     security/wrap-access
                                     security/wrap-db-client]}
        (tag "Platform user API" (user-api/whoami user-schema/Platform))
        (tag "Platform consignment API" consignment-api/platform)])
     (api-route/rename-api
       csk/->camelCaseKeyword csk/->kebab-case-keyword
-      ["/v1/aap" {:middleware [#(security/wrap-certificate-whoami % user-schema/SystemUser)
+      ["/v0/aap" {:middleware [#(security/wrap-certificate-whoami % user-schema/SystemUser)
                                security/wrap-access
                                security/wrap-db-client]}
        (tag "CA user API" (user-api/whoami user-schema/SystemUser))
