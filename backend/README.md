@@ -1,4 +1,10 @@
-# Efti gateway backend
+# Efti gate backend
+
+Efti gate consists of:
+- backend 
+  - provides platform and competent authority rest apis
+  - process edelivery messages from edelivery access point
+- edelivery access point
 
 ## Prerequisites
 * GNU bash
@@ -36,11 +42,9 @@ Run dev image and connect to local development network:
 docker run --rm \
 --network efti_default \
 -p 127.0.0.1:8080:8080 \
+--env-file .env \
 -e EFTI_DB_HOST=db \
--e EFTI_DB_USERNAME=efti_gateway \
--e EFTI_DB_PASSWORD=efti \
--e EFTI_DB_DATABASE_NAME=efti_dev \
--e EFTI_GATE_URL=asdf \
+-e EFTI_DB_PORT=5432 \
 efti/backend
 ```
 
