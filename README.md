@@ -7,6 +7,7 @@ Fintraffic efti proof of concept for efti gate. More information about efti:
 An objective is to implement efti gate main features using the best available tools for rapid and agile development.
 
 :exclamation: This is not intended for production use and this is not an official reference implementation. 
+The main goal is to provide the simplest possible gate implementation for pilot projects.
 
 Official reference implementation is here: https://github.com/EFTI4EU/reference-implementation
 
