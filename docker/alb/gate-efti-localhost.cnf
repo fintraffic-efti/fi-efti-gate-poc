@@ -2,6 +2,7 @@
 basicConstraints       = CA:FALSE
 authorityKeyIdentifier = keyid:always, issuer:always
 keyUsage               = nonRepudiation, digitalSignature, keyEncipherment, dataEncipherment
+extendedKeyUsage       = clientAuth
 subjectAltName         = @alt_names
 [ alt_names ]
 DNS.1 = platform.gate.efti.fi1.localhost
