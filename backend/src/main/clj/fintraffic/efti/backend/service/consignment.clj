@@ -14,7 +14,9 @@
             [fintraffic.efti.schema.consignment :as consignment-schema]
             [fintraffic.efti.schema.subset :as subset]
             [fintraffic.efti.schema.user :as user-schema]
-            [flathead.flatten :as flat]))
+            [flathead.flatten :as flat])
+
+  (:import [java.security KeyStore]))
 
 (db/require-queries 'consignment)
 
@@ -88,19 +90,31 @@
       (->> response first :payload xml/parse-str fxml/element->sexp
            (edelivery/xml->consignment query)))))
 
-(defn find-platform-consignment [db query]
+(defn decode-keystore [base64 password]
+  (let [ks (KeyStore/getInstance (KeyStore/getDefaultType))
+        is (java.io.ByteArrayInputStream.
+            (.decode (java.util.Base64/getDecoder) base64))]
+    (.load ks is (.toCharArray password))
+    ks))
+
+(defn find-platform-consignment [db config query]
   (when-let [consignment (find-consignment-db db query)]
     (:body (http/get (str (->> consignment :uil :platform-id Long/parseLong
                                (user-service/find-whoami-by-id db user-schema/Platform)
                                :platform-url)
                           "/consignments/" (:dataset-id query) "/" (:subset-id query))
-                     {:as :json}))))
+                     (merge {:as :json}
+                            (when-let [cert-base64 (:gate-client-certificate config)]
+                              (let [cert-password (:gate-client-certificate-password config)]
+                                {:keystore (decode-keystore cert-base64 cert-password)
+                                 :keystore-type "p12"
+                                 :keystore-pass cert-password})))))))
 
 (defn find-consignment [db config query]
   (if (= (:gate-id config) (:gate-id query))
     (if (subset/identifier? query)
       (find-consignment-db db query)
-      (find-platform-consignment db query))
+      (find-platform-consignment db config query))
     (find-consignment-gate db config query)))
 
 (def default-query-params

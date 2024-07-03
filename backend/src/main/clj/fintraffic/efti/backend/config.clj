@@ -32,6 +32,9 @@
 
      :nrepl        (lmalli/optional {:port int?})
 
+     :gate-client-certificate string?
+     :gate-client-certificate-password string?
+
      :http-server
      {:port     int?
       :max-body int?
