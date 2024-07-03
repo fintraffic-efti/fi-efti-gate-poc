@@ -16,29 +16,29 @@
 
 (def schema
   (lmalli/schema
-    {:db
-     {:host          string?
-      :port          int?
-      :username      string?
-      :password      string?
-      :database-name string?}
+   {:db
+    {:host          string?
+     :port          int?
+     :username      string?
+     :password      string?
+     :database-name string?}
 
-     :environment  keyword?
-     :gate-id      string?
-     :gate-ids     [:vector string?]
-     :edelivery-ap string?
+    :environment  keyword?
+    :gate-id      string?
+    :gate-ids     [:vector string?]
+    :edelivery-ap string?
 
-     :web          {:csp boolean?}
+    :web          {:csp boolean?}
 
-     :nrepl        (lmalli/optional {:port int?})
+    :nrepl        (lmalli/optional {:port int?})
 
-     :gate-client-certificate string?
-     :gate-client-certificate-password string?
+    :gate-client-certificate (lmalli/optional string?)
+    :gate-client-certificate-password (lmalli/optional string?)
 
-     :http-server
-     {:port     int?
-      :max-body int?
-      :thread   int?}}))
+    :http-server
+    {:port     int?
+     :max-body int?
+     :thread   int?}}))
 
 (def default-config
   {:db          {:port 5432}
