@@ -56,3 +56,4 @@ openssl pkcs12 -export -inkey test-platform-fi-1.key -in test-platform-fi-1.crt 
 openssl pkcs12 -export -inkey test-platform-fi-2.key -in test-platform-fi-2.crt -out test-platform-fi-2.p12 -passin pass:$pwd -passout pass:$pwd
 openssl pkcs12 -export -inkey mock-platform.key -in mock-platform.crt -out mock-platform.p12 -passin pass:$pwd -passout pass:$pwd
 openssl pkcs12 -export -inkey aap.key -in aap.crt -out aap.p12 -passin pass:$pwd -passout pass:$pwd
+openssl pkcs12 -export -inkey gate-efti-localhost.key -in gate-efti-localhost.crt -out gate-efti-localhost.p12 -passin pass:$pwd -passout pass:$pwd

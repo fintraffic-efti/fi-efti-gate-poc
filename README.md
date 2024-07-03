@@ -42,8 +42,13 @@ Gate services are available using swagger ui from:
   * [Platform API](https://platform.gate.efti.fi2.localhost:8888/api/documentation)
   * [Competent authority (CA) API](https://aap.gate.efti.fi2.localhost:8888/api/documentation)
 
-From domain `platform.gate.efti.fiN.localhost` platform api end points are available using platform client certificates 
+From domain `platform.gate.efti.fiN.localhost` platform api end points are available using platform client certificates
 and from `aap.gate.efti.fiN.localhost` the CA API endpoints are accessible using aap.p12 client certificate.
+
+For eFTI platforms requiring client certificate authentication, add
+the certificate base64 encoded to environment parameter
+`EFTI_GATE_CLIENT_CERTIFICATE` and the password to
+`EFTI_GATE_CLIENT_CERTIFICATE_PASSWORD`.
 
 Gate FI1 and FI2 form gate network using eDelivery.
 
