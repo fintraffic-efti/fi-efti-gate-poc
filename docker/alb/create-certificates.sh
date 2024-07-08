@@ -31,6 +31,7 @@ openssl genrsa -aes256 -passout pass:$pwd -out test-platform-fi-1.key 4096
 openssl genrsa -aes256 -passout pass:$pwd -out test-platform-fi-2.key 4096
 openssl genrsa -aes256 -passout pass:$pwd -out mock-platform.key 4096
 openssl genrsa -aes256 -passout pass:$pwd -out aap.key 4096
+openssl genrsa -aes256 -passout pass:$pwd -out aap2.key 4096
 
 echo "Create certificate requests"
 openssl req -new -key gate-efti-localhost.key -out gate-efti-localhost.csr -subj '/C=FI/O=Fintraffic/OU=EFTI/CN=Gate localhost'
@@ -38,6 +39,7 @@ openssl req -new -key test-platform-fi-1.key -out test-platform-fi-1.csr -passin
 openssl req -new -key test-platform-fi-2.key -out test-platform-fi-2.csr -passin pass:$pwd -subj '/C=FI/O=Fintraffic/OU=EFTI/CN=Test platform fi 2'
 openssl req -new -key mock-platform.key -out mock-platform.csr -passin pass:$pwd -subj '/C=FI/O=Fintraffic/OU=EFTI/CN=Mock platform'
 openssl req -new -key aap.key -out aap.csr -passin pass:$pwd -subj '/C=FI/O=Fintraffic/OU=EFTI/CN=AAP'
+openssl req -new -key aap2.key -out aap2.csr -passin pass:$pwd -subj '/C=FI/O=Fintraffic/OU=EFTI/CN=AAP2'
 
 echo "Create certificates from requests"
 openssl x509 -req -days 365 -in gate-efti-localhost.csr -CA root-ca.crt -CAkey root-ca.key -CAcreateserial \
@@ -50,10 +52,13 @@ openssl x509 -req -days 365 -in mock-platform.csr -CA platform-ca.crt -CAkey pla
   -out mock-platform.crt -extfile ../mock-platform.cnf -passin pass:$pwd
 openssl x509 -req -days 365 -in aap.csr -CA aap-ca.crt -CAkey aap-ca.key -CAcreateserial \
   -out aap.crt -extfile ../aap.cnf -passin pass:$pwd
+openssl x509 -req -days 365 -in aap2.csr -CA aap-ca.crt -CAkey aap-ca.key -CAcreateserial \
+  -out aap2.crt -extfile ../aap2.cnf -passin pass:$pwd
 
 echo "Create p12 files for chrome client certificates"
 openssl pkcs12 -export -inkey test-platform-fi-1.key -in test-platform-fi-1.crt -out test-platform-fi-1.p12 -passin pass:$pwd -passout pass:$pwd
 openssl pkcs12 -export -inkey test-platform-fi-2.key -in test-platform-fi-2.crt -out test-platform-fi-2.p12 -passin pass:$pwd -passout pass:$pwd
 openssl pkcs12 -export -inkey mock-platform.key -in mock-platform.crt -out mock-platform.p12 -passin pass:$pwd -passout pass:$pwd
 openssl pkcs12 -export -inkey aap.key -in aap.crt -out aap.p12 -passin pass:$pwd -passout pass:$pwd
+openssl pkcs12 -export -inkey aap2.key -in aap2.crt -out aap2.p12 -passin pass:$pwd -passout pass:$pwd
 openssl pkcs12 -export -inkey gate-efti-localhost.key -in gate-efti-localhost.crt -out gate-efti-localhost.p12 -passin pass:$pwd -passout pass:$pwd
