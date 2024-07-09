@@ -32,7 +32,7 @@
         (if (str/blank? value)
           [(:tag element) (:attrs element)]
           [(:tag element) (:attrs element) value]))
-      (vec (concat [(:tag element) (:attrs element)] children)))))
+      (vec (concat [(keyword (name (:tag element))) (:attrs element)] children)))))
 
 (defn remove-attributes [xml]
   (walk/postwalk (logic/when* vector? (partial filterv (complement map?))) xml))
