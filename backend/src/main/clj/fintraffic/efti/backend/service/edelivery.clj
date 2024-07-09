@@ -1,6 +1,7 @@
 (ns fintraffic.efti.backend.service.edelivery
   (:require [camel-snake-kebab.core :as csk]
             [clojure.walk :as walk]
+            [clojure.data.xml :as xml]
             [fintraffic.common.collection :as collection]
             [fintraffic.common.logic :as logic]
             [fintraffic.common.xml :as fxml]
@@ -22,6 +23,13 @@
            (java.time.temporal ChronoField)))
 
 (db/require-queries 'edelivery)
+
+(def namespaces
+  {:efti-ed "http://efti.eu/v1/edelivery"
+   :efti-id "http://efti.eu/v1/consignment/identifier"
+   :efti "http://efti.eu/v1/consignment"})
+
+(doall (for [[prefix uri] namespaces] (xml/alias-uri prefix uri)))
 
 (def instant-format
   (-> (DateTimeFormatterBuilder.)
@@ -114,8 +122,13 @@
       (cond-> (subset/identifier? query) coerce-consignment)))
 
 (defn uil-query->xml [query]
-  (object->xml :uilQuery {:uil (dissoc query :subset-id)
-                          :subset-id (:subset-id query)}))
+  [::efti-ed/uilQuery
+   [::efti-id/uil
+    [::efti-id/gateId (:gate-id query)]
+    [::efti-id/platformId (:platform-id query)]
+    [::efti-id/datasetId (:dataset-id query)]]
+   [::efti-ed/subsetId (:subset-id query)]])
+
 (defn xml->uil-query [xml]
   (let [query (xml->object xml)]
     (assoc (:uil query) :subset-id (:subset-id query))))
