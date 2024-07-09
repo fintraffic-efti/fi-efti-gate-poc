@@ -80,6 +80,7 @@
              :from-id (:gate-id config)
              :content-type "text/xml"
              :direction-id message-direction/out)
+            (update :payload edelivery-service/namespacefy-elements)
             (update :payload (comp xml/emit-str xml/sexp-as-element)))]
     (validate-edelivery-payload! (:payload message))
     (->> message submit-request-xml post-request

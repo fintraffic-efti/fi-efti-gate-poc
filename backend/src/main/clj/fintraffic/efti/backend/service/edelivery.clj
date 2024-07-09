@@ -25,11 +25,28 @@
 (db/require-queries 'edelivery)
 
 (def namespaces
-  {:efti-ed "http://efti.eu/v1/edelivery"
-   :efti-id "http://efti.eu/v1/consignment/identifier"
-   :efti "http://efti.eu/v1/consignment"})
+  {:efti-ed {:namespace "http://efti.eu/v1/edelivery"
+             :tags #{:uilQuery :subsetId :uilResponse :identifierQuery :identifierResponse}}
+   :efti-id {:namespace "http://efti.eu/v1/consignment/identifier"
+             :tags #{:uil :gateId :platformId :datasetId}}
+   :efti    {:namespace "http://efti.eu/v1/consignment"
+             :tags #{:carrierAcceptanceDateTime :deliveryTransportEvent :utilizedTransportEquipment :mainCarriageTransportMovement
+                     :consignment :actualOccurrenceDateTime :id
+                     :categoryCode :identifier :registrationCountry :sequenceNumeric :carriedTransportEquipment
+                     :transportModeCode :dangerousGoodsIndicator :usedTransportMeans}}})
 
-(doall (for [[prefix uri] namespaces] (xml/alias-uri prefix uri)))
+(doall (for [[prefix {uri :namespace}] namespaces] (xml/alias-uri prefix uri)))
+
+(def tag->namespaced-tag
+  (reduce (fn [acc [prefix {tags :tags}]]
+            (let [ns-string (->> prefix
+                                 name
+                                 symbol
+                                 (get (ns-aliases *ns*))
+                                 str)]
+              (into acc
+                    (for [tag tags]
+                      [tag (keyword ns-string (name tag))])))) {} namespaces))
 
 (def instant-format
   (-> (DateTimeFormatterBuilder.)
@@ -90,26 +107,65 @@
 
 (def order
   [:uil :carrierAcceptanceDateTime :deliveryTransportEvent :utilizedTransportEquipment :mainCarriageTransportMovement
-   :gateId :platformId :dataId
+   :gateId :platformId :datasetId
    :categoryCode :identifier :registrationCountry :sequenceNumeric :carriedTransportEquipment
    :transportModeCode :dangerousGoodsIndicator :usedTransportMeans])
 
 (defn rename-properties-object [rename object]
   (walk/postwalk (logic/when* map? #(plain/map-keys rename %)) object))
 
+(defn replace-elements-in-tree [mapping tree]
+  (walk/postwalk
+   (fn [e]
+     (if-let [replacement (get mapping e)]
+       replacement
+       e))
+   tree))
+
+(defn namespacefy-elements [xml]
+  (replace-elements-in-tree tag->namespaced-tag xml))
+
 (defn object->xml [element-key value]
   (->> value
        (rename-properties-object csk/->camelCaseKeyword)
        (fxml/object->xml+nowrap lists element-key)
-       (fxml/reorder-children (comp #(collection/find-index (partial = %) order) first))))
+       (fxml/reorder-children (comp #(collection/find-index (partial = %) order) first))
+       namespacefy-elements))
 
 (defn xml->object [xml]
   (->> xml
        (fxml/xml->object+nowrap lists)
        (rename-properties-object csk/->kebab-case-keyword)))
 
+(def platform->edelivery-translation
+  {:delivery-event :delivery-transport-event})
+
+(defn remove-nil-delivery-event [consignment]
+  (if-not (get-in consignment [:delivery-event :actual-occurrence-date-time])
+    (dissoc consignment :delivery-event)
+    consignment))
+
+(defn translate-platform-data-to-edelivery [v]
+  (->> v
+       (mapv remove-nil-delivery-event)
+       (replace-elements-in-tree platform->edelivery-translation)))
+
+(defn rename-consignment-uil [v]
+  (replace-elements-in-tree
+   {::efti-id/uil ::efti/uil
+    ::efti-id/gateId ::efti/gateId
+    ::efti-id/platformId ::efti/platformId
+    ::efti-id/datasetId ::efti/datasetId}
+   v))
+
 (defn consignments->xml [tag consignments]
-  (object->xml tag {:consignments consignments}))
+  (def *tag tag) (def *consignments consignments)
+  (->> consignments
+       translate-platform-data-to-edelivery
+       ((fn [n] {:consignments (mapv #(dissoc % :id) n)}))
+       (object->xml tag)
+       rename-consignment-uil
+       namespacefy-elements))
 
 (def coerce-consignment
   (malli/coercer (schema/schema consignment-schema/Consignment) transformer))
@@ -133,7 +189,8 @@
   (let [query (xml->object xml)]
     (assoc (:uil query) :subset-id (:subset-id query))))
 
-(defn query->xml [uil] (fxml/object->xml :identifierQuery {} uil))
+(defn query->xml [uil]
+  (fxml/object->xml :identifierQuery {} (dissoc uil :limit)))
 (def coerce-query
   (malli/coercer (schema/schema consignment-schema/ConsignmentQuery) transformer))
 (defn xml->query [xml] (->> xml (fxml/xml->object #{}) coerce-query))
