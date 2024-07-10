@@ -191,6 +191,8 @@
 
 (defn query->xml [uil]
   (fxml/object->xml :identifierQuery {} (dissoc uil :limit :offset)))
+
 (def coerce-query
   (malli/coercer (schema/schema consignment-schema/ConsignmentQuery) transformer))
+
 (defn xml->query [xml] (->> xml (fxml/xml->object #{}) coerce-query))
