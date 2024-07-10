@@ -31,7 +31,7 @@
              :tags #{:uil :gateId :platformId :datasetId}}
    :efti    {:namespace "http://efti.eu/v1/consignment"
              :tags #{:carrierAcceptanceDateTime :deliveryTransportEvent :utilizedTransportEquipment :mainCarriageTransportMovement
-                     :consignment :actualOccurrenceDateTime :id
+                     :consignment :actualOccurrenceDateTime :id :deliveryInformation
                      :categoryCode :identifier :registrationCountry :sequenceNumeric :carriedTransportEquipment
                      :transportModeCode :dangerousGoodsIndicator :usedTransportMeans}}})
 
@@ -106,7 +106,7 @@
    :carriedTransportEquipments :carriedTransportEquipment})
 
 (def order
-  [:uil :carrierAcceptanceDateTime :deliveryTransportEvent :utilizedTransportEquipment :mainCarriageTransportMovement
+  [:uil :deliveryInformation :carrierAcceptanceDateTime :deliveryTransportEvent :utilizedTransportEquipment :mainCarriageTransportMovement
    :gateId :platformId :datasetId
    :categoryCode :identifier :registrationCountry :sequenceNumeric :carriedTransportEquipment
    :transportModeCode :dangerousGoodsIndicator :usedTransportMeans])
