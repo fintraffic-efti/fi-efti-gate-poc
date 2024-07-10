@@ -74,14 +74,11 @@
 
 (defn send-message! [db config message]
   (let [message
-        (-> message
-            (assoc
-             :timestamp (tick/now)
-             :from-id (:gate-id config)
-             :content-type "text/xml"
-             :direction-id message-direction/out)
-            (update :payload edelivery-service/namespacefy-elements)
-            (update :payload (comp xml/emit-str xml/sexp-as-element)))]
+        (assoc message
+               :timestamp (tick/now)
+               :from-id (:gate-id config)
+               :content-type "text/xml"
+               :direction-id message-direction/out)]
     (validate-edelivery-payload! (:payload message))
     (->> message submit-request-xml post-request
          (http/post (:edelivery-ap config))
@@ -104,11 +101,10 @@
   (send-message! db config {:to-id           (:from-id request)
                             :type-id         message-type/find-consignment
                             :conversation-id (:conversation-id request)
-                            :payload         (edelivery-service/consignments->xml
-                                              :uilResponse (maybe/fold [] vector consignment))}))
+                            :payload         (edelivery-service/uil-response consignment)}))
 
 (defn send-find-consignments-response-message! [db config request consignments]
   (send-message! db config {:to-id           (:from-id request)
                             :type-id         message-type/find-consignments
                             :conversation-id (:conversation-id request)
-                            :payload         (edelivery-service/consignments->xml :identifierResponse consignments)}))
+                            :payload         (edelivery-service/identifier-response consignments)}))

@@ -159,13 +159,23 @@
    v))
 
 (defn consignments->xml [tag consignments]
-  (def *tag tag) (def *consignments consignments)
   (->> consignments
        translate-platform-data-to-edelivery
        ((fn [n] {:consignments (mapv #(dissoc % :id) n)}))
        (object->xml tag)
        rename-consignment-uil
        namespacefy-elements))
+
+(defn emit-xml-string [clj]
+  (->> clj namespacefy-elements xml/sexp-as-element xml/emit-str))
+
+(defn uil-response [consignment]
+  (emit-xml-string
+   (consignments->xml :uilResponse (maybe/fold [] vector consignment))))
+
+(defn identifier-response [consignments]
+  (emit-xml-string
+   (consignments->xml :identifierResponse consignments)))
 
 (def coerce-consignment
   (malli/coercer (schema/schema consignment-schema/Consignment) transformer))
@@ -178,19 +188,22 @@
       (cond-> (subset/identifier? query) coerce-consignment)))
 
 (defn uil-query->xml [query]
-  [::efti-ed/uilQuery
-   [::efti-id/uil
-    [::efti-id/gateId (:gate-id query)]
-    [::efti-id/platformId (:platform-id query)]
-    [::efti-id/datasetId (:dataset-id query)]]
-   [::efti-ed/subsetId (:subset-id query)]])
+  (emit-xml-string
+   [::efti-ed/uilQuery
+    [::efti-id/uil
+     [::efti-id/gateId (:gate-id query)]
+     [::efti-id/platformId (:platform-id query)]
+     [::efti-id/datasetId (:dataset-id query)]]
+    [::efti-ed/subsetId (:subset-id query)]]))
 
 (defn xml->uil-query [xml]
   (let [query (xml->object xml)]
     (assoc (:uil query) :subset-id (:subset-id query))))
 
-(defn query->xml [uil]
-  (fxml/object->xml :identifierQuery {} (dissoc uil :limit :offset)))
+(defn query->xml [query]
+  (emit-xml-string
+   [::efti-ed/identifierQuery
+    [::efti-ed/identifier (:identifier query)]]))
 
 (def coerce-query
   (malli/coercer (schema/schema consignment-schema/ConsignmentQuery) transformer))
