@@ -1,6 +1,7 @@
 (ns fintraffic.efti.backend.service.consignment
   (:require [clj-http.client :as http]
             [clojure.data.xml :as xml]
+            [clojure.set :as set]
             [fintraffic.common.xml :as fxml]
             [fintraffic.efti.backend.db :as db]
             [fintraffic.efti.backend.db.dml :as dml]
@@ -22,9 +23,10 @@
 
 (defn consignment->db [uil consignment]
   (as-> consignment %
-        (dissoc % :main-carriage-transport-movements :utilized-transport-equipments)
-        (assoc % :uil uil)
-        (flat/tree->flat "$" %)))
+    (set/rename-keys % {:delivery-transport-event :delivery-event})
+    (dissoc % :main-carriage-transport-movements :utilized-transport-equipments)
+    (assoc % :uil uil)
+    (flat/tree->flat "$" %)))
 
 (defn transport-equipment->db [consignment-id ordinal equipment]
   (as-> equipment %

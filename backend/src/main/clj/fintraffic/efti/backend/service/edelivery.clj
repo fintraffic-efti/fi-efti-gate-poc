@@ -176,8 +176,8 @@
   (emit-xml-string
    (consignments->xml :uilResponse
                       (->> consignment
-                           translate-platform-data-to-edelivery
-                           (maybe/fold [] vector)))))
+                           (maybe/fold [] vector)
+                           translate-platform-data-to-edelivery))))
 
 (defn rename-consignment-to-identifier-namespace [xml]
   (replace-elements-in-tree
