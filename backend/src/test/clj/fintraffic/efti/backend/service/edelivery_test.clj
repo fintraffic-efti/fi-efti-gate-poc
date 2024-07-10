@@ -89,6 +89,5 @@
                       :dataset-id "da253ebf-4577-476a-99df-4e5f6bc6b750"},
                      :carrier-acceptance-date-time #time/instant "2024-07-10T09:46:15Z",
                      :delivery-event {:actual-occurrence-date-time nil}}])]
-      (spit "/home/uusitalo/foo.xml" payload)
       (is (string? payload))
       (validate-edelivery-payload! payload))))
