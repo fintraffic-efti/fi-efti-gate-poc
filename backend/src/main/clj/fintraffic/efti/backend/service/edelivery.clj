@@ -164,7 +164,6 @@
 
 (defn consignments->xml [tag consignments]
   (->> consignments
-       translate-platform-data-to-edelivery
        ((fn [n] {:consignments (mapv #(dissoc % :id) n)}))
        (object->xml tag)
        rename-consignment-uil
@@ -175,11 +174,40 @@
 
 (defn uil-response [consignment]
   (emit-xml-string
-   (consignments->xml :uilResponse (maybe/fold [] vector consignment))))
+   (consignments->xml :uilResponse
+                      (->> consignment
+                           translate-platform-data-to-edelivery
+                           (maybe/fold [] vector)))))
+
+(defn rename-consignment-to-identifier-namespace [xml]
+  (replace-elements-in-tree
+   {::efti/consignment ::efti-id/consignment
+    ::efti/uil ::efti-id/uil
+    ::efti/gateId ::efti-id/gateId
+    ::efti/platformId ::efti-id/platformId
+    ::efti/datasetId ::efti-id/datasetId
+    ::efti/carrierAcceptanceDateTime ::efti-id/carrierAcceptanceDateTime
+    ::efti/deliveryTransportEvent ::efti-id/deliveryTransportEvent
+    ::efti/utilizedTransportEquipment ::efti-id/utilizedTransportEquipment
+    ::efti/mainCarriageTransportMovement ::efti-id/mainCarriageTransportMovement
+    ::efti/categoryCode ::efti-id/categoryCode
+    ::efti/identifier ::efti-id/identifier
+    ::efti/registrationCountry ::efti-id/registrationCountry
+    ::efti/id ::efti-id/id
+    ::efti/sequenceNumeric ::efti-id/sequenceNumeric
+    ::efti/carriedTransportEquipment ::efti-id/carriedTransportEquipment
+    ::efti/transportModeCode ::efti-id/transportModeCode
+    ::efti/usedTransportMeans ::efti-id/usedTransportMeans} xml))
+
+(defn translate-gate-data-to-edelivery [json]
+  (->> json
+       remove-nil-properties
+       (replace-elements-in-tree {:delivery-event :delivery-transport-event})))
 
 (defn identifier-response [consignments]
   (emit-xml-string
-   (consignments->xml :identifierResponse consignments)))
+   (rename-consignment-to-identifier-namespace
+    (consignments->xml :identifierResponse (translate-gate-data-to-edelivery consignments)))))
 
 (def coerce-consignment
   (malli/coercer (schema/schema consignment-schema/Consignment) transformer))

@@ -66,3 +66,29 @@
                                                [{:identifier "61ZU", :sequenceNumeric 1}]}]})]
         (is (string? payload))
         (validate-edelivery-payload! payload)))))
+
+(deftest identifier-response
+  (testing "Message is valid xml"
+    (let [payload (edelivery/identifier-response
+                   [{:main-carriage-transport-movements
+                     [{:used-transport-means
+                       {:registration-country {:id "DE"}, :identifier "RXCU"},
+                       :dangerous-goods-indicator false,
+                       :transport-mode-code 2}],
+                     :utilized-transport-equipments
+                     [{:carried-transport-equipments
+                       [{:identifier "61ZU", :sequence-numeric 1}],
+                       :category-code "T1",
+                       :identifier "IAYY",
+                       :registration-country {:id "FI"},
+                       :sequence-numeric 1}],
+                     :id 1,
+                     :uil
+                     {:gate-id "fi1",
+                      :platform-id "-10",
+                      :dataset-id "da253ebf-4577-476a-99df-4e5f6bc6b750"},
+                     :carrier-acceptance-date-time #time/instant "2024-07-10T09:46:15Z",
+                     :delivery-event {:actual-occurrence-date-time nil}}])]
+      (spit "/home/uusitalo/foo.xml" payload)
+      (is (string? payload))
+      (validate-edelivery-payload! payload))))
