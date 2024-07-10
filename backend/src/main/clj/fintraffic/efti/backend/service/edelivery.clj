@@ -17,7 +17,8 @@
             [malli.core :as malli]
             [malli.transform :as malli-transform]
             [next.jdbc.sql :as sql]
-            [tick.core :as tick])
+            [tick.core :as tick]
+            [fintraffic.common.maybe :as maybe])
   (:import (java.time ZoneId)
            (java.time.format DateTimeFormatterBuilder)
            (java.time.temporal ChronoField)))
@@ -138,16 +139,19 @@
        (rename-properties-object csk/->kebab-case-keyword)))
 
 (def platform->edelivery-translation
-  {:delivery-event :delivery-transport-event})
+  {:deliveryEvent :deliveryTransportEvent})
 
-(defn remove-nil-delivery-event [consignment]
-  (if-not (get-in consignment [:delivery-event :actual-occurrence-date-time])
-    (dissoc consignment :delivery-event)
-    consignment))
+(defn remove-nil-properties [consignment]
+  (walk/postwalk
+   (fn [v]
+     (if (map? v)
+       (reduce (fn [acc [k v]] (if v (assoc acc k v) acc)) {} v)
+       v))
+   consignment))
 
 (defn translate-platform-data-to-edelivery [v]
   (->> v
-       (mapv remove-nil-delivery-event)
+       (mapv remove-nil-properties)
        (replace-elements-in-tree platform->edelivery-translation)))
 
 (defn rename-consignment-uil [v]
