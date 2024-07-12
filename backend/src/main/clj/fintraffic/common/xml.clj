@@ -25,14 +25,17 @@
 (defn txt->input-stream [^String txt]
   (-> txt (.getBytes StandardCharsets/UTF_8) ByteArrayInputStream.))
 
+(defn unnamespacefy-tag [tag]
+  (keyword (name tag)))
+
 (defn element->sexp [element]
   (let [children (->> element :content (filter xml/element?) (map element->sexp))]
     (if (empty? children)
       (let [value (->> element :content first)]
         (if (str/blank? value)
-          [(:tag element) (:attrs element)]
-          [(:tag element) (:attrs element) value]))
-      (vec (concat [(keyword (name (:tag element))) (:attrs element)] children)))))
+          [(unnamespacefy-tag (:tag element)) (:attrs element)]
+          [(unnamespacefy-tag (:tag element)) (:attrs element) value]))
+      (vec (concat [(unnamespacefy-tag (:tag element)) (:attrs element)] children)))))
 
 (defn remove-attributes [xml]
   (walk/postwalk (logic/when* vector? (partial filterv (complement map?))) xml))
