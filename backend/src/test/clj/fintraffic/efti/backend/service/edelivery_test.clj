@@ -89,6 +89,6 @@
                       :platform-id "-10",
                       :dataset-id "da253ebf-4577-476a-99df-4e5f6bc6b750"},
                      :carrier-acceptance-date-time #time/instant "2024-07-10T09:46:15Z",
-                     :delivery-event {:actual-occurrence-date-time nil}}])]
+                     :delivery-transport-event {:actual-occurrence-date-time nil}}])]
       (is (string? payload))
       (validate-edelivery-payload! payload))))

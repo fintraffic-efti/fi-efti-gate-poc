@@ -54,6 +54,26 @@
        first
        (.getType)))
 
+(defn ->XMLGregorianCalendar [v]
+  (cond
+    (string? v)
+    (let [{:keys [year monthValue dayOfMonth hour minute second offset]}
+          (bean (java.time.ZonedDateTime/parse v))]
+      (.newXMLGregorianCalendar datatype-factory
+                                year
+                                monthValue
+                                dayOfMonth
+                                hour
+                                minute
+                                second
+                                0
+                                (/ (->> offset bean :totalSeconds) 60)))
+
+    (instance? java.time.Instant v)
+    (.newXMLGregorianCalendar datatype-factory
+                              (doto (java.util.GregorianCalendar.)
+                                (.setTimeInMillis (.toEpochMilli v))))))
+
 (defn fill-jaxb [clazz node]
   (let [o (.newInstance clazz)]
     (doseq [[prop v] node]
@@ -82,21 +102,14 @@
             (.invoke setter o
                      (into-array [(condp = field-type
                                     javax.xml.datatype.XMLGregorianCalendar
-                                    (let [{:keys [year monthValue dayOfMonth hour minute second offset]}
-                                          (bean (java.time.ZonedDateTime/parse v))]
-                                      (.newXMLGregorianCalendar datatype-factory
-                                                                year
-                                                                monthValue
-                                                                dayOfMonth
-                                                                hour
-                                                                minute
-                                                                second
-                                                                0
-                                                                (/ (->> offset bean :totalSeconds) 60)))
+                                    (->XMLGregorianCalendar v)
+
                                     java.lang.String
                                     (str v)
+
                                     java.math.BigInteger
                                     (java.math.BigInteger/valueOf v)
+
                                     v)]))))))
     o))
 
@@ -287,9 +300,10 @@
        (replace-elements-in-tree {:delivery-event :delivery-transport-event})))
 
 (defn identifier-response [consignments]
-  (emit-xml-string
-   (rename-consignment-to-identifier-namespace
-    (consignments->xml :identifierResponse (translate-gate-data-to-edelivery consignments)))))
+  (clj->xmlstring eu.efti.v1.edelivery.IdentifierResponse
+                  (rename-properties-object
+                   csk/->camelCaseKeyword
+                   {:consignments (mapv #(dissoc % :id) consignments)})))
 
 (def coerce-consignment
   (malli/coercer (schema/schema consignment-schema/Consignment) transformer))
