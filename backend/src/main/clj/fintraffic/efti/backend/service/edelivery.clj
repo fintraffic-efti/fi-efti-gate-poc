@@ -259,11 +259,7 @@
   (->> clj namespacefy-elements xml/sexp-as-element xml/emit-str))
 
 (defn uil-response [consignment]
-  (emit-xml-string
-   (consignments->xml :uilResponse
-                      (->> consignment
-                           (maybe/fold [] vector)
-                           translate-platform-data-to-edelivery))))
+  (clj->xmlstring eu.efti.v1.edelivery.UILResponse {:consignment consignment}))
 
 (defn rename-consignment-to-identifier-namespace [xml]
   (replace-elements-in-tree

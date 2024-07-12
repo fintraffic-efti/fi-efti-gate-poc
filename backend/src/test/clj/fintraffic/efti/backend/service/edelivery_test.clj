@@ -52,7 +52,7 @@
                                               :datasetId "da253ebf-4577-476a-99df-4e5f6bc6b750"},
                                              :deliveryInformation "2024-07-11T10:46:15Z",
                                              :carrierAcceptanceDateTime "2024-07-10T09:46:15Z",
-                                             :deliveryEvent {:actualOccurrenceDateTime "2024-07-11T10:46:15Z"},
+                                             :deliveryTransportEvent {:actualOccurrenceDateTime "2024-07-11T10:46:15Z"},
                                              :mainCarriageTransportMovements
                                              [{:dangerousGoodsIndicator false,
                                                :transportModeCode 2,
