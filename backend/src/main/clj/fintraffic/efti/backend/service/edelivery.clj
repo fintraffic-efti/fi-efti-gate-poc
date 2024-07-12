@@ -317,9 +317,8 @@
     (assoc (:uil query) :subset-id (:subset-id query))))
 
 (defn query->xml [query]
-  (emit-xml-string
-   [::efti-ed/identifierQuery
-    [::efti-ed/identifier (:identifier query)]]))
+  (clj->xmlstring eu.efti.v1.edelivery.IdentifierQuery
+                  (select-keys query [:identifier])))
 
 (def coerce-query
   (malli/coercer (schema/schema consignment-schema/ConsignmentQuery) transformer))
