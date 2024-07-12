@@ -125,28 +125,11 @@
     (str string-writer)))
 
 (def namespaces
-  {:efti-ed {:namespace "http://efti.eu/v1/edelivery"
-             :tags #{:uilQuery :subsetId :uilResponse :identifierQuery :identifierResponse}}
-   :efti-id {:namespace "http://efti.eu/v1/consignment/identifier"
-             :tags #{:uil :gateId :platformId :datasetId}}
-   :efti    {:namespace "http://efti.eu/v1/consignment"
-             :tags #{:carrierAcceptanceDateTime :deliveryTransportEvent :utilizedTransportEquipment :mainCarriageTransportMovement
-                     :consignment :actualOccurrenceDateTime :id :deliveryInformation
-                     :categoryCode :identifier :registrationCountry :sequenceNumeric :carriedTransportEquipment
-                     :transportModeCode :dangerousGoodsIndicator :usedTransportMeans}}})
+  {:efti-ed "http://efti.eu/v1/edelivery"
+   :efti-id "http://efti.eu/v1/consignment/identifier"
+   :efti    "http://efti.eu/v1/consignment"})
 
-(doall (for [[prefix {uri :namespace}] namespaces] (xml/alias-uri prefix uri)))
-
-(def tag->namespaced-tag
-  (reduce (fn [acc [prefix {tags :tags}]]
-            (let [ns-string (->> prefix
-                                 name
-                                 symbol
-                                 (get (ns-aliases *ns*))
-                                 str)]
-              (into acc
-                    (for [tag tags]
-                      [tag (keyword ns-string (name tag))])))) {} namespaces))
+(doall (for [[prefix uri] namespaces] (xml/alias-uri prefix uri)))
 
 (def instant-format
   (-> (DateTimeFormatterBuilder.)
@@ -214,90 +197,19 @@
 (defn rename-properties-object [rename object]
   (walk/postwalk (logic/when* map? #(plain/map-keys rename %)) object))
 
-(defn replace-elements-in-tree [mapping tree]
-  (walk/postwalk
-   (fn [e]
-     (if-let [replacement (get mapping e)]
-       replacement
-       e))
-   tree))
-
-(defn namespacefy-elements [xml]
-  (replace-elements-in-tree tag->namespaced-tag xml))
-
 (defn object->xml [element-key value]
   (->> value
        (rename-properties-object csk/->camelCaseKeyword)
        (fxml/object->xml+nowrap lists element-key)
-       (fxml/reorder-children (comp #(collection/find-index (partial = %) order) first))
-       namespacefy-elements))
+       (fxml/reorder-children (comp #(collection/find-index (partial = %) order) first))))
 
 (defn xml->object [xml]
   (->> xml
        (fxml/xml->object+nowrap lists)
        (rename-properties-object csk/->kebab-case-keyword)))
 
-(def platform->edelivery-translation
-  {:deliveryEvent :deliveryTransportEvent})
-
-(defn remove-nil-properties [consignment]
-  (walk/postwalk
-   (fn [v]
-     (if (map? v)
-       (reduce (fn [acc [k v]] (if v (assoc acc k v) acc)) {} v)
-       v))
-   consignment))
-
-(defn translate-platform-data-to-edelivery [v]
-  (->> v
-       (mapv remove-nil-properties)
-       (replace-elements-in-tree platform->edelivery-translation)))
-
-(defn rename-consignment-uil [v]
-  (replace-elements-in-tree
-   {::efti-id/uil ::efti/uil
-    ::efti-id/gateId ::efti/gateId
-    ::efti-id/platformId ::efti/platformId
-    ::efti-id/datasetId ::efti/datasetId}
-   v))
-
-(defn consignments->xml [tag consignments]
-  (->> consignments
-       ((fn [n] {:consignments (mapv #(dissoc % :id) n)}))
-       (object->xml tag)
-       rename-consignment-uil
-       namespacefy-elements))
-
-(defn emit-xml-string [clj]
-  (->> clj namespacefy-elements xml/sexp-as-element xml/emit-str))
-
 (defn uil-response [consignment]
   (clj->xmlstring eu.efti.v1.edelivery.UILResponse {:consignment consignment}))
-
-(defn rename-consignment-to-identifier-namespace [xml]
-  (replace-elements-in-tree
-   {::efti/consignment ::efti-id/consignment
-    ::efti/uil ::efti-id/uil
-    ::efti/gateId ::efti-id/gateId
-    ::efti/platformId ::efti-id/platformId
-    ::efti/datasetId ::efti-id/datasetId
-    ::efti/carrierAcceptanceDateTime ::efti-id/carrierAcceptanceDateTime
-    ::efti/deliveryTransportEvent ::efti-id/deliveryTransportEvent
-    ::efti/utilizedTransportEquipment ::efti-id/utilizedTransportEquipment
-    ::efti/mainCarriageTransportMovement ::efti-id/mainCarriageTransportMovement
-    ::efti/categoryCode ::efti-id/categoryCode
-    ::efti/identifier ::efti-id/identifier
-    ::efti/registrationCountry ::efti-id/registrationCountry
-    ::efti/id ::efti-id/id
-    ::efti/sequenceNumeric ::efti-id/sequenceNumeric
-    ::efti/carriedTransportEquipment ::efti-id/carriedTransportEquipment
-    ::efti/transportModeCode ::efti-id/transportModeCode
-    ::efti/usedTransportMeans ::efti-id/usedTransportMeans} xml))
-
-(defn translate-gate-data-to-edelivery [json]
-  (->> json
-       remove-nil-properties
-       (replace-elements-in-tree {:delivery-event :delivery-transport-event})))
 
 (defn identifier-response [consignments]
   (clj->xmlstring eu.efti.v1.edelivery.IdentifierResponse
