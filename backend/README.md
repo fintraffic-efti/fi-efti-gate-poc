@@ -16,6 +16,12 @@ Efti gate consists of:
 * Start development environment: ```../docker/start.sh```
 * See more from [docker](../docker/README.md)
 
+### Generate XML classes based on schema
+```
+clojure -T:build xjc
+clojure -T:build classes
+```
+
 ### Bash
 Start backend for development environment:
 ```
