@@ -7,7 +7,8 @@
   (testing "Message is valid xml"
     (let [payload (edelivery/uil-query->xml {:gate-id "fi1"
                                              :platform-id "test-1"
-                                             :dataset-id "1"})]
+                                             :dataset-id "1"
+                                             :subset-id "identifiers"})]
       (is (string? payload))
       (validate-edelivery-payload! payload))))
 
@@ -28,7 +29,7 @@
                                               :datasetId "da253ebf-4577-476a-99df-4e5f6bc6b750"},
                                              :deliveryInformation nil,
                                              :carrierAcceptanceDateTime "2024-07-10T09:46:15Z",
-                                             :deliveryEvent {:actualOccurrenceDateTime nil},
+                                             :deliveryTransportEvent {:actualOccurrenceDateTime nil},
                                              :mainCarriageTransportMovements
                                              [{:dangerousGoodsIndicator false,
                                                :transportModeCode 2,
