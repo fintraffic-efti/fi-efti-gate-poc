@@ -2,6 +2,7 @@
   (:require
     [clj-http.client :as http]
     [clojure.data.xml :as xml]
+    [clojure.java.io :as io]
     [fintraffic.common.maybe :as maybe]
     [fintraffic.common.xml :as fxml]
     [fintraffic.common.xpath :as xpath]
@@ -10,12 +11,20 @@
     [fintraffic.efti.schema.edelivery.message-type :as message-type]
     [ring.util.codec :as ring-codec]
     [tick.core :as tick])
-  (:import (java.nio.charset StandardCharsets)))
+  (:import (java.nio.charset StandardCharsets)
+           (javax.xml.validation SchemaFactory)
+           (javax.xml XMLConstants)
+           (javax.xml.transform.stream StreamSource)))
 
 (def namespaces
   {:soap "http://www.w3.org/2003/05/soap-envelope"
    :eb "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/"
    :eu "http://org.ecodex.backend/1_1/"})
+
+(def edelivery-schema
+  (let [factory (SchemaFactory/newInstance XMLConstants/W3C_XML_SCHEMA_NS_URI)
+        schema-source (StreamSource. (io/as-file (io/resource "xsd/edelivery.xsd")))]
+    (.newSchema factory schema-source)))
 
 (doall (for [[prefix uri] namespaces] (xml/alias-uri prefix uri)))
 
@@ -55,15 +64,22 @@
    :insecure? true
    :as :stream})
 
+(defn validate-edelivery-payload! [payload]
+  (let [validator (.newValidator edelivery-schema)]
+    (->> payload
+         (.getBytes)
+         (io/input-stream)
+         (StreamSource.)
+         (.validate validator))))
+
 (defn send-message! [db config message]
   (let [message
-        (-> message
-            (assoc
-              :timestamp (tick/now)
-              :from-id (:gate-id config)
-              :content-type "text/xml"
-              :direction-id message-direction/out)
-            (update :payload (comp xml/emit-str xml/sexp-as-element)))]
+        (assoc message
+               :timestamp (tick/now)
+               :from-id (:gate-id config)
+               :content-type "text/xml"
+               :direction-id message-direction/out)]
+    (validate-edelivery-payload! (:payload message))
     (->> message submit-request-xml post-request
          (http/post (:edelivery-ap config))
          :body fxml/parse message-id (assoc message :message-id)
@@ -85,11 +101,10 @@
   (send-message! db config {:to-id           (:from-id request)
                             :type-id         message-type/find-consignment
                             :conversation-id (:conversation-id request)
-                            :payload         (edelivery-service/consignments->xml
-                                               :uilResponse (maybe/fold [] vector consignment))}))
+                            :payload         (edelivery-service/uil-response consignment)}))
 
 (defn send-find-consignments-response-message! [db config request consignments]
   (send-message! db config {:to-id           (:from-id request)
                             :type-id         message-type/find-consignments
                             :conversation-id (:conversation-id request)
-                            :payload         (edelivery-service/consignments->xml :identifierResponse consignments)}))
+                            :payload         (edelivery-service/identifier-response consignments)}))

@@ -15,6 +15,7 @@ RUN clojure -P -M
 USER root
 COPY --chmod=444 start.sh /app/
 COPY ./src/main /app/src/main
+COPY ./target/xsdImport /app/target/xsdImport
 RUN chmod -R a+rX /app
 
 USER efti

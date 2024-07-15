@@ -56,13 +56,13 @@
       ["/identifiers"
        {:conflicting true
         :get         {:summary    "Find an existing consignment by uil - gate subset"
-              :access     role/ca?
-              :parameters {:path consignment-schema/UIL}
-              :responses  {200 {:body consignment-schema/Consignment}}
-              :handler    (fn [{{:keys [path]} :parameters :keys [db config]}]
-                            (api-response/get-response
-                              (consignment-service/find-consignment db config path)
-                              (api-response/msg-404 "consignment" path)))}}]
+                      :access     role/ca?
+                      :parameters {:path consignment-schema/UIL}
+                      :responses  {200 {:body consignment-schema/Consignment}}
+                      :handler    (fn [{{:keys [path]} :parameters :keys [db config]}]
+                                    (api-response/get-response
+                                     (consignment-service/find-consignment db config (assoc path :subset-id "identifiers"))
+                                     (api-response/msg-404 "consignment" path)))}}]
       ["/:subset-id"
        {:conflicting true
         :get {:summary    "Find an existing consignment by uil - full dataset or some subset from the platform"

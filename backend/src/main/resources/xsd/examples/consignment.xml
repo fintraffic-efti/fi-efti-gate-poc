@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<consignment
+    xmlns="http://efti.eu/v1/consignment/identifier"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://efti.eu/v1/consignment/identifier
+    ../consignment-identifier.xsd">
+  <uil>
+    <gateId>FI</gateId>
+    <platformId>1234</platformId>
+    <datasetId>XXX</datasetId>
+  </uil>
+  <!-- eFTI39 -->
+  <carrierAcceptanceDateTime>2024-01-01T00:00:00Z</carrierAcceptanceDateTime>
+
+
+  <deliveryTransportEvent>
+    <!-- eFTI188 -->
+    <actualOccurrenceDateTime>2024-01-02T00:00:00Z</actualOccurrenceDateTime>
+  </deliveryTransportEvent>
+
+  <utilizedTransportEquipment>
+    <!-- eFTI378 -->
+    <categoryCode>AE</categoryCode>
+    <!-- eFTI374 -->
+    <identifier>313</identifier>
+
+    <!-- eFTI578 -->
+    <registrationCountry>
+      <id>FI</id>
+    </registrationCountry>
+    <!-- eFTI987 -->
+    <sequenceNumeric>1</sequenceNumeric>
+
+    <carriedTransportEquipment>
+      <!-- eFTI448 -->
+      <identifier>313</identifier>
+      <!-- eFTI1000 -->
+      <sequenceNumeric>1</sequenceNumeric>
+    </carriedTransportEquipment>
+  </utilizedTransportEquipment>
+
+  <mainCarriageTransportMovement>
+    <!-- eFTI581 -->
+    <transportModeCode>3</transportModeCode>
+    <!-- eFTI1451 -->
+    <dangerousGoodsIndicator>false</dangerousGoodsIndicator>
+
+    <usedTransportMeans>
+      <!-- eFTI618 -->
+      <identifier>313</identifier>
+      <!-- eFTI620 -->
+      <registrationCountry>
+        <id>FI</id>
+      </registrationCountry>
+    </usedTransportMeans>
+  </mainCarriageTransportMovement>
+</consignment>

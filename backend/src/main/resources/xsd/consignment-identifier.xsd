@@ -1,0 +1,224 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:efti="http://efti.eu/v1/consignment/identifier"
+            targetNamespace="http://efti.eu/v1/consignment/identifier"
+            elementFormDefault="qualified">
+
+  <xsd:element name="consignment" type="efti:Consignment"/>
+  <xsd:element name="uil" type="efti:UIL"/>
+  <xsd:complexType name="Consignment">
+    <xsd:sequence>
+      <xsd:element name="uil" type="efti:UIL"/>
+      <!-- eFTI39 -->
+      <xsd:element name="carrierAcceptanceDateTime" type="xsd:dateTime" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI39"/>
+            <unCefact unId="UN01004170" vocabularyId="unece:carrierAcceptanceDateTime"/>
+          </xsd:appinfo>
+          <xsd:documentation>
+            The consignment carrier acceptance date
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <!-- eFTI188 -->
+      <xsd:element name="deliveryTransportEvent" type="efti:TransportEvent" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="ASBIE1058"/>
+            <unCefact unId="UN01004251" vocabularyId="unece:deliveryTransportEvent"/>
+          </xsd:appinfo>
+          <xsd:documentation>
+            The delivery event for this consignment.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="utilizedTransportEquipment" type="efti:TransportEquipment" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="ASBIE1086"/>
+            <unCefact unId="UN01004260" vocabularyId="unece:utilizedTransportEquipment"/>
+          </xsd:appinfo>
+          <xsd:documentation>
+            The transport equipment used for transporting this consignment.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="mainCarriageTransportMovement" type="efti:TransportMovement" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="ASBIE1098"/>
+            <unCefact unId="UN01004261" vocabularyId="unece:mainCarriageTransportMovement"/>
+          </xsd:appinfo>
+          <xsd:documentation>
+            The main carriage is the primary (main) leg of transportation used for the carriage of the consignment of goods from one place to another.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="UIL">
+    <xsd:sequence>
+      <xsd:element name="gateId" type="xsd:string"/>
+      <xsd:element name="platformId" type="xsd:string"/>
+      <xsd:element name="datasetId" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="TransportEvent">
+    <xsd:sequence>
+      <xsd:element name="actualOccurrenceDateTime" type="xsd:dateTime" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI188" parent-id="ASBIE1058">The actual delivery date for this consignment.</efti>
+            <unCefact unId="UN01004796" vocabularyId="unece:actualOccurrenceDateTime"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="TransportEquipment">
+    <xsd:sequence>
+      <!-- eFTI378 -->
+      <xsd:element name="categoryCode" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI378" parent-id="ASBIE1086">The code specifying the category for the used transport equipment, such as container or trailer.</efti>
+            <unCefact unId="UN01003767" vocabularyId="unece:transportEquipmentCategoryCode"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+      <!-- eFTI374 -->
+      <xsd:element name="identifier" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI374" parent-id="ASBIE1086">The identifier of the transport equipment used for transporting this consignment.</efti>
+            <unCefact unId="UN01003758" vocabularyId="unece:identifier"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+      <!-- eFTI578 -->
+      <xsd:element name="registrationCountry" type="efti:Country" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="ASBIE1097" parent-id="ASBIE1086">The country of registration of the used transport equipment.</efti>
+            <unCefact unId="UN01015630" />
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+      <!-- eFTI987 -->
+      <xsd:element name="sequenceNumeric" type="xsd:integer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI987" parent-id="ASBIE1086">The sequence number differentiating this piece of logistics transport equipment from others in a set of used transport equipment.</efti>
+            <unCefact unId="UN01003779" vocabularyId="unece:sequenceNumeric"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="carriedTransportEquipment" type="efti:AssociatedTransportEquipment" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="ASBIE1092" parent-id="ASBIE1086">Transport equipment that is carried on other transport equipment, such as a container placed on a rail wagon or on a trailer.</efti>
+            <unCefact unId="UN01003798" vocabularyId="unece:carriedTransportEquipment"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="AssociatedTransportEquipment">
+    <xsd:sequence>
+      <!-- eFTI448 -->
+      <xsd:element name="identifier" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI448" parent-id="ASBIE1092">The identifier of the carried transport equipment.</efti>
+            <unCefact unId="UN01004884" vocabularyId="unece:identifier"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+      <!-- eFTI1000 -->
+      <xsd:element name="sequenceNumeric" type="xsd:integer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI1000" parent-id="ASBIE1092">The sequence number differentiating this piece of logistics transport equipment from others in a set of carried transport equipment.</efti>
+            <unCefact unId="UN01015562"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="TransportMovement">
+    <xsd:sequence>
+      <!-- eFTI581 -->
+      <xsd:element name="transportModeCode" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI581" parent-id="ASBIE1098">The code specifying the mode of transport, such as by air, sea, rail, road or inland waterway, for the main leg of transport of the movement of a consignment of goods.</efti>
+            <unCefact unId="UN01005548" vocabularyId="unece:transportModeCode"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+      <!-- eFTI1451 -->
+      <xsd:element name="dangerousGoodsIndicator" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI1451" parent-id="ASBIE1098">The indication of whether or not dangerous goods are being transported on board according to ADR/ADN/RID.</efti>
+            <unCefact unId="UN01010121" vocabularyId="unece:dangerousGoodsIndicator"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+      <!-- eFTI618 + eFTI620 -->
+      <xsd:element name="usedTransportMeans" type="efti:TransportMeans">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="ASBIE1107" parent-id="ASBIE1098">The means of transport used in this main leg of transportation of the consignment of goods from one place to another.</efti>
+            <unCefact unId="UN01003861" vocabularyId="unece:usedTransportMeans"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="TransportMeans">
+    <xsd:sequence>
+      <!-- eFTI618 -->
+      <xsd:element name="identifier" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI618" parent-id="ASBIE1107">The identifier of the means of transport used in the main leg of transportation of the consignment of goods from one place to another.</efti>
+            <unCefact unId="UN01005545" vocabularyId="unece:identifier"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+      <!-- eFTI620 -->
+      <xsd:element name="registrationCountry" type="efti:Country" minOccurs="0">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="ASBIE1108" parent-id="ASBIE1107">The country of registration of the means of transport used in the main leg of transportation of the consignment of goods from one place to another.</efti>
+            <unCefact unId="UN01003834" vocabularyId="unece:registrationCountry"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Country">
+    <xsd:sequence>
+      <xsd:element name="id" type="xsd:string">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <efti id="eFTI578" parent-id="ASBIE1097">The code for the registration country of the used transport equipment.</efti>
+            <efti id="eFTI620" parent-id="ASBIE1108">The country code of the registration country of the transport means used in the main leg of transportation of the consignment of goods from one place to another.</efti>
+            <unCefact unId="UN01002553" vocabularyId="unece:countryId"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>

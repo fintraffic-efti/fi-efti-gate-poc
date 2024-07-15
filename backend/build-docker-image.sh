@@ -2,6 +2,10 @@
 set -e
 cd $(dirname $0)
 
+echo "Generate XML classes"
+clojure -T:build xjc
+clojure -T:build classes
+
 registry_name="${1%/}/"
 repository_name='efti/backend'
 

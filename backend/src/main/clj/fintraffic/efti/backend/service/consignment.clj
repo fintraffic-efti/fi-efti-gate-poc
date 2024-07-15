@@ -1,13 +1,14 @@
 (ns fintraffic.efti.backend.service.consignment
   (:require [clj-http.client :as http]
             [clojure.data.xml :as xml]
+            [clojure.set :as set]
             [fintraffic.common.xml :as fxml]
             [fintraffic.efti.backend.db :as db]
             [fintraffic.efti.backend.db.dml :as dml]
             [fintraffic.efti.backend.db.query :as db-query]
             [fintraffic.efti.backend.db.query]
+            [fintraffic.malli.time :refer [->safe-parser]]
             [fintraffic.efti.backend.exception :as exception]
-            [fintraffic.efti.backend.service.edelivery :as edelivery]
             [fintraffic.efti.backend.service.edelivery :as edelivery-service]
             [fintraffic.efti.backend.service.edelivery.ws :as edelivery-ws-service]
             [fintraffic.efti.backend.service.user :as user-service]
@@ -22,9 +23,10 @@
 
 (defn consignment->db [uil consignment]
   (as-> consignment %
-        (dissoc % :main-carriage-transport-movements :utilized-transport-equipments)
-        (assoc % :uil uil)
-        (flat/tree->flat "$" %)))
+    (set/rename-keys % {:delivery-transport-event :delivery-event})
+    (dissoc % :main-carriage-transport-movements :utilized-transport-equipments)
+    (assoc % :uil uil)
+    (flat/tree->flat "$" %)))
 
 (defn transport-equipment->db [consignment-id ordinal equipment]
   (as-> equipment %
@@ -87,8 +89,23 @@
       (exception/throw-ex-info! :timeout (str "Foreign gate " (:gate-id query)
                                               " did not respond within 60s. Request message id: "
                                               (:message-id request)))
-      (->> response first :payload xml/parse-str fxml/element->sexp
-           (edelivery/xml->consignment query)))))
+      (let [safe-parse-time (->safe-parser edelivery-service/parse-instant)
+            resp
+            (->> response first :payload xml/parse-str fxml/element->sexp
+                 (edelivery-service/xml->consignment query))]
+        ;; Why does the coercion not work? Hand translating now
+        (-> resp
+            (update :carrier-acceptance-date-time safe-parse-time)
+            (update-in [:delivery-transport-event :actual-occurrence-date-time] safe-parse-time)
+            (update :utilized-transport-equipments vec)
+            (update :main-carriage-transport-movements vec)
+            (update :main-carriage-transport-movements (fn [s] (mapv #(update %  :dangerous-goods-indicator boolean) s)))
+            (update :main-carriage-transport-movements (fn [s] (mapv #(update % :transport-mode-code parse-long) s)))
+            (update :utilized-transport-equipments (fn [s] (mapv #(update % :sequence-numeric parse-long) s)))
+            (update :utilized-transport-equipments (fn [s] (mapv #(update % :carried-transport-equipments
+                                                                          (fn [z]
+                                                                            (mapv (fn [m] (update m :sequence-numeric parse-long)) z)))
+                                                                 s))))))))
 
 (defn decode-keystore [base64 password]
   (let [ks (KeyStore/getInstance (KeyStore/getDefaultType))
@@ -98,17 +115,20 @@
     ks))
 
 (defn find-platform-consignment [db config query]
-  (when-let [consignment (find-consignment-db db query)]
-    (:body (http/get (str (->> consignment :uil :platform-id Long/parseLong
-                               (user-service/find-whoami-by-id db user-schema/Platform)
-                               :platform-url)
-                          "/consignments/" (:dataset-id query) "/" (:subset-id query))
-                     (merge {:as :json}
-                            (when-let [cert-base64 (:gate-client-certificate config)]
-                              (let [cert-password (:gate-client-certificate-password config)]
-                                {:keystore (decode-keystore cert-base64 cert-password)
-                                 :keystore-type "p12"
-                                 :keystore-pass cert-password})))))))
+  (let [safe-parse-time (->safe-parser edelivery-service/parse-instant)]
+    (when-let [consignment (find-consignment-db db query)]
+      (-> (:body (http/get (str (->> consignment :uil :platform-id Long/parseLong
+                                     (user-service/find-whoami-by-id db user-schema/Platform)
+                                     :platform-url)
+                                "/consignments/" (:dataset-id query) "/" (:subset-id query))
+                           (merge {:as :json}
+                                  (when-let [cert-base64 (:gate-client-certificate config)]
+                                    (let [cert-password (:gate-client-certificate-password config)]
+                                      {:keystore (decode-keystore cert-base64 cert-password)
+                                       :keystore-type "p12"
+                                       :keystore-pass cert-password})))))
+          (update :carrierAcceptanceDateTime safe-parse-time)
+          (update-in [:deliveryTransportEvent :actualOccurrenceDateTime] safe-parse-time)))))
 
 (defn find-consignment [db config query]
   (if (= (:gate-id config) (:gate-id query))
@@ -132,17 +152,17 @@
   (let [query (merge {:limit 10 :offset 0} query)
         conversation-id (edelivery-service/new-conversation-id db)
         gate-ids (if (empty? (:gate-ids query)) (:gate-ids config)
-                   (-> query :gate-ids set (disj (:gate-id config))))
+                     (-> query :gate-ids set (disj (:gate-id config))))
         query (dissoc query :gate-ids)]
     (doseq [to-id gate-ids]
       (edelivery-ws-service/send-find-consignments-message! db config conversation-id to-id query))
     (->>
-      (edelivery-service/find-messages-until db conversation-id #(= (count %) (count gate-ids)) 60000)
-      (mapcat #(->> % :payload xml/parse-str fxml/element->sexp edelivery/xml->consignments)))))
+     (edelivery-service/find-messages-until db conversation-id #(= (count %) (count gate-ids)) 60000)
+     (mapcat #(->> % :payload xml/parse-str fxml/element->sexp edelivery-service/xml->consignments)))))
 
 (defn find-consignments [db config query]
   (concat
-    (if (or (empty? (:gate-ids query))
-            (-> query :gate-ids set (contains? (:gate-id config))))
-      (find-consignments-db db query) [])
-    (find-consignments-gate db config query)))
+   (if (or (empty? (:gate-ids query))
+           (-> query :gate-ids set (contains? (:gate-id config))))
+     (find-consignments-db db query) [])
+   (find-consignments-gate db config query)))

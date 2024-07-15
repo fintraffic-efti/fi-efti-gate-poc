@@ -14,3 +14,5 @@
 # Emacs
 .dir-locals.el
 
+/backend/generated-src/
+/backend/target/

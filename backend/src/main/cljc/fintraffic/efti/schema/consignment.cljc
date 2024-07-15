@@ -47,14 +47,15 @@
 
 (def ConsignmentSave
   (->
-    {:carrier-acceptance-date-time inst?} ;eFTI39
+    {:carrier-acceptance-date-time inst?  ;eFTI39
+     :delivery-transport-event TransportEvent ;eFTI188
+     }
     schema/maybe-values
     (assoc
-      :delivery-event TransportEvent ;eFTI188
       :main-carriage-transport-movements (schema/vector TransportMovement)
       :utilized-transport-equipments (schema/vector TransportEquipment))))
 
-(def Consignment (assoc ConsignmentSave :id schema/Id :uil UIL))
+(def Consignment (assoc ConsignmentSave :uil UIL))
 
 (def ConsignmentQuery
   (-> {:identifier (schema/LimitedString 200)

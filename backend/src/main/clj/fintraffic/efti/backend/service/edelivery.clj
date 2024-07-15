@@ -1,6 +1,7 @@
 (ns fintraffic.efti.backend.service.edelivery
   (:require [camel-snake-kebab.core :as csk]
             [clojure.walk :as walk]
+            [clojure.data.xml :as xml]
             [fintraffic.common.collection :as collection]
             [fintraffic.common.logic :as logic]
             [fintraffic.common.xml :as fxml]
@@ -16,12 +17,119 @@
             [malli.core :as malli]
             [malli.transform :as malli-transform]
             [next.jdbc.sql :as sql]
-            [tick.core :as tick])
+            [tick.core :as tick]
+            [fintraffic.common.maybe :as maybe]
+            [clojure.string :as str])
   (:import (java.time ZoneId)
            (java.time.format DateTimeFormatterBuilder)
-           (java.time.temporal ChronoField)))
+           (java.time.temporal ChronoField)
+           (eu.efti.v1.edelivery ObjectFactory)))
 
 (db/require-queries 'edelivery)
+
+(def datatype-factory (javax.xml.datatype.DatatypeFactory/newInstance))
+
+(def object-factory (ObjectFactory.))
+
+(def jaxb-class->factory-method
+  (into {}
+        (->> (.getMethods ObjectFactory)
+             (filter #(= jakarta.xml.bind.JAXBElement (.getReturnType %)))
+             (map (fn [method]
+                    [(first (.getParameterTypes method)) method])))))
+
+(defn find-setter [clazz prop]
+  (->> (.getMethods clazz)
+       (filter #(= (str "set" (str/lower-case (name prop))) (str/lower-case (.getName %))))
+       first))
+
+(defn find-list-getter [clazz prop]
+  (->> (.getMethods clazz)
+       (filter #(= (str "get" (str/lower-case (str/join (butlast (name prop))))) (str/lower-case (.getName %))))
+       first))
+
+(defn find-clazz-field-type [clazz prop]
+  (->> (.getDeclaredFields clazz)
+       (filter #(= (.getName %) (name prop)))
+       first
+       (.getType)))
+
+(defn ->XMLGregorianCalendar [v]
+  (cond
+    (string? v)
+    (let [{:keys [year monthValue dayOfMonth hour minute second offset]}
+          (bean (java.time.ZonedDateTime/parse v))]
+      (.newXMLGregorianCalendar datatype-factory
+                                year
+                                monthValue
+                                dayOfMonth
+                                hour
+                                minute
+                                second
+                                0
+                                (/ (->> offset bean :totalSeconds) 60)))
+
+    (instance? java.time.Instant v)
+    (.newXMLGregorianCalendar datatype-factory
+                              (doto (java.util.GregorianCalendar.)
+                                (.setTimeInMillis (.toEpochMilli v))))))
+
+(defn fill-jaxb [clazz node]
+  (let [o (.newInstance clazz)]
+    (doseq [[prop v] node]
+      (let [setter (find-setter clazz prop)]
+        (cond
+          (nil? v) nil
+
+          (sequential? v)
+          (let [getter (find-list-getter clazz prop)
+                ls (.invoke getter o (into-array []))
+                generic-type (->> getter
+                                  (.getAnnotatedReturnType)
+                                  (.getType)
+                                  (.getActualTypeArguments)
+                                  first)]
+            (doseq [e (map #(fill-jaxb generic-type %) v)]
+              (.add ls e)))
+
+          (map? v)
+          (.invoke
+           setter o
+           (into-array [(fill-jaxb (find-clazz-field-type clazz prop) v)]))
+
+          :else
+          (let [field-type (find-clazz-field-type clazz prop)]
+            (.invoke setter o
+                     (into-array [(condp = field-type
+                                    javax.xml.datatype.XMLGregorianCalendar
+                                    (->XMLGregorianCalendar v)
+
+                                    java.lang.String
+                                    (str v)
+
+                                    java.math.BigInteger
+                                    (java.math.BigInteger/valueOf v)
+
+                                    v)]))))))
+    o))
+
+(defn clj->xmlstring [jaxb-class clj-data]
+  (let [marshaller (-> (jakarta.xml.bind.JAXBContext/newInstance
+                        (into-array [jaxb-class]))
+                       (.createMarshaller))
+        string-writer (java.io.StringWriter.)]
+    (.marshal marshaller
+              (.invoke (jaxb-class->factory-method jaxb-class) object-factory
+               (into-array [(fill-jaxb jaxb-class clj-data)]))
+              string-writer)
+    (str string-writer)))
+
+(def namespaces
+  {:efti-ed "http://efti.eu/v1/edelivery"
+   :efti-id "http://efti.eu/v1/consignment/identifier"
+   :efti    "http://efti.eu/v1/consignment"})
+
+(doall (for [[prefix uri] namespaces] (xml/alias-uri prefix uri)))
 
 (def instant-format
   (-> (DateTimeFormatterBuilder.)
@@ -81,8 +189,8 @@
    :carriedTransportEquipments :carriedTransportEquipment})
 
 (def order
-  [:uil :carrierAcceptanceDateTime :deliveryTransportEvent :utilizedTransportEquipment :mainCarriageTransportMovement
-   :gateId :platformId :dataId
+  [:uil :deliveryInformation :carrierAcceptanceDateTime :deliveryTransportEvent :utilizedTransportEquipment :mainCarriageTransportMovement
+   :gateId :platformId :datasetId
    :categoryCode :identifier :registrationCountry :sequenceNumeric :carriedTransportEquipment
    :transportModeCode :dangerousGoodsIndicator :usedTransportMeans])
 
@@ -100,8 +208,14 @@
        (fxml/xml->object+nowrap lists)
        (rename-properties-object csk/->kebab-case-keyword)))
 
-(defn consignments->xml [tag consignments]
-  (object->xml tag {:consignments consignments}))
+(defn uil-response [consignment]
+  (clj->xmlstring eu.efti.v1.edelivery.UILResponse {:consignment consignment}))
+
+(defn identifier-response [consignments]
+  (clj->xmlstring eu.efti.v1.edelivery.IdentifierResponse
+                  (rename-properties-object
+                   csk/->camelCaseKeyword
+                   {:consignments (mapv #(dissoc % :id) consignments)})))
 
 (def coerce-consignment
   (malli/coercer (schema/schema consignment-schema/Consignment) transformer))
@@ -114,13 +228,21 @@
       (cond-> (subset/identifier? query) coerce-consignment)))
 
 (defn uil-query->xml [query]
-  (object->xml :uilQuery {:uil (dissoc query :subset-id)
-                          :subset-id (:subset-id query)}))
+  (clj->xmlstring eu.efti.v1.edelivery.UILQuery
+                  (rename-properties-object
+                   csk/->camelCaseKeyword
+                   (-> {:uil (dissoc query :subset-id)}
+                       (assoc :subsetId (:subset-id query))))))
+
 (defn xml->uil-query [xml]
   (let [query (xml->object xml)]
     (assoc (:uil query) :subset-id (:subset-id query))))
 
-(defn query->xml [uil] (fxml/object->xml :identifierQuery {} uil))
+(defn query->xml [query]
+  (clj->xmlstring eu.efti.v1.edelivery.IdentifierQuery
+                  (select-keys query [:identifier])))
+
 (def coerce-query
   (malli/coercer (schema/schema consignment-schema/ConsignmentQuery) transformer))
+
 (defn xml->query [xml] (->> xml (fxml/xml->object #{}) coerce-query))

@@ -1,7 +1,7 @@
 # Efti gate backend
 
 Efti gate consists of:
-- backend 
+- backend
   - provides platform and competent authority rest apis
   - process edelivery messages from edelivery access point
 - edelivery access point
@@ -16,8 +16,14 @@ Efti gate consists of:
 * Start development environment: ```../docker/start.sh```
 * See more from [docker](../docker/README.md)
 
+### Generate XML classes based on schema
+```
+clojure -T:build xjc
+clojure -T:build classes
+```
+
 ### Bash
-Start backend for development environment: 
+Start backend for development environment:
 ```
 env $(cat .env | xargs) ./start.sh
 ```
@@ -32,12 +38,12 @@ Start backend: ```(start!)```
 
 Stop backend: ```(stop!)```
 
-Exit repl: `ctrl-c` 
+Exit repl: `ctrl-c`
 
 ### Docker
 
 Build dev image: ```./build-docker-image.sh```.
-Run dev image and connect to local development network: 
+Run dev image and connect to local development network:
 ```
 docker run --rm \
 --network efti_default \
@@ -50,3 +56,7 @@ efti/backend
 
 Stop backend: `ctrl-c` (container is removed)
 
+### Edelivery schemas
+The directory `main/resources/xsd` contains schemas for the edelivery
+payloads. If you need to update those, new versions can be copied to
+that directory.
