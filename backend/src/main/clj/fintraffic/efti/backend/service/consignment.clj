@@ -7,8 +7,8 @@
             [fintraffic.efti.backend.db.dml :as dml]
             [fintraffic.efti.backend.db.query :as db-query]
             [fintraffic.efti.backend.db.query]
+            [fintraffic.malli.time :refer [->safe-parser]]
             [fintraffic.efti.backend.exception :as exception]
-            [fintraffic.efti.backend.service.edelivery :as edelivery]
             [fintraffic.efti.backend.service.edelivery :as edelivery-service]
             [fintraffic.efti.backend.service.edelivery.ws :as edelivery-ws-service]
             [fintraffic.efti.backend.service.user :as user-service]
@@ -90,7 +90,7 @@
                                               " did not respond within 60s. Request message id: "
                                               (:message-id request)))
       (->> response first :payload xml/parse-str fxml/element->sexp
-           (edelivery/xml->consignment query)))))
+           (edelivery-service/xml->consignment query)))))
 
 (defn decode-keystore [base64 password]
   (let [ks (KeyStore/getInstance (KeyStore/getDefaultType))
@@ -100,17 +100,20 @@
     ks))
 
 (defn find-platform-consignment [db config query]
-  (when-let [consignment (find-consignment-db db query)]
-    (:body (http/get (str (->> consignment :uil :platform-id Long/parseLong
-                               (user-service/find-whoami-by-id db user-schema/Platform)
-                               :platform-url)
-                          "/consignments/" (:dataset-id query) "/" (:subset-id query))
-                     (merge {:as :json}
-                            (when-let [cert-base64 (:gate-client-certificate config)]
-                              (let [cert-password (:gate-client-certificate-password config)]
-                                {:keystore (decode-keystore cert-base64 cert-password)
-                                 :keystore-type "p12"
-                                 :keystore-pass cert-password})))))))
+  (let [safe-parse-time (->safe-parser edelivery-service/parse-instant)]
+    (when-let [consignment (find-consignment-db db query)]
+      (-> (:body (http/get (str (->> consignment :uil :platform-id Long/parseLong
+                                     (user-service/find-whoami-by-id db user-schema/Platform)
+                                     :platform-url)
+                                "/consignments/" (:dataset-id query) "/" (:subset-id query))
+                           (merge {:as :json}
+                                  (when-let [cert-base64 (:gate-client-certificate config)]
+                                    (let [cert-password (:gate-client-certificate-password config)]
+                                      {:keystore (decode-keystore cert-base64 cert-password)
+                                       :keystore-type "p12"
+                                       :keystore-pass cert-password})))))
+          (update :carrierAcceptanceDateTime safe-parse-time)
+          (update-in [:deliveryTransportEvent :actualOccurrenceDateTime] safe-parse-time)))))
 
 (defn find-consignment [db config query]
   (if (= (:gate-id config) (:gate-id query))
@@ -140,7 +143,7 @@
       (edelivery-ws-service/send-find-consignments-message! db config conversation-id to-id query))
     (->>
       (edelivery-service/find-messages-until db conversation-id #(= (count %) (count gate-ids)) 60000)
-      (mapcat #(->> % :payload xml/parse-str fxml/element->sexp edelivery/xml->consignments)))))
+      (mapcat #(->> % :payload xml/parse-str fxml/element->sexp edelivery-service/xml->consignments)))))
 
 (defn find-consignments [db config query]
   (concat
