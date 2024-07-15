@@ -131,6 +131,8 @@ services:
   gate-fi2:
     image: efti/backend:latest
     env_file: gate-fi2.env
+    extra_hosts:
+      - "host.containers.internal:host-gateway"
 
 volumes:
   data:
