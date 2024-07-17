@@ -55,25 +55,26 @@
   ([predicate msg value]
    (if (predicate value)
      value (exception/throw-ex-info! :unauthorized msg))))
+
 (defn wrap-certificate-whoami [handler schema]
   (fn [{:keys [db] :as request}]
     (let [db (db-client db (:authentication role/system-users) request)
           ^X509Certificate certificate
           (unauthorized!
-            "Client certificate is missing."
-            (some-> request :headers (get "x-amzn-mtls-clientcert-leaf")
-                    ring-codec/url-decode fstr/input-stream certificate/read))
+           "Client certificate is missing."
+           (some-> request :headers (get "x-amzn-mtls-clientcert-leaf")
+                   ring-codec/url-decode fstr/input-stream certificate/read))
           platform-urn (unauthorized!
-                         (complement str/blank?)
-                         "Platform id urn is not defined in certificate."
-                         (some->>
-                           certificate .getSubjectAlternativeNames
-                           (filter #(-> % second str/trim (str/starts-with? "urn:efti")))
-                           first second str/trim))
-          platform-id (-> platform-urn (str/split #":") (nth 3) Long/parseLong)
+                        (complement str/blank?)
+                        "Platform id urn is not defined in certificate."
+                        (some->>
+                         certificate .getSubjectAlternativeNames
+                         (filter #(-> % second str/trim (str/starts-with? "urn:efti")))
+                         first second str/trim))
+          platform-id (-> platform-urn (str/split #":") (nth 3))
           whoami (unauthorized!
-                   (str "Unable to find platform: " platform-id)
-                   (whoami-service/find-whoami-by-id db schema platform-id))]
+                  (str "Unable to find platform: " platform-id)
+                  (whoami-service/find-whoami-by-platform-id db schema platform-id))]
 
       (handler (assoc request :whoami whoami)))))
 

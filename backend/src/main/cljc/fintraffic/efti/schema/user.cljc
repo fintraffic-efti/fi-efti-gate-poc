@@ -17,6 +17,14 @@
 
 (def Platform (assoc SystemUser :platform-url (schema/maybe string?)))
 
+(def WhoamiPlatformResponse
+  {:platform-id string?
+   :role string?})
+
+(def WhoamiCAResponse
+  {:app-id string?
+   :role string?})
+
 (def Role schema/Classification)
 
 (def centuries

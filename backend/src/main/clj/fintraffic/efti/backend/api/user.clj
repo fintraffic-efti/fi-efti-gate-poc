@@ -1,5 +1,6 @@
 (ns fintraffic.efti.backend.api.user
   (:require [ring.util.response :as r]
+            [clojure.set :as set]
             [fintraffic.efti.schema.user :as user-schema]
             [fintraffic.efti.backend.service.user :as user-service]
             [malli.experimental.lite :as lmalli]))
@@ -7,13 +8,17 @@
 (defn whoami [schema]
   ["/whoami"
    {:get {:summary   "Find current signed in user"
-          :responses {200 {:body (assoc schema
-                                   :id string?
-                                   :role-id string?)}}
+          :responses {200 {:body schema}}
           :handler   (fn [{:keys [whoami]}]
                        (r/response (-> whoami
+                                       (select-keys [:id :role-id])
                                        (update :id str)
-                                       (update :role-id str))))}}])
+                                       (update :role-id str)
+                                       (set/rename-keys {:id (if (= schema
+                                                                    user-schema/WhoamiPlatformResponse)
+                                                               :platform-id
+                                                               :app-id)
+                                                         :role-id :role}))))}}])
 
 (def routes
   [whoami

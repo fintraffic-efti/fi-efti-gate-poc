@@ -4,4 +4,4 @@ authorityKeyIdentifier = keyid:always, issuer:always
 extendedKeyUsage       = clientAuth
 subjectAltName         = @alt_names
 [ alt_names ]
-URI.1 = urn:efti:fi:-20
+URI.1 = urn:efti:fi:aap1

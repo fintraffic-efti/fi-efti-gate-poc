@@ -81,14 +81,14 @@
       ["/v0/platform" {:middleware [#(security/wrap-certificate-whoami % user-schema/Platform)
                                     security/wrap-access
                                     security/wrap-db-client]}
-       (tag "Platform user API" (user-api/whoami user-schema/Platform))
+       (tag "Platform user API" (user-api/whoami user-schema/WhoamiPlatformResponse))
        (tag "Platform consignment API" consignment-api/platform)])
     (api-route/rename-api
       csk/->camelCaseKeyword csk/->kebab-case-keyword
       ["/v0/aap" {:middleware [#(security/wrap-certificate-whoami % user-schema/SystemUser)
                                security/wrap-access
                                security/wrap-db-client]}
-       (tag "CA user API" (user-api/whoami user-schema/SystemUser))
+       (tag "CA user API" (user-api/whoami user-schema/WhoamiCAResponse))
        (tag "CA consignment API" consignment-api/aap)])
     ["/edelivery" {:middleware [#(security/wrap-whoami-static-user % user-schema/SystemUser
                                                                    (:edelivery user-schema/system))
