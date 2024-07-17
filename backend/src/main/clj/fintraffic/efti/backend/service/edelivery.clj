@@ -138,7 +138,9 @@
       (.appendLiteral \.)
       (.appendFraction ChronoField/NANO_OF_SECOND, 1, 9, false)
       (.optionalEnd)
-      (.appendPattern "[X]")
+      (.optionalStart)
+      (.appendOffset "+HH:mm", "Z")
+      (.optionalEnd)
       (.parseDefaulting ChronoField/NANO_OF_SECOND, 0)
       .toFormatter
       (.withZone (ZoneId/of "UTC"))))
