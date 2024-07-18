@@ -13,7 +13,8 @@ create table end_user (
   first_name text,
   last_name text,
   name text,
-  platform_url text
+  platform_url text,
+  platform_id text unique
 );
 
 call audit.create_audit_table('end_user'::name, null);

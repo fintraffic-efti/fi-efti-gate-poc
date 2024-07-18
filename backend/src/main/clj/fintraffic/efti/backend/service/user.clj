@@ -29,6 +29,9 @@
 (defn find-whoami-by-id [db schema id]
   (first (db-query/find-by db :end-user schema {:id id})))
 
+(defn find-whoami-by-platform-id [db schema platform-id]
+  (first (db-query/find-by db :end-user schema {:platform-id platform-id})))
+
 (defn find-users [db] (user-db/select-users db))
 
 (defn update-user! [db id user]

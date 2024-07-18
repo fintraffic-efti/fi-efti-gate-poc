@@ -4,5 +4,5 @@ authorityKeyIdentifier = keyid:always, issuer:always
 extendedKeyUsage       = clientAuth
 subjectAltName         = @alt_names
 [ alt_names ]
-URI.1 = urn:efti:fi:-10
+URI.1 = urn:efti:fi:fi-platform-1
 URI.2 = http://127.0.0.1:9080
