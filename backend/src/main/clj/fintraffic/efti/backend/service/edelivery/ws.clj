@@ -3,6 +3,7 @@
     [clj-http.client :as http]
     [clojure.data.xml :as xml]
     [clojure.java.io :as io]
+    [fintraffic.common.debug :as debug]
     [fintraffic.common.maybe :as maybe]
     [fintraffic.common.xml :as fxml]
     [fintraffic.common.xpath :as xpath]
@@ -42,7 +43,7 @@
         [::eb/Role "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"]]]
       [::eb/CollaborationInfo
        [::eb/Service {:type "tc1"} "bdx:noprocess"]
-       [::eb/Action "TC1Leg1"]
+       [::eb/Action "efti-gate"]
        [::eb/ConversationId conversation-id]]
       [::eb/MessageProperties
        [::eb/Property {:name "originalSender"} "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"]
