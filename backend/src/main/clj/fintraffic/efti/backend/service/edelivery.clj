@@ -163,7 +163,7 @@
      (malli-transform/-string-encoders)}))
 
 (defn add-message [db message]
-  (sql/insert! db :ed-message message db/default-opts))
+  (sql/insert! db :ed-message (dissoc message :ref-to-message-id) db/default-opts))
 
 (defn find-messages [db conversation-id]
   (db-query/find-by db :ed-message edelivery-schema/Message
