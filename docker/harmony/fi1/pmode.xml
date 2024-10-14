@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:configuration xmlns:ns2="http://domibus.eu/configuration" party="fi1">
+<domibus:configuration xmlns:domibus="http://domibus.eu/configuration" party="fi1">
   <businessProcesses>
     <roles>
       <role name="defaultInitiatorRole"
@@ -21,9 +21,7 @@
     </parties>
     <meps>
       <mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay" legs="0"/>
-      <mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay" legs="0"/>
       <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-      <binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
     </meps>
     <properties>
       <property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
@@ -54,24 +52,30 @@
       <agreement name="agreement1" value="A1" type="T1"/>
     </agreements>
     <services>
-      <service name="testService" value="bdx:noprocess" type="tc1"/>
+      <service name="eftiGateService" value="bdx:noprocess" type="tc1"/>
       <service name="pingService"
-               value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service" />
+               value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
     </services>
     <actions>
-      <action name="tc1Action" value="TC1Leg1"/>
-      <action name="pingAction"
-              value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test" />
+      <action name="eftiGateAction" value="eftiGateAction"/>
+      <action name="pingAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
     </actions>
     <as4>
       <receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
       <reliability name="AS4Reliability" replyPattern="response" nonRepudiation="true"/>
     </as4>
     <legConfigurations>
-      <legConfiguration name="testLeg1" reliability="AS4Reliability" security="eDeliveryAS4Policy"
-                        receptionAwareness="receptionAwareness" service="testService" action="tc1Action"
-                        defaultMpc="defaultMpc" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile"
-                        errorHandling="errorHandling" compressPayloads="true"/>
+      <legConfiguration name="eftiGateLeg"
+                        service="eftiGateService"
+                        action="eftiGateAction"
+                        defaultMpc="defaultMpc"
+                        reliability="AS4Reliability"
+                        security="eDeliveryAS4Policy"
+                        receptionAwareness="receptionAwareness"
+                        propertySet="eDeliveryPropertySet"
+                        payloadProfile="MessageProfile"
+                        errorHandling="errorHandling"
+                        compressPayloads="true"/>
       <legConfiguration name="pingServiceCase"
                         service="pingService"
                         action="pingAction"
@@ -82,9 +86,9 @@
                         propertySet="eDeliveryPropertySet"
                         payloadProfile="MessageProfile"
                         errorHandling="errorHandling"
-                        compressPayloads="true" />
+                        compressPayloads="true"/>
     </legConfigurations>
-    <process name="tc1Process" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole" mep="oneway"
+    <process name="eftiProcess" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole" mep="oneway"
              binding="push">
       <initiatorParties>
         <initiatorParty name="fi1"/>
@@ -95,7 +99,7 @@
         <responderParty name="fi2"/>
       </responderParties>
       <legs>
-        <leg name="testLeg1"/>
+        <leg name="eftiGateLeg"/>
         <leg name="pingServiceCase"/>
       </legs>
     </process>
@@ -105,4 +109,4 @@
          retention_metadata_offset="0" delete_message_metadata="false" max_batch_delete="-1" default="true"
          enabled="true" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"/>
   </mpcs>
-</ns2:configuration>
+</domibus:configuration>

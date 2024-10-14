@@ -3,6 +3,7 @@
     [clj-http.client :as http]
     [clojure.data.xml :as xml]
     [clojure.java.io :as io]
+    [fintraffic.common.debug :as debug]
     [fintraffic.common.maybe :as maybe]
     [fintraffic.common.xml :as fxml]
     [fintraffic.common.xpath :as xpath]
@@ -30,7 +31,7 @@
 
 (defn party-id [id] [::eb/PartyId {:type "urn:oasis:names:tc:ebcore:partyid-type:unregistered"} id])
 
-(defn submit-request-xml [{:keys [from-id to-id conversation-id payload content-type]}]
+(defn submit-request-xml [{:keys [from-id to-id conversation-id ref-to-message-id payload content-type]}]
   [::soap/Envelope
    [::soap/Header
     [::eb/Messaging
@@ -42,8 +43,9 @@
         [::eb/Role "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"]]]
       [::eb/CollaborationInfo
        [::eb/Service {:type "tc1"} "bdx:noprocess"]
-       [::eb/Action "TC1Leg1"]
+       [::eb/Action "eftiGateAction"]
        [::eb/ConversationId conversation-id]]
+      (when (some? ref-to-message-id) [::eb/MessageInfo [::eb/RefToMessageId ref-to-message-id]])
       [::eb/MessageProperties
        [::eb/Property {:name "originalSender"} "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"]
        [::eb/Property {:name "finalRecipient"} "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"]]
@@ -59,7 +61,7 @@
 (def message-id (xpath/compile-fn "/soap:Envelope/soap:Body/eu:submitResponse/messageID/text()" namespaces))
 
 (defn post-request [xml]
-  {:body (-> xml xml/sexp-as-element xml/emit-str)
+  {:body (-> xml xml/sexp-as-element xml/emit-str debug/log)
    :content-type "application/soap+xml;charset=UTF-8"
    :insecure? true
    :as :stream})
@@ -101,10 +103,12 @@
   (send-message! db config {:to-id           (:from-id request)
                             :type-id         message-type/find-consignment
                             :conversation-id (:conversation-id request)
+                            :ref-to-message-id (:message-id request)
                             :payload         (edelivery-service/uil-response consignment)}))
 
 (defn send-find-consignments-response-message! [db config request consignments]
   (send-message! db config {:to-id           (:from-id request)
                             :type-id         message-type/find-consignments
                             :conversation-id (:conversation-id request)
+                            :ref-to-message-id (:message-id request)
                             :payload         (edelivery-service/identifier-response consignments)}))
