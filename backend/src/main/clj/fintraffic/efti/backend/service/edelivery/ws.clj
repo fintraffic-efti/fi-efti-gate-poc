@@ -43,7 +43,7 @@
         [::eb/Role "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"]]]
       [::eb/CollaborationInfo
        [::eb/Service {:type "tc1"} "bdx:noprocess"]
-       [::eb/Action "efti-gate"]
+       [::eb/Action "eftiGateAction"]
        [::eb/ConversationId conversation-id]]
       (when (some? ref-to-message-id) [::eb/MessageInfo [::eb/RefToMessageId ref-to-message-id]])
       [::eb/MessageProperties

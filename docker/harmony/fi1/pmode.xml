@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <domibus:configuration xmlns:domibus="http://domibus.eu/configuration" party="fi1">
-  <mpcs>
-    <mpc name="defaultMpc"
-         qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"
-         enabled="true"
-         default="true"
-         retention_downloaded="0"
-         retention_undownloaded="14400"/>
-  </mpcs>
   <businessProcesses>
     <roles>
-      <role name="defaultInitiatorRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
-      <role name="defaultResponderRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+      <role name="defaultInitiatorRole"
+            value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+      <role name="defaultResponderRole"
+            value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
     </roles>
     <parties>
       <partyIdTypes>
@@ -26,66 +20,65 @@
       </party>
     </parties>
     <meps>
-      <mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
-      <binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
+      <mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay" legs="0"/>
+      <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
     </meps>
     <properties>
-      <property name="originalSenderProperty"
-                key="originalSender"
-                datatype="string"
-                required="true"/>
-      <property name="finalRecipientProperty"
-                key="finalRecipient"
-                datatype="string"
-                required="true"/>
+      <property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
+      <property name="finalRecipientProperty" key="finalRecipient" datatype="string" required="true"/>
       <propertySet name="eDeliveryPropertySet">
         <propertyRef property="finalRecipientProperty"/>
         <propertyRef property="originalSenderProperty"/>
       </propertySet>
     </properties>
     <payloadProfiles>
-      <payload name="businessContentPayload"
-               cid="cid:message"
-               required="true"
-               mimeType="text/xml"/>
-      <payload name="businessContentAttachment"
-               cid="cid:attachment"
-               required="false"
-               mimeType="application/octet-stream"/>
+      <payload name="businessContentPayload" cid="cid:message" mimeType="text/xml" maxSize="0" required="true"
+               inBody="false"/>
+      <payload name="businessContentAttachment" cid="cid:attachment" mimeType="application/octet-stream" maxSize="0"
+               required="false" inBody="false"/>
       <payloadProfile name="MessageProfile" maxSize="40894464">
         <attachment name="businessContentPayload"/>
         <attachment name="businessContentAttachment"/>
       </payloadProfile>
     </payloadProfiles>
     <securities>
-      <security name="eDeliveryAS4Policy"
-                policy="eDeliveryAS4Policy.xml"
-                signatureMethod="RSA_SHA256"/>
+      <security name="eDeliveryAS4Policy" policy="eDeliveryAS4Policy.xml" signatureMethod="RSA_SHA256"/>
     </securities>
     <errorHandlings>
-      <errorHandling name="errorHandling"
-                     errorAsResponse="true"
-                     businessErrorNotifyProducer="true"
-                     businessErrorNotifyConsumer="true"
-                     deliveryFailureNotifyProducer="true"/>
+      <errorHandling name="errorHandling" errorAsResponse="true" businessErrorNotifyProducer="true"
+                     businessErrorNotifyConsumer="true" deliveryFailureNotifyProducer="true"/>
     </errorHandlings>
     <agreements>
       <agreement name="agreement1" value="A1" type="T1"/>
     </agreements>
     <services>
-      <service name="efti-test" value="bdx:noprocess" type="tc1"/>
+      <service name="eftiGateService" value="bdx:noprocess" type="tc1"/>
+      <service name="pingService"
+               value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
     </services>
     <actions>
-      <action name="efti-gate" value="efti-gate"/>
+      <action name="eftiGateAction" value="eftiGateAction"/>
+      <action name="pingAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
     </actions>
     <as4>
       <receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
-      <reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
+      <reliability name="AS4Reliability" replyPattern="response" nonRepudiation="true"/>
     </as4>
     <legConfigurations>
-      <legConfiguration name="eftiTestGate"
-                        service="efti-test"
-                        action="efti-gate"
+      <legConfiguration name="eftiGateLeg"
+                        service="eftiGateService"
+                        action="eftiGateAction"
+                        defaultMpc="defaultMpc"
+                        reliability="AS4Reliability"
+                        security="eDeliveryAS4Policy"
+                        receptionAwareness="receptionAwareness"
+                        propertySet="eDeliveryPropertySet"
+                        payloadProfile="MessageProfile"
+                        errorHandling="errorHandling"
+                        compressPayloads="true"/>
+      <legConfiguration name="pingServiceCase"
+                        service="pingService"
+                        action="pingAction"
                         defaultMpc="defaultMpc"
                         reliability="AS4Reliability"
                         security="eDeliveryAS4Policy"
@@ -95,11 +88,8 @@
                         errorHandling="errorHandling"
                         compressPayloads="true"/>
     </legConfigurations>
-    <process name="tc1Process"
-             mep="twoway"
-             binding="pushAndPush"
-             initiatorRole="defaultInitiatorRole"
-             responderRole="defaultResponderRole">
+    <process name="eftiProcess" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole" mep="oneway"
+             binding="push">
       <initiatorParties>
         <initiatorParty name="fi1"/>
         <initiatorParty name="fi2"/>
@@ -109,8 +99,14 @@
         <responderParty name="fi2"/>
       </responderParties>
       <legs>
-        <leg name="eftiTestGate"/>
+        <leg name="eftiGateLeg"/>
+        <leg name="pingServiceCase"/>
       </legs>
     </process>
   </businessProcesses>
+  <mpcs>
+    <mpc name="defaultMpc" retention_downloaded="0" retention_undownloaded="14400" retention_sent="-1"
+         retention_metadata_offset="0" delete_message_metadata="false" max_batch_delete="-1" default="true"
+         enabled="true" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"/>
+  </mpcs>
 </domibus:configuration>
