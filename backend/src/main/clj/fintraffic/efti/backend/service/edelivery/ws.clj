@@ -24,7 +24,7 @@
 
 (def edelivery-schema
   (let [factory (SchemaFactory/newInstance XMLConstants/W3C_XML_SCHEMA_NS_URI)
-        schema-source (StreamSource. (io/as-file (io/resource "xsd/edelivery.xsd")))]
+        schema-source (StreamSource. (io/as-file (io/resource "xsd/edelivery/gate.xsd")))]
     (.newSchema factory schema-source)))
 
 (doall (for [[prefix uri] namespaces] (xml/alias-uri prefix uri)))
@@ -91,13 +91,13 @@
   (send-message! db config {:to-id           (:gate-id uil)
                             :type-id         message-type/find-consignment
                             :conversation-id conversation-id
-                            :payload         (edelivery-service/uil-query->xml uil)}))
+                            :payload         (edelivery-service/uil-query->xml uil conversation-id)}))
 
 (defn send-find-consignments-message! [db config conversation-id gate-id query]
   (send-message! db config {:to-id           gate-id
                             :type-id         message-type/find-consignments
                             :conversation-id conversation-id
-                            :payload         (edelivery-service/query->xml query)}))
+                            :payload         (edelivery-service/query->xml query conversation-id)}))
 
 (defn send-find-consignment-response-message! [db config request consignment]
   (send-message! db config {:to-id           (:from-id request)

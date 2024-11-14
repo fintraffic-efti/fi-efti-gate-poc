@@ -9,9 +9,9 @@
     config/default-config
     {:host         "https://localhost:8280"
      :environment  :dev
-     :gate-id      "fi1"
-     :gate-ids     ["fi2"]
-     :edelivery-ap "https://localhost:8443/services/backend"
+     :gate-id      "EU-FI3"
+     :gate-ids     ["EU-FI1" "EU-FI2" "EU-FR1"]
+     :edelivery-ap "http://localhost:8443/services/backend"
      :db
      {:host          "localhost"
       :port          8432

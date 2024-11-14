@@ -18,7 +18,7 @@
 
 (defn xjc [_]
   (create-generated-src-dir)
-  (XJCFacade/main (into-array [(.getAbsolutePath (b/resolve-path "src/main/resources/xsd/edelivery.xsd")) ; sourcefile
+  (XJCFacade/main (into-array [(.getAbsolutePath (b/resolve-path "src/main/resources/xsd/edelivery/gate.xsd")) ; sourcefile
                                "-d"
                                (.getAbsolutePath (b/resolve-path generated-sources-path)) ; target path
                                "-no-header"])))

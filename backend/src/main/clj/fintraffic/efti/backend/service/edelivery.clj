@@ -1,12 +1,15 @@
 (ns fintraffic.efti.backend.service.edelivery
   (:require [camel-snake-kebab.core :as csk]
+            [clojure.set :as set]
             [clojure.walk :as walk]
             [clojure.data.xml :as xml]
             [fintraffic.common.collection :as collection]
+            [fintraffic.common.debug :as debug]
             [fintraffic.common.logic :as logic]
             [fintraffic.common.xml :as fxml]
             [fintraffic.efti.backend.db :as db]
             [fintraffic.efti.backend.db.query :as db-query]
+            [fintraffic.efti.backend.exception :as exception]
             [fintraffic.efti.schema :as schema]
             [fintraffic.efti.schema.consignment :as consignment-schema]
             [fintraffic.efti.schema.edelivery :as edelivery-schema]
@@ -20,7 +23,8 @@
             [tick.core :as tick]
             [fintraffic.common.maybe :as maybe]
             [clojure.string :as str])
-  (:import (java.time ZoneId)
+  (:import (eu.efti.v1.codes CountryCode)
+           (java.time ZoneId)
            (java.time.format DateTimeFormatterBuilder)
            (java.time.temporal ChronoField)
            (eu.efti.v1.edelivery ObjectFactory)))
@@ -29,7 +33,7 @@
 
 (def datatype-factory (javax.xml.datatype.DatatypeFactory/newInstance))
 
-(def object-factory (ObjectFactory.))
+(def ^ObjectFactory object-factory (ObjectFactory.))
 
 (def jaxb-class->factory-method
   (into {}
@@ -46,12 +50,16 @@
 (defn find-list-getter [clazz prop]
   (->> (.getMethods clazz)
        (filter #(= (str "get" (str/lower-case (str/join (butlast (name prop))))) (str/lower-case (.getName %))))
-       first))
+       first (maybe/require-some! (str "Field: " prop " getter does not exists for " clazz))))
 
-(defn find-clazz-field-type [clazz prop]
-  (->> (.getDeclaredFields clazz)
+(defn find-fields [^Class clazz]
+  (concat (.getDeclaredFields clazz)
+          (-> clazz .getSuperclass .getDeclaredFields)))
+
+(defn find-clazz-field-type [^Class clazz prop]
+  (->> clazz find-fields
        (filter #(= (.getName %) (name prop)))
-       first
+       first (maybe/require-some! (str "Field: " prop " does not exists for " clazz))
        (.getType)))
 
 (defn ->XMLGregorianCalendar [v]
@@ -99,18 +107,23 @@
 
           :else
           (let [field-type (find-clazz-field-type clazz prop)]
-            (.invoke setter o
-                     (into-array [(condp = field-type
-                                    javax.xml.datatype.XMLGregorianCalendar
-                                    (->XMLGregorianCalendar v)
+            (try
+              (.invoke setter o
+                       (into-array [(condp = field-type
+                                      javax.xml.datatype.XMLGregorianCalendar
+                                      (->XMLGregorianCalendar v)
 
-                                    java.lang.String
-                                    (str v)
+                                      java.lang.String
+                                      (str v)
 
-                                    java.math.BigInteger
-                                    (java.math.BigInteger/valueOf v)
+                                      java.math.BigInteger
+                                      (java.math.BigInteger/valueOf v)
 
-                                    v)]))))))
+                                      v)]))
+              (catch Exception e
+                (IllegalArgumentException.
+                  (str "Failed to set property: " prop
+                       " for class: " clazz) e)))))))
     o))
 
 (defn clj->xmlstring [jaxb-class clj-data]
@@ -133,15 +146,15 @@
 
 (def instant-format
   (-> (DateTimeFormatterBuilder.)
-      (.appendPattern "uuuu-MM-dd'T'HH:mm:ss")
+      (.appendPattern "uuuuMMddHHmm")
+      ;;(.optionalStart)
+      ;;(.appendLiteral \.)
+      ;;(.appendFraction ChronoField/NANO_OF_SECOND, 1, 9, false)
+      ;;(.optionalEnd)
       (.optionalStart)
-      (.appendLiteral \.)
-      (.appendFraction ChronoField/NANO_OF_SECOND, 1, 9, false)
+      (.appendOffset "+HHmm", "Z")
       (.optionalEnd)
-      (.optionalStart)
-      (.appendOffset "+HH:mm", "Z")
-      (.optionalEnd)
-      (.parseDefaulting ChronoField/NANO_OF_SECOND, 0)
+      ;;(.parseDefaulting ChronoField/NANO_OF_SECOND, 0)
       .toFormatter
       (.withZone (ZoneId/of "UTC"))))
 
@@ -187,7 +200,7 @@
 (def lists
   {:consignments :consignment
    :mainCarriageTransportMovements :mainCarriageTransportMovement
-   :utilizedTransportEquipments :utilizedTransportEquipment
+   :utilizedTransportEquipments :usedTransportEquipment
    :carriedTransportEquipments :carriedTransportEquipment})
 
 (def order
@@ -211,38 +224,78 @@
        (rename-properties-object csk/->kebab-case-keyword)))
 
 (defn uil-response [consignment]
-  (clj->xmlstring eu.efti.v1.edelivery.UILResponse {:consignment consignment}))
+  (clj->xmlstring eu.efti.v1.edelivery.UILResponse
+                  {:status 200
+                   :consignment consignment}))
+
+(defn consignment->ed-consignment [consignment]
+  (as-> consignment $
+        (debug/log $)
+        (dissoc $ :id)
+        (rename-properties-object
+          (logic/when* #(= :identifier %) (constantly :id)) $)
+        (rename-properties-object
+          (logic/when* #(= :transport-mode-code %) (constantly :mode-code)) $)
+        (rename-properties-object
+          (logic/when* #(= :sequence-numeric %) (constantly :sequence-number)) $)
+        (rename-properties-object
+          (logic/when* #(= :utilized-transport-equipments %)
+                       (constantly :used-transport-equipments)) $)
+        (walk/postwalk
+          (logic/when* (every-pred map-entry? #(-> % first (= :registration-country)))
+                       (fn [[key country]] [key {:code (CountryCode/fromValue (:id country))}]))
+          $)))
 
 (defn identifier-response [consignments]
-  (clj->xmlstring eu.efti.v1.edelivery.IdentifierResponse
-                  (rename-properties-object
-                   csk/->camelCaseKeyword
-                   {:consignments (mapv #(dissoc % :id) consignments)})))
+  (debug/log
+    (clj->xmlstring eu.efti.v1.edelivery.IdentifierResponse
+                    (rename-properties-object
+                      csk/->camelCaseKeyword
+                      {:status       200
+                       :consignments (mapv consignment->ed-consignment consignments)}))))
 
 (def coerce-consignment
   (malli/coercer (schema/schema consignment-schema/Consignment) transformer))
 
+(defn ed-consignment->consignment [consignment]
+  (->> consignment
+       debug/log
+       (walk/postwalk
+         (logic/when* (every-pred map-entry? #(-> % first (= :registration-country)))
+                      (fn [[key country]] [key (set/rename-keys country {:code :id})])))
+       (rename-properties-object
+         (logic/when* #(= :id %) (constantly :identifier)))
+       (rename-properties-object
+         (logic/when* #(= :mode-code %) (constantly :transport-mode-code)))
+       (rename-properties-object
+         (logic/when* #(= :sequence-number %) (constantly :sequence-numeric)))
+       coerce-consignment))
+
+
 (defn xml->consignments [xml]
-  (->> xml xml->object :consignments (map coerce-consignment)))
+  (->> xml xml->object :consignments (map ed-consignment->consignment)))
 
 (defn xml->consignment [query xml]
   (-> xml xml->object :consignments first
-      (cond-> (subset/identifier? query) coerce-consignment)))
+      (cond-> (subset/identifier? query) ed-consignment->consignment)))
 
-(defn uil-query->xml [query]
-  (clj->xmlstring eu.efti.v1.edelivery.UILQuery
-                  (rename-properties-object
-                   csk/->camelCaseKeyword
-                   (-> {:uil (dissoc query :subset-id)}
-                       (assoc :subsetId (:subset-id query))))))
+(defn uil-query->xml [query request-id]
+  (debug/log
+    (clj->xmlstring eu.efti.v1.edelivery.UILQuery
+                    (rename-properties-object
+                      csk/->camelCaseKeyword
+                      {:request-id request-id
+                       :subset-id  (:subset-id query)
+                       :uil        (dissoc query :subset-id)}))))
 
 (defn xml->uil-query [xml]
   (let [query (xml->object xml)]
     (assoc (:uil query) :subset-id (:subset-id query))))
 
-(defn query->xml [query]
+(defn query->xml [query request-id]
   (clj->xmlstring eu.efti.v1.edelivery.IdentifierQuery
-                  (select-keys query [:identifier])))
+                  {:requestId request-id
+                   :identifier {:value (:identifier query)}}))
 
 (def coerce-query
   (malli/coercer (schema/schema consignment-schema/ConsignmentQuery) transformer))

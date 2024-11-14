@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<domibus:configuration xmlns:domibus="http://domibus.eu/configuration" party="EU-FI3">
+  <businessProcesses>
+    <roles>
+      <role name="defaultInitiatorRole"
+            value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+      <role name="defaultResponderRole"
+            value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+    </roles>
+    <parties>
+      <partyIdTypes>
+        <partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+        <partyIdType name="urn:oasis:names:tc:ebcore:partyid-type:EU-LU3" value=""/>
+      </partyIdTypes>
+      <party name="EU-FI1" endpoint="http://eu-fi1.efti.eu:8443/services/msh">
+        <identifier partyId="EU-FI1" partyIdType="partyTypeUrn"/>
+      </party>
+      <party name="EU-FI2" endpoint="http://eu-fi2.efti.eu:8443/domibus/services/msh?domain=eu_fi2">
+        <identifier partyId="EU-FI2" partyIdType="partyTypeUrn"/>
+      </party>
+      <party name="EU-FI3" endpoint="http://eu-fi3.efti.eu:8443/services/msh">
+        <identifier partyId="EU-FI3" partyIdType="partyTypeUrn"/>
+      </party>
+      <party name="EU-FR1" endpoint="http://domibus.fr:8080/domibus/services/msh?domain=france">
+        <identifier partyId="EU-FR1" partyIdType="partyTypeUrn"/>
+      </party>
+    </parties>
+    <meps>
+      <mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay" legs="0"/>
+      <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
+    </meps>
+    <properties>
+      <property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
+      <property name="finalRecipientProperty" key="finalRecipient" datatype="string" required="true"/>
+      <propertySet name="eDeliveryPropertySet">
+        <propertyRef property="finalRecipientProperty"/>
+        <propertyRef property="originalSenderProperty"/>
+      </propertySet>
+    </properties>
+    <payloadProfiles>
+      <payload name="businessContentPayload" cid="cid:message" mimeType="text/xml" maxSize="0" required="true"
+               inBody="false"/>
+      <payload name="businessContentAttachment" cid="cid:attachment" mimeType="application/octet-stream" maxSize="0"
+               required="false" inBody="false"/>
+      <payloadProfile name="MessageProfile" maxSize="40894464">
+        <attachment name="businessContentPayload"/>
+        <attachment name="businessContentAttachment"/>
+      </payloadProfile>
+    </payloadProfiles>
+    <securities>
+      <security name="eDeliveryAS4Policy" policy="eDeliveryAS4Policy.xml" signatureMethod="RSA_SHA256"/>
+    </securities>
+    <errorHandlings>
+      <errorHandling name="errorHandling" errorAsResponse="true" businessErrorNotifyProducer="true"
+                     businessErrorNotifyConsumer="true" deliveryFailureNotifyProducer="true"/>
+    </errorHandlings>
+    <agreements>
+      <agreement name="agreement1" value="A1" type="T1"/>
+    </agreements>
+    <services>
+      <service name="eftiGateService" value="bdx:noprocess" type="tc1"/>
+      <service name="pingService"
+               value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
+    </services>
+    <actions>
+      <action name="eftiGateAction" value="eftiGateAction"/>
+      <action name="pingAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
+    </actions>
+    <as4>
+      <receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
+      <reliability name="AS4Reliability" replyPattern="response" nonRepudiation="true"/>
+    </as4>
+    <legConfigurations>
+      <legConfiguration name="eftiGateLeg"
+                        service="eftiGateService"
+                        action="eftiGateAction"
+                        defaultMpc="defaultMpc"
+                        reliability="AS4Reliability"
+                        security="eDeliveryAS4Policy"
+                        receptionAwareness="receptionAwareness"
+                        propertySet="eDeliveryPropertySet"
+                        payloadProfile="MessageProfile"
+                        errorHandling="errorHandling"
+                        compressPayloads="true"/>
+      <legConfiguration name="pingServiceCase"
+                        service="pingService"
+                        action="pingAction"
+                        defaultMpc="defaultMpc"
+                        reliability="AS4Reliability"
+                        security="eDeliveryAS4Policy"
+                        receptionAwareness="receptionAwareness"
+                        propertySet="eDeliveryPropertySet"
+                        payloadProfile="MessageProfile"
+                        errorHandling="errorHandling"
+                        compressPayloads="true"/>
+    </legConfigurations>
+    <process name="eftiProcess" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole" mep="oneway"
+             binding="push">
+      <initiatorParties>
+        <initiatorParty name="EU-FI1"/>
+        <initiatorParty name="EU-FI2"/>
+        <initiatorParty name="EU-FI3"/>
+        <initiatorParty name="EU-FR1"/>
+      </initiatorParties>
+      <responderParties>
+        <responderParty name="EU-FI1"/>
+        <responderParty name="EU-FI2"/>
+        <responderParty name="EU-FI3"/>
+        <responderParty name="EU-FR1"/>
+      </responderParties>
+      <legs>
+        <leg name="eftiGateLeg"/>
+        <leg name="pingServiceCase"/>
+      </legs>
+    </process>
+  </businessProcesses>
+  <mpcs>
+    <mpc name="defaultMpc" retention_downloaded="0" retention_undownloaded="14400" retention_sent="-1"
+         retention_metadata_offset="0" delete_message_metadata="false" max_batch_delete="-1" default="true"
+         enabled="true" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"/>
+  </mpcs>
+</domibus:configuration>

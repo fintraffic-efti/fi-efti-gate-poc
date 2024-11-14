@@ -2,56 +2,51 @@
 <consignment
     xmlns="http://efti.eu/v1/consignment/identifier"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://efti.eu/v1/consignment/identifier
-    ../consignment-identifier.xsd">
-  <uil>
-    <gateId>FI</gateId>
-    <platformId>1234</platformId>
-    <datasetId>XXX</datasetId>
-  </uil>
+    xsi:schemaLocation="http://efti.eu/v1/consignment/identifier ../consignment-identifier.xsd">
+
   <!-- eFTI39 -->
-  <carrierAcceptanceDateTime>2024-01-01T00:00:00Z</carrierAcceptanceDateTime>
+  <carrierAcceptanceDateTime formatId="203">202401010000</carrierAcceptanceDateTime>
 
-
-  <deliveryTransportEvent>
+  <deliveryEvent>
     <!-- eFTI188 -->
-    <actualOccurrenceDateTime>2024-01-02T00:00:00Z</actualOccurrenceDateTime>
-  </deliveryTransportEvent>
-
-  <utilizedTransportEquipment>
-    <!-- eFTI378 -->
-    <categoryCode>AE</categoryCode>
-    <!-- eFTI374 -->
-    <identifier>313</identifier>
-
-    <!-- eFTI578 -->
-    <registrationCountry>
-      <id>FI</id>
-    </registrationCountry>
-    <!-- eFTI987 -->
-    <sequenceNumeric>1</sequenceNumeric>
-
-    <carriedTransportEquipment>
-      <!-- eFTI448 -->
-      <identifier>313</identifier>
-      <!-- eFTI1000 -->
-      <sequenceNumeric>1</sequenceNumeric>
-    </carriedTransportEquipment>
-  </utilizedTransportEquipment>
+    <actualOccurrenceDateTime formatId="203">202401020000</actualOccurrenceDateTime>
+  </deliveryEvent>
 
   <mainCarriageTransportMovement>
-    <!-- eFTI581 -->
-    <transportModeCode>3</transportModeCode>
     <!-- eFTI1451 -->
     <dangerousGoodsIndicator>false</dangerousGoodsIndicator>
 
+    <!-- eFTI581 -->
+    <modeCode>3</modeCode>
+
     <usedTransportMeans>
       <!-- eFTI618 -->
-      <identifier>313</identifier>
+      <id>313</id>
       <!-- eFTI620 -->
       <registrationCountry>
-        <id>FI</id>
+        <code>FI</code>
       </registrationCountry>
     </usedTransportMeans>
   </mainCarriageTransportMovement>
+
+  <usedTransportEquipment>
+    <carriedTransportEquipment>
+      <!-- eFTI448 -->
+      <id>313</id>
+      <!-- eFTI1000 -->
+      <sequenceNumber>1</sequenceNumber>
+    </carriedTransportEquipment>
+
+    <!-- eFTI378 -->
+    <categoryCode>AE</categoryCode>
+    <!-- eFTI374 -->
+    <id schemeAgencyId="20">313</id>
+
+    <!-- eFTI578 -->
+    <registrationCountry>
+      <code>FI</code>
+    </registrationCountry>
+    <!-- eFTI987 -->
+    <sequenceNumber>1</sequenceNumber>
+  </usedTransportEquipment>
 </consignment>

@@ -15,9 +15,13 @@
             [fintraffic.efti.schema.consignment :as consignment-schema]
             [fintraffic.efti.schema.subset :as subset]
             [fintraffic.efti.schema.user :as user-schema]
-            [flathead.flatten :as flat])
+            [flathead.flatten :as flat]
+            [tick.core :as tick])
 
-  (:import [java.security KeyStore]))
+  (:import [java.security KeyStore]
+           (java.time ZoneId)
+           (java.time.format DateTimeFormatterBuilder)
+           (java.time.temporal ChronoField)))
 
 (db/require-queries 'consignment)
 
@@ -81,6 +85,25 @@
        (map db->consignment)
        first))
 
+(def instant-format
+  (-> (DateTimeFormatterBuilder.)
+      (.appendPattern "uuuu-MM-dd'T'HH:mm:ss")
+      (.optionalStart)
+      (.appendLiteral \.)
+      (.appendFraction ChronoField/NANO_OF_SECOND, 1, 9, false)
+      (.optionalEnd)
+      (.optionalStart)
+      (.appendOffset "+HH:mm", "Z")
+      (.optionalEnd)
+      (.parseDefaulting ChronoField/NANO_OF_SECOND, 0)
+      .toFormatter
+      (.withZone (ZoneId/of "UTC"))))
+
+(defn parse-instant [txt]
+  (-> txt
+      (tick/parse-zoned-date-time instant-format)
+      tick/instant))
+
 (defn find-consignment-gate [db config query]
   (let [conversation-id (edelivery-service/new-conversation-id db)
         request (edelivery-ws-service/send-find-consignment-message! db config conversation-id query)
@@ -89,7 +112,9 @@
       (exception/throw-ex-info! :timeout (str "Foreign gate " (:gate-id query)
                                               " did not respond within 60s. Request message id: "
                                               (:message-id request)))
-      (let [safe-parse-time (->safe-parser edelivery-service/parse-instant)
+      #_(->> response first :payload xml/parse-str fxml/element->sexp
+             (edelivery-service/xml->consignment query))
+      (let [safe-parse-time (->safe-parser parse-instant)
             resp
             (->> response first :payload xml/parse-str fxml/element->sexp
                  (edelivery-service/xml->consignment query))]
@@ -115,7 +140,7 @@
     ks))
 
 (defn find-platform-consignment [db config query]
-  (let [safe-parse-time (->safe-parser edelivery-service/parse-instant)]
+  (let [safe-parse-time (->safe-parser parse-instant)]
     (when-let [consignment (find-consignment-db db query)]
       (-> (:body (http/get (str (->> consignment :uil :platform-id Long/parseLong
                                      (user-service/find-whoami-by-id db user-schema/Platform)

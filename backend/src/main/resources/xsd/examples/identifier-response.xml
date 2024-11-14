@@ -1,107 +1,113 @@
-<identifierResponse
-    xmlns="http://efti.eu/v1/edelivery"
+<ed:identifierResponse
+    xmlns="http://efti.eu/v1/consignment/identifier"
+    xmlns:ed="http://efti.eu/v1/edelivery"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://efti.eu/v1/edelivery ../edelivery.xsd
-                        http://efti.eu/v1/consignment/identifier ../consignment-identifier.xsd">
+    xsi:schemaLocation="http://efti.eu/v1/edelivery ../edelivery/gate.xsd"
+    status="200">
 
-  <consignment xmlns="http://efti.eu/v1/consignment/identifier">
-    <uil>
-      <gateId>FI</gateId>
-      <platformId>1234</platformId>
-      <datasetId>XXX</datasetId>
-    </uil>
+  <ed:consignment>
     <!-- eFTI39 -->
-    <carrierAcceptanceDateTime>2024-01-01T00:00:00Z</carrierAcceptanceDateTime>
+    <carrierAcceptanceDateTime>202401010000</carrierAcceptanceDateTime>
 
-    <deliveryTransportEvent>
+    <deliveryEvent>
       <!-- eFTI188 -->
-      <actualOccurrenceDateTime>2024-01-02T00:00:00Z</actualOccurrenceDateTime>
-    </deliveryTransportEvent>
+      <actualOccurrenceDateTime>202401020000</actualOccurrenceDateTime>
+    </deliveryEvent>
 
-    <utilizedTransportEquipment>
-      <!-- eFTI378 -->
-      <categoryCode>AE</categoryCode>
-      <!-- eFTI374 -->
-      <identifier>313</identifier>
 
-      <!-- eFTI578 -->
-      <registrationCountry>
-        <id>FI</id>
-      </registrationCountry>
-      <!-- eFTI987 -->
-      <sequenceNumeric>1</sequenceNumeric>
+    <mainCarriageTransportMovement>
+      <!-- eFTI1451 -->
+      <dangerousGoodsIndicator>false</dangerousGoodsIndicator>
 
+      <!-- eFTI581 -->
+      <modeCode>3</modeCode>
+
+
+      <usedTransportMeans>
+        <!-- eFTI618 -->
+        <id>313</id>
+        <!-- eFTI620 -->
+        <registrationCountry>
+          <code>FI</code>
+        </registrationCountry>
+      </usedTransportMeans>
+    </mainCarriageTransportMovement>
+
+    <usedTransportEquipment>
       <carriedTransportEquipment>
         <!-- eFTI448 -->
-        <identifier>313</identifier>
+        <id>313</id>
         <!-- eFTI1000 -->
-        <sequenceNumeric>1</sequenceNumeric>
+        <sequenceNumber>1</sequenceNumber>
       </carriedTransportEquipment>
-    </utilizedTransportEquipment>
 
-
-    <mainCarriageTransportMovement>
-      <!-- eFTI581 -->
-      <transportModeCode>3</transportModeCode>
-      <!-- eFTI1451 -->
-      <dangerousGoodsIndicator>false</dangerousGoodsIndicator>
-
-      <usedTransportMeans>
-        <!-- eFTI618 -->
-        <identifier>313</identifier>
-        <!-- eFTI620 -->
-        <registrationCountry>
-          <id>FI</id>
-        </registrationCountry>
-      </usedTransportMeans>
-    </mainCarriageTransportMovement>
-  </consignment>
-
-  <consignment xmlns="http://efti.eu/v1/consignment/identifier">
-    <uil>
-      <gateId>FI</gateId>
-      <platformId>1234</platformId>
-      <datasetId>YYY</datasetId>
-    </uil>
-    <!-- eFTI39 -->
-    <carrierAcceptanceDateTime>2024-02-01T00:00:00Z</carrierAcceptanceDateTime>
-
-
-    <deliveryTransportEvent>
-      <!-- eFTI188 -->
-      <actualOccurrenceDateTime>2024-02-02T00:00:00Z</actualOccurrenceDateTime>
-    </deliveryTransportEvent>
-
-    <utilizedTransportEquipment>
       <!-- eFTI378 -->
       <categoryCode>AE</categoryCode>
       <!-- eFTI374 -->
-      <identifier>111</identifier>
+      <id>313</id>
 
       <!-- eFTI578 -->
       <registrationCountry>
-        <id>FI</id>
+        <code>FI</code>
       </registrationCountry>
       <!-- eFTI987 -->
-      <sequenceNumeric>1</sequenceNumeric>
-    </utilizedTransportEquipment>
+      <sequenceNumber>1</sequenceNumber>
+    </usedTransportEquipment>
 
+    <ed:uil>
+      <ed:gateId>FI</ed:gateId>
+      <ed:platformId>1234</ed:platformId>
+      <ed:datasetId>XXX</ed:datasetId>
+    </ed:uil>
+  </ed:consignment>
+
+  <ed:consignment>
+    <!-- eFTI39 -->
+    <carrierAcceptanceDateTime>202402010000</carrierAcceptanceDateTime>
+
+
+    <deliveryEvent>
+      <!-- eFTI188 -->
+      <actualOccurrenceDateTime>202402020000+0000</actualOccurrenceDateTime>
+    </deliveryEvent>
 
     <mainCarriageTransportMovement>
-      <!-- eFTI581 -->
-      <transportModeCode>3</transportModeCode>
       <!-- eFTI1451 -->
       <dangerousGoodsIndicator>false</dangerousGoodsIndicator>
+      <!-- eFTI581 -->
+      <modeCode>3</modeCode>
+
 
       <usedTransportMeans>
         <!-- eFTI618 -->
-        <identifier>222</identifier>
+        <id>222</id>
         <!-- eFTI620 -->
         <registrationCountry>
-          <id>FI</id>
+          <code>FI</code>
         </registrationCountry>
       </usedTransportMeans>
     </mainCarriageTransportMovement>
-  </consignment>
 
-</identifierResponse>
+    <usedTransportEquipment>
+      <!-- eFTI378 -->
+      <categoryCode>AE</categoryCode>
+      <!-- eFTI374 -->
+      <id>111</id>
+
+      <!-- eFTI578 -->
+      <registrationCountry>
+        <code>FI</code>
+      </registrationCountry>
+      <!-- eFTI987 -->
+      <sequenceNumber>1</sequenceNumber>
+    </usedTransportEquipment>
+
+
+    <ed:uil>
+      <ed:gateId>FI</ed:gateId>
+      <ed:platformId>1234</ed:platformId>
+      <ed:datasetId>YYY</ed:datasetId>
+    </ed:uil>
+  </ed:consignment>
+
+</ed:identifierResponse>

@@ -40,7 +40,6 @@ services:
 
   mock-platform:
     build: ../mock-platform
-    restart: always
     ports:
       - '127.0.0.1:8091:8091'
     volumes:
@@ -73,7 +72,6 @@ services:
       - "127.0.0.1:8443:8443"
     extra_hosts:
       - "host.containers.internal:host-gateway"
-    restart: on-failure
     mem_limit: 1500m
 
   edelivery-db-fi1:
@@ -86,7 +84,6 @@ services:
     command:
       - "--character-set-server=utf8mb4"
       - "--collation-server=utf8mb4_bin"
-    restart: on-failure
     mem_limit: 512m
 
   edelivery-ap-fi2:
@@ -112,7 +109,6 @@ services:
       - DOMIBUS_AUTH_UNSECURELOGINALLOWED=true
     ports:
       - "127.0.0.1:8444:8443"
-    restart: on-failure
     mem_limit: 1500m
 
   edelivery-db-fi2:
@@ -125,7 +121,6 @@ services:
     command:
       - "--character-set-server=utf8mb4"
       - "--collation-server=utf8mb4_bin"
-    restart: on-failure
     mem_limit: 512m
 
   gate-fi2:
@@ -133,6 +128,52 @@ services:
     env_file: gate-fi2.env
     extra_hosts:
       - "host.containers.internal:host-gateway"
+
+  edelivery-ap-fi3:
+    image: efti/harmony:latest
+    profiles: [test-fest]
+    depends_on:
+      - edelivery-db-fi3
+    env_file:
+      - harmony/fi3/.env
+    environment:
+      - DB_HOST=edelivery-db-fi3
+      - DB_SCHEMA=harmony_ap
+      - DB_PASSWORD=efti
+      - ADMIN_PASSWORD=efti
+      - EFTI_PMODE_ADMIN_PASSWORD=efti_pmode
+      - DOMIBUS_PLUGIN_PASSWORDPOLICY_PATTERN=^.+$
+      - USE_DYNAMIC_DISCOVERY=false
+      - PARTY_NAME=eu-fi3
+      - SERVER_FQDN=edelivery-ap-fi3
+      - SECURITY_KEYSTORE_PASSWORD=efti
+      - SECURITY_TRUSTSTORE_PASSWORD=changeit
+      - TLS_KEYSTORE_PASSWORD=efti
+      - TLS_TRUSTSTORE_PASSWORD=changeit
+      - DOMIBUS_AUTH_UNSECURELOGINALLOWED=true
+      - EXTERNAL_LB=true
+    ports:
+      - "127.0.0.1:8443:8080"
+      - "192.168.0.105:8443:8080"
+    extra_hosts:
+      - "host.containers.internal:host-gateway"
+      - "eu-fi1.efti.eu:192.168.0.104"
+      - "eu-fi2.efti.eu:192.168.0.101"
+      - "domibus.fr:192.168.0.102"
+    mem_limit: 1500m
+
+  edelivery-db-fi3:
+    image: mysql:8
+    profiles: [test-fest]
+    environment:
+      - MYSQL_ROOT_PASSWORD=efti
+      - MYSQL_DATABASE=harmony_ap
+      - MYSQL_USER=harmony_ap
+      - MYSQL_PASSWORD=efti
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_bin"
+    mem_limit: 512m
 
 volumes:
   data:

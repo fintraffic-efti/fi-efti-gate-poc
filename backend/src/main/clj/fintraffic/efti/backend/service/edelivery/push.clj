@@ -1,6 +1,8 @@
 (ns fintraffic.efti.backend.service.edelivery.push
   (:require
     [clojure.data.xml :as xml]
+    [fintraffic.common.debug :as debug]
+    [fintraffic.common.logic :as logic]
     [fintraffic.common.maybe :as maybe]
     [fintraffic.common.xml :as fxml]
     [fintraffic.common.xpath :as xpath]
@@ -12,6 +14,7 @@
     [fintraffic.efti.schema.edelivery.message-direction :as message-direction]
     [fintraffic.efti.schema.edelivery.message-type :as message-type]
     [malli.core :as malli]
+    [malli.transform :as malli-transform]
     [ring.util.codec :as ring-codec])
   (:import (java.nio.charset StandardCharsets)))
 
@@ -32,7 +35,19 @@
      :content-type "/soap:Envelope/soap:Body/eu:submitRequest/payload/@mimeType"}
     namespaces))
 
-(def coerce (malli/coercer (schema/schema edelivery-schema/Message) edelivery/transformer))
+(def transformer
+  (malli-transform/transformer
+    (malli-transform/default-value-transformer
+      ;; Add missing maybe-keys with nil values
+      {:defaults {:maybe (constantly nil)}})
+    {:name :edelivery
+     :decoders
+     (assoc (malli-transform/-string-decoders)
+       'inst? (logic/when* string? consignment-service/parse-instant))
+     :encoders
+     (malli-transform/-string-encoders)}))
+
+(def coerce (malli/coercer (schema/schema edelivery-schema/Message) transformer))
 
 (defn submit-response [message-id]
   [::soap/Envelope [::soap/Body [::eu/submitResponse [:messageID message-id]]]])
@@ -68,5 +83,5 @@
   (-> input fxml/parse xml->message
       (update :payload (comp bytes->string ring-codec/base64-decode))
       (assoc :direction-id message-direction/in)
-      coerce (process-request db config)
+      coerce debug/log (process-request db config)
       :message-id submit-response xml/sexp-as-element xml/emit-str))
