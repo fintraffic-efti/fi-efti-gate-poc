@@ -83,5 +83,5 @@
   (-> input fxml/parse xml->message
       (update :payload (comp bytes->string ring-codec/base64-decode))
       (assoc :direction-id message-direction/in)
-      coerce debug/log (process-request db config)
+      coerce (process-request db config)
       :message-id submit-response xml/sexp-as-element xml/emit-str))

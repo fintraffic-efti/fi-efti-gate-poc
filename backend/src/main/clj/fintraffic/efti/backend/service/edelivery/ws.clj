@@ -61,7 +61,7 @@
 (def message-id (xpath/compile-fn "/soap:Envelope/soap:Body/eu:submitResponse/messageID/text()" namespaces))
 
 (defn post-request [xml]
-  {:body (-> xml xml/sexp-as-element xml/emit-str debug/log)
+  {:body (-> xml xml/sexp-as-element xml/emit-str)
    :content-type "application/soap+xml;charset=UTF-8"
    :insecure? true
    :as :stream})

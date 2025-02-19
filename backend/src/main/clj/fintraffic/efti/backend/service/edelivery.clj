@@ -230,7 +230,6 @@
 
 (defn consignment->ed-consignment [consignment]
   (as-> consignment $
-        (debug/log $)
         (dissoc $ :id)
         (rename-properties-object
           (logic/when* #(= :identifier %) (constantly :id)) $)
@@ -247,19 +246,17 @@
           $)))
 
 (defn identifier-response [consignments]
-  (debug/log
-    (clj->xmlstring eu.efti.v1.edelivery.IdentifierResponse
-                    (rename-properties-object
-                      csk/->camelCaseKeyword
-                      {:status       200
-                       :consignments (mapv consignment->ed-consignment consignments)}))))
+  (clj->xmlstring eu.efti.v1.edelivery.IdentifierResponse
+                  (rename-properties-object
+                    csk/->camelCaseKeyword
+                    {:status       200
+                     :consignments (mapv consignment->ed-consignment consignments)})))
 
 (def coerce-consignment
   (malli/coercer (schema/schema consignment-schema/Consignment) transformer))
 
 (defn ed-consignment->consignment [consignment]
   (->> consignment
-       debug/log
        (walk/postwalk
          (logic/when* (every-pred map-entry? #(-> % first (= :registration-country)))
                       (fn [[key country]] [key (set/rename-keys country {:code :id})])))
@@ -280,13 +277,12 @@
       (cond-> (subset/identifier? query) ed-consignment->consignment)))
 
 (defn uil-query->xml [query request-id]
-  (debug/log
-    (clj->xmlstring eu.efti.v1.edelivery.UILQuery
-                    (rename-properties-object
-                      csk/->camelCaseKeyword
-                      {:request-id request-id
-                       :subset-id  (:subset-id query)
-                       :uil        (dissoc query :subset-id)}))))
+  (clj->xmlstring eu.efti.v1.edelivery.UILQuery
+                  (rename-properties-object
+                    csk/->camelCaseKeyword
+                    {:request-id request-id
+                     :subset-id  (:subset-id query)
+                     :uil        (dissoc query :subset-id)})))
 
 (defn xml->uil-query [xml]
   (let [query (xml->object xml)]
